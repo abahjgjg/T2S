@@ -1,0 +1,11 @@
+{
+  "name": "TrendVentures AI",
+  "description": "An AI-powered market intelligence suite that generates business blueprints from real-time news and trends. Features include live Google Search grounding, native voice pitch practice, and visual branding tools.",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}

@@ -1,0 +1,179 @@
+
+export interface Trend {
+  title: string;
+  description: string;
+  relevanceScore: number;
+  triggerEvent: string; // Specific news headline or event
+  date?: string; // New: Date of the event or news
+  sources: { title: string; url: string }[];
+  growthScore?: number; // Velocity/Hype (0-100)
+  impactScore?: number; // Market Size/Potential (0-100)
+  sentiment?: 'Positive' | 'Negative' | 'Neutral'; // New: Top-level sentiment
+  deepDive?: TrendDeepDive; // Cached deep dive analysis
+}
+
+export interface TrendDeepDive {
+  summary: string;
+  sentiment: 'Positive' | 'Negative' | 'Neutral';
+  keyEvents: { date: string; title: string; url?: string }[];
+  futureOutlook: string; // Prediction for next 3-6 months
+  actionableTips: string[]; // Strategic moves for entrepreneurs
+  suggestedQuestions?: string[]; // New: AI-suggested follow-up questions for the chat
+}
+
+export interface CompetitorAnalysis {
+  name: string;
+  website?: string;
+  marketPosition: string; // e.g. "Premium Incumbent", "Low-cost disruptor"
+  pricingStrategy: string;
+  strengths: string[];
+  weaknesses: string[];
+}
+
+export interface PlaceInfo {
+  title: string;
+  address: string;
+  uri: string;
+}
+
+export interface LocationAnalysis {
+  summary: string;
+  places: PlaceInfo[];
+}
+
+export interface BusinessIdea {
+  id: string;
+  name: string;
+  type: 'SaaS' | 'Agency' | 'Content' | 'E-commerce' | 'Platform';
+  description: string;
+  monetizationModel: string;
+  difficulty: 'Low' | 'Medium' | 'High';
+  potentialRevenue: string;
+  rationale: string;
+  competitors?: string[]; // New field: List of existing players in this space
+  cachedBlueprint?: Blueprint; // If present, no AI generation needed
+}
+
+export interface AffiliateProduct {
+  id: string;
+  name: string;
+  affiliateUrl: string;
+  description: string;
+  keywords: string[]; // e.g. ["hosting", "vps", "database"]
+  clicks?: number; // Analytics tracking
+}
+
+export interface AgentProfile {
+  role: string; // e.g. "SEO Specialist"
+  name: string; // e.g. "Atlas"
+  objective: string; // Short description of responsibility
+  systemPrompt: string; // The actual prompt to copy-paste into an LLM
+  recommendedTools: string[]; // e.g. "Google Search Console", "Python"
+}
+
+export interface SWOTAnalysis {
+  strengths: string[];
+  weaknesses: string[];
+  opportunities: string[];
+  threats: string[];
+}
+
+export interface Blueprint {
+  executiveSummary: string;
+  targetAudience: string;
+  technicalStack: string[];
+  marketingStrategy: string[];
+  revenueStreams: Array<{ name: string; projected: number }>;
+  roadmap: Array<{ phase: string; tasks: string[] }>;
+  fullContentMarkdown: string;
+  affiliateRecommendations?: AffiliateProduct[]; // Injected by system
+  agents?: AgentProfile[]; // AI Workforce
+  brandImageUrl?: string; // New: Generated Logo/Brand Concept
+  marketingVideoUrl?: string; // New: Generated Veo Video
+  swot?: SWOTAnalysis; // New: Strategic analysis
+  roadmapProgress?: Record<string, boolean>; // New: Track completed tasks { "Task Name": true }
+}
+
+export interface SavedProject {
+  id: string;
+  timestamp: number;
+  niche: string;
+  idea: BusinessIdea;
+  blueprint: Blueprint;
+  user_id?: string; // Optional for cloud saves
+}
+
+export interface PublishedBlueprint {
+  id: string;
+  created_at: string;
+  niche: string;
+  title: string;
+  summary: string;
+  full_data: {
+    idea: BusinessIdea;
+    blueprint: Blueprint;
+  };
+  votes?: number; // Added field for community upvotes
+  user_id?: string; // ID of the user who published this
+}
+
+export interface Lead {
+  id: string;
+  blueprintId: string;
+  email: string;
+  createdAt: string;
+  sourceTitle?: string; // Optional: title of the idea they subscribed to
+}
+
+export interface Comment {
+  id: string;
+  blueprint_id: string;
+  author_name: string;
+  content: string;
+  created_at: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  content: string;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+}
+
+export type AppState = 'IDLE' | 'RESEARCHING' | 'ANALYZING' | 'BLUEPRINTING' | 'VIEWING' | 'VIEWING_PUBLIC' | 'DIRECTORY' | 'ADMIN' | 'DASHBOARD';
+
+export interface SearchState {
+  niche: string;
+  trends: Trend[];
+  ideas: BusinessIdea[];
+  selectedIdea: BusinessIdea | null;
+  currentBlueprint: Blueprint | null;
+  error: string | null;
+}
+
+export type Language = 'id' | 'en';
+
+export type AIProvider = 'gemini' | 'openai';
+
+export type SearchRegion = 'Global' | 'Indonesia' | 'USA' | 'Europe' | 'Asia';
+
+export type SearchTimeframe = '24h' | '7d' | '30d' | '90d';
+
+export interface AIService {
+  fetchMarketTrends(niche: string, lang: Language, region?: SearchRegion, timeframe?: SearchTimeframe): Promise<Trend[]>;
+  getTrendDeepDive(trend: string, niche: string, lang: Language): Promise<TrendDeepDive>;
+  generateBusinessIdeas(niche: string, trends: Trend[], lang: Language): Promise<BusinessIdea[]>;
+  generateSystemBlueprint(idea: BusinessIdea, lang: Language): Promise<Blueprint>;
+  generateVoiceSummary(text: string, lang: Language): Promise<string | null>; // Returns Base64 string or null if not supported
+  sendBlueprintChat(history: ChatMessage[], newMessage: string, context: Blueprint, lang: Language): Promise<{ text: string; updates?: Partial<Blueprint> }>;
+  generateTeamOfAgents(blueprint: Blueprint, lang: Language): Promise<AgentProfile[]>;
+  chatWithAgent(history: ChatMessage[], newMessage: string, agent: AgentProfile, lang: Language): Promise<string>;
+  chatWithResearchAnalyst(history: ChatMessage[], newMessage: string, niche: string, trends: Trend[], lang: Language): Promise<string>; 
+  generateBrandImage(ideaName: string, description: string, style: string): Promise<string | null>; // Returns Base64 string of image
+  generateMarketingVideo(ideaName: string, description: string, lang: Language): Promise<Blob | null>; // Returns Blob (for persistence) or null
+  analyzeCompetitor(name: string, niche: string, lang: Language): Promise<CompetitorAnalysis>;
+  scoutLocation(businessType: string, location: string, lang: Language): Promise<LocationAnalysis>;
+}

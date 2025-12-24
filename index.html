@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Default SEO / Open Graph Tags -->
+    <title>TrendVentures AI</title>
+    <meta name="description" content="AI-powered market intelligence suite that generates business blueprints and revenue models." />
+    <meta property="og:title" content="TrendVentures AI" />
+    <meta property="og:description" content="AI-powered market intelligence suite that generates business blueprints." />
+    <meta property="og:image" content="https://placehold.co/1200x630/0f172a/10b981?text=TrendVentures+AI&font=roboto" />
+    <meta property="og:url" content="https://trendventures.ai" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['Fira Code', 'monospace'],
+            },
+            keyframes: {
+              shimmer: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(300%)' }
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' }
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' }
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-100%)' }
+              }
+            },
+            animation: {
+              shimmer: 'shimmer 2s infinite linear',
+              marquee: 'marquee 30s linear infinite',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap');
+      
+      /* Custom scrollbar for dark theme */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569; 
+      }
+
+      @media print {
+        body {
+          background-color: white !important;
+          color: black !important;
+        }
+        header {
+          display: none !important;
+        }
+        /* Hide scrollbars in print */
+        ::-webkit-scrollbar {
+          display: none;
+        }
+        /* Improve typography for print */
+        .prose-invert {
+          --tw-prose-body: #000 !important;
+          --tw-prose-headings: #000 !important;
+          --tw-prose-links: #000 !important;
+          --tw-prose-bold: #000 !important;
+          --tw-prose-counters: #000 !important;
+          --tw-prose-bullets: #000 !important;
+          --tw-prose-hr: #000 !important;
+          --tw-prose-quotes: #000 !important;
+          --tw-prose-quote-borders: #000 !important;
+          --tw-prose-captions: #000 !important;
+          --tw-prose-code: #000 !important;
+          --tw-prose-pre-code: #000 !important;
+          --tw-prose-pre-bg: #fff !important;
+          --tw-prose-th-borders: #000 !important;
+          --tw-prose-td-borders: #000 !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.86.2",
+    "zod": "https://aistudiocdn.com/zod@^3.24.1",
+    "@tanstack/react-query": "https://esm.sh/@tanstack/react-query@5?external=react,react-dom"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-950">
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+
+import { Language } from "../../types";
+import { retryOperation } from "../../utils/retryUtils";
+import { OPENAI_MODELS } from "../../constants/aiConfig";
+
+export const API_KEY = process.env.API_KEY;
+
+export const getLanguageInstruction = (lang: Language) => {
+  return lang === 'id' 
+    ? "Provide all content values in Indonesian language (Bahasa Indonesia). However, KEEP THE JSON KEYS in English."
+    : "Provide all content in English.";
+};
+
+export interface OpenAIMessage {
+  role: string;
+  content: string | null;
+  tool_calls?: any[];
+}
+
+export interface OpenAIOptions {
+  tools?: any[];
+  tool_choice?: any;
+  response_format?: any;
+}
+
+export const callOpenAI = async (
+  messages: any[], 
+  model: string = OPENAI_MODELS.BASIC,
+  options: OpenAIOptions = {}
+): Promise<OpenAIMessage> => {
+  if (!API_KEY) throw new Error("API Key not configured");
+  
+  return retryOperation(async () => {
+    const body: any = {
+      model,
+      messages,
+      temperature: 0.7,
+      ...options
+    };
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errorObj = new Error(`OpenAI Error: ${err.error?.message || response.statusText}`);
+      // Attach status so retry logic works correctly (e.g. 429 vs 400)
+      (errorObj as any).status = response.status; 
+      throw errorObj;
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message || { role: "assistant", content: "" };
+  });
+};
