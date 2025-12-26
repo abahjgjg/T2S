@@ -1,5 +1,4 @@
 
-
 # Agent Context & Decisions
 
 ## Context
@@ -11,6 +10,8 @@ The goal is to help users generate "Money-Making Systems" (Business Blueprints) 
 2. **MEDIA HANDLING**: Do **NOT** store large media assets (Video/Images) in LocalStorage or React State as Base64. Use `Blob` URLs for temporary display or upload to Cloud Storage.
 3. **AUTH VALIDATION**: Do **NOT** rely on LocalStorage for permission checks (Admin access). Always verify permissions against the auth provider (Supabase) server-side or via RLS.
 4. **MARKDOWN RENDERING**: Do **NOT** use `ReactMarkdown` directly in any component. Always use the `SafeMarkdown` component to ensure XSS protection (protocol whitelisting) and consistent styling.
+5. **TESTING MANDATE**: Any new logic added to `services/` or `utils/` MUST have a corresponding `.test.ts` file. **Complex Custom Hooks (e.g., Engines) MUST have integration tests.**
+6. **AUDIO STABILITY**: Changes to `audioUtils.ts` MUST be verified against the unit test suite to prevent breaking the Live API PCM stream format.
 
 ## Architecture Decisions
 - **Live API Integration**: 
@@ -58,3 +59,7 @@ The application is now a fully capable **Affiliate Marketing Generator** with **
 - **Cloud Storage**: Relying on `saved_projects` table. If the user hosting this app has not created this table in Supabase, the feature will gracefully degrade (show error message) while keeping local storage functional.
 - **Admin Security**: The current Admin Owner check relies on LocalStorage for the "Authorized Email" configuration. Clearing browser data will reset the owner, allowing a new claim. In a production environment, this authorized email list should be stored in a secured Supabase table with RLS.
 - **LocalStorage Limits**: Storing multiple Base64 images may hit the 5MB LocalStorage limit. The app has a try-catch block to warn users, but heavy usage requires Cloud saving.
+
+## Audit Updates (Phase 2)
+- **Compliance**: Added Hook Testing mandate.
+- **Action**: `useTrendEngine.test.tsx` implemented.

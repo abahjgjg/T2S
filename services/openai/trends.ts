@@ -73,5 +73,7 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
       }
    `;
    const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
-   return JSON.parse(cleanJsonOutput(response.content || "{}"));
+   const result = JSON.parse(cleanJsonOutput(response.content || "{}"));
+   
+   return { ...result, provider: 'openai' };
 };

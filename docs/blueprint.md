@@ -13,13 +13,21 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
   - `useBlueprintMedia`: Handles generation of logos and Veo videos.
 - **Components**:
   - `BlueprintView` serves as an orchestration container.
-  - **Atomic Sub-components**: `BlueprintCompetitors`, `BlueprintAffiliates`, `BlueprintStrategies` (extracted for modularity).
+  - **Atomic Sub-components**: `BlueprintCompetitors`, `BlueprintAffiliates`, `BlueprintStrategies`, `BlueprintAgents` (upgraded).
   - **Research UI**: `TrendSearch` now supports **Region-Aware** searching and displays **Live Date Context** to ensure users know the AI is operating in "Now" time.
 - **Data Layer**: 
-  - **Modular Supabase Service**: Split into `auth`, `projects`, `community`, and `admin` modules for scalability.
-  - **Storage**: Hybrid model using Supabase (PostgreSQL) with LocalStorage fallback.
+  - **Modular Supabase Service**: Split into `auth`, `projects`, `community`, `admin`, and **`storage`** modules for scalability.
+  - **Storage**: Hybrid model.
+    - Structured Data: Supabase (PostgreSQL) + LocalStorage (Cache).
+    - Media Assets: **Supabase Storage** (Public Buckets) with **IndexedDB** Fallback (Offline).
+  - **Database Schema**: Defined in `supabase/schema.sql` with strict Row Level Security (RLS) policies.
 - **AI Layer**: Client-side Service Adapter Pattern (`geminiService` / `openaiService`) with **Zod Schema Validation**.
 - **Config**: Dynamic System Prompts via `PromptService` (Admin Override).
+
+## New Feature: Agent Workflows
+- **Work Mode**: Users can delegate specific tasks to AI agents directly from the UI.
+- **Customization**: Agents can be edited (name, role, system prompt) or manually added to the team.
+- **Integration**: Task execution utilizes the existing Chat interface but initializes with a specific task context.
 
 ## Security & Hardening (New)
 - **Input Validation**: `securityUtils` sanitizes all user inputs (Niche search) to prevent buffer overflows and basic prompt injection.
@@ -27,6 +35,7 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
   - `retryOperation` handles transient API failures.
   - `liveService` sanitized to follow strict `@google/genai` guidelines (Transcription Config).
 - **Standard Standards**: Adheres to basic OWASP client-side security practices (Sanitization, Validation).
+- **RLS Policies**: Admin-only write access for Affiliates/Leads. Owner-only access for `saved_projects`.
 
 ## Data Flow
 1. **User Input (Niche + Region)** -> **Sanitization** -> `useTrendEngine` (Fetch).
@@ -43,7 +52,7 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
 
 ## Known Limitations
 1. **Security**: Client-side API calls expose keys. (See `bug.md`).
-2. **Storage**: Heavy media uses Base64, risking LocalStorage quotas.
+2. **Storage**: Heavy media uses Base64, risking LocalStorage quotas. (Mitigated by IndexedDB/Cloud Storage).
 3. **State**: Modularized hooks have reduced complexity, but heavy re-renders may still occur in the main `App` component due to shared state lifting.
 
 ## Admin System

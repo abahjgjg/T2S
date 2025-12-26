@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 // --- Trend Schemas ---
@@ -25,7 +24,8 @@ export const TrendDeepDiveSchema = z.object({
   })),
   futureOutlook: z.string(),
   actionableTips: z.array(z.string()),
-  suggestedQuestions: z.array(z.string()).optional() 
+  suggestedQuestions: z.array(z.string()).optional(),
+  provider: z.enum(['gemini', 'openai']).optional() // Added field
 });
 
 // --- Idea Schemas ---
@@ -64,7 +64,19 @@ export const BlueprintSchema = z.object({
     threats: z.array(z.string())
   }),
   fullContentMarkdown: z.string(),
-  roadmapProgress: z.record(z.boolean()).optional(),
+  roadmapProgress: z.record(z.string(), z.boolean()).optional(),
+});
+
+// --- Audit Schemas ---
+export const ViabilityAuditSchema = z.object({
+  overallScore: z.number(),
+  dimensions: z.array(z.object({
+    name: z.string(),
+    score: z.number(),
+    comment: z.string()
+  })),
+  hardTruths: z.array(z.string()),
+  pivotSuggestions: z.array(z.string())
 });
 
 // --- Agent Schemas ---
@@ -73,7 +85,8 @@ export const AgentProfileSchema = z.object({
   name: z.string(),
   objective: z.string(),
   systemPrompt: z.string(),
-  recommendedTools: z.array(z.string())
+  recommendedTools: z.array(z.string()),
+  suggestedTasks: z.array(z.string()).optional()
 });
 
 export const AgentProfileListSchema = z.array(AgentProfileSchema);

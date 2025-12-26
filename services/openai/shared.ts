@@ -11,14 +11,41 @@ export const getLanguageInstruction = (lang: Language) => {
     : "Provide all content in English.";
 };
 
+export interface OpenAIToolCall {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
 export interface OpenAIMessage {
   role: string;
   content: string | null;
-  tool_calls?: any[];
+  tool_calls?: OpenAIToolCall[];
+}
+
+export interface OpenAIToolDefinition {
+  type: 'function';
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
 }
 
 export interface OpenAIOptions {
-  tools?: any[];
+  tools?: OpenAIToolDefinition[];
+  tool_choice?: 'auto' | 'none' | 'required' | { type: 'function'; function: { name: string } };
+  response_format?: { type: 'json_object' | 'text' };
+}
+
+interface OpenAIRequestBody {
+  model: string;
+  messages: any[];
+  temperature?: number;
+  tools?: OpenAIToolDefinition[];
   tool_choice?: any;
   response_format?: any;
 }
@@ -31,7 +58,7 @@ export const callOpenAI = async (
   if (!API_KEY) throw new Error("API Key not configured");
   
   return retryOperation(async () => {
-    const body: any = {
+    const body: OpenAIRequestBody = {
       model,
       messages,
       temperature: 0.7,

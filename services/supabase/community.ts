@@ -6,6 +6,18 @@ const VOTES_STORAGE_KEY = 'trendventures_votes_v1';
 
 // --- Public Blueprints ---
 
+interface PublishPayload {
+  niche: string;
+  title: string;
+  summary: string;
+  full_data: {
+    idea: BusinessIdea;
+    blueprint: Blueprint;
+  };
+  votes: number;
+  user_id?: string;
+}
+
 export const publishBlueprint = async (niche: string, idea: BusinessIdea, blueprint: Blueprint, userId?: string): Promise<string | null> => {
   if (!supabase) return null; // Fail silently if not configured
 
@@ -21,7 +33,7 @@ export const publishBlueprint = async (niche: string, idea: BusinessIdea, bluepr
     return existing[0].id;
   }
 
-  const payload: any = { 
+  const payload: PublishPayload = { 
     niche, 
     title: idea.name,
     summary: blueprint.executiveSummary,

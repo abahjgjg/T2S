@@ -7,6 +7,7 @@ import { BlueprintView } from './components/BlueprintView';
 import { ToastNotifications } from './components/ToastNotifications'; // Import Toast
 import { getAIService } from './services/aiRegistry';
 import { supabaseService } from '../services/supabaseService';
+import { promptService } from './services/promptService'; // Import PromptService
 import { SavedProject, PublishedBlueprint, Language, AIProvider, SearchRegion, SearchTimeframe } from './types';
 import { XCircle, Loader2 } from 'lucide-react';
 import { TRANSLATIONS } from './constants/translations';
@@ -68,7 +69,7 @@ const App: React.FC = () => {
   // SEO
   useMetaTags(
     "TrendVentures AI | Market Research Suite",
-    "Generate comprehensive business blueprints and revenue models from real-time market trends.",
+    "Generate comprehensive business blueprints and revenue models from real-time news and trends.",
     "https://placehold.co/1200x630/0f172a/10b981?text=TrendVentures+AI&font=roboto",
     window.location.href
   );
@@ -166,6 +167,9 @@ const App: React.FC = () => {
       setSavedProjects(projects || []);
     };
     loadProjects();
+
+    // Trigger Cloud Prompt Sync
+    promptService.syncWithCloud();
 
     handleRouting(true);
   }, []); 

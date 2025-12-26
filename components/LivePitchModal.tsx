@@ -122,6 +122,9 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, uiTe
            <div 
              key={persona.id}
              onClick={() => setSelectedPersona(persona)}
+             role="button"
+             tabIndex={0}
+             onKeyDown={(e) => e.key === 'Enter' && setSelectedPersona(persona)}
              className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-4 ${
                selectedPersona.id === persona.id 
                ? 'bg-emerald-900/20 border-emerald-500 ring-1 ring-emerald-500/50' 
@@ -242,6 +245,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, uiTe
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-slate-500 hover:text-white rounded-full hover:bg-slate-800 transition-colors z-10"
+          aria-label="Close Live Session"
         >
           <X className="w-5 h-5" />
         </button>

@@ -24,6 +24,10 @@ export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showRe
       <div 
         className="flex items-center gap-2 text-emerald-400 cursor-pointer group" 
         onClick={onReset}
+        role="button"
+        tabIndex={0}
+        aria-label="Go to Home / Reset"
+        onKeyDown={(e) => e.key === 'Enter' && onReset()}
       >
         <div className="bg-slate-900/50 p-2 rounded-lg border border-white/5 group-hover:border-emerald-500/30 transition-colors">
            <TrendingUp className="w-6 h-6" />
@@ -41,6 +45,7 @@ export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showRe
           <button 
             onClick={onOpenDirectory}
             className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-blue-400 transition-all text-xs font-bold"
+            aria-label="Discover Blueprints"
           >
             <Compass className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{uiText.discover || "Discover"}</span>
@@ -49,6 +54,7 @@ export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showRe
           <button 
             onClick={onOpenLibrary}
             className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-emerald-400 transition-all text-xs font-bold"
+            aria-label="Open Library"
           >
             <BookMarked className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{uiText.library}</span>
@@ -61,6 +67,7 @@ export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showRe
             <button 
               onClick={onReset}
               className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors text-xs font-bold border border-slate-700 shadow-sm"
+              aria-label="Start New Research"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{uiText.newResearch}</span>
@@ -74,6 +81,7 @@ export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showRe
               onClick={onOpenAdmin}
               className="p-2 rounded-lg text-slate-500 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
               title="Admin Panel"
+              aria-label="Open Admin Panel"
             >
               <Shield className="w-3.5 h-3.5" />
             </button>
@@ -87,6 +95,7 @@ export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showRe
                 : 'bg-slate-800 text-slate-300 hover:text-white'
               }`}
               title={user ? "Go to Dashboard" : "Log In"}
+              aria-label={user ? "Open Dashboard" : "Log In"}
             >
               {user ? <LayoutDashboard className="w-3.5 h-3.5" /> : <LogIn className="w-3.5 h-3.5" />}
               {user ? <span className="max-w-[80px] truncate hidden sm:inline">Dashboard</span> : <span className="hidden sm:inline">Login</span>}
@@ -94,16 +103,20 @@ export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showRe
           </div>
 
           {/* Language Switcher */}
-          <div className="flex items-center bg-slate-900/50 border border-white/5 rounded-xl p-1">
+          <div className="flex items-center bg-slate-900/50 border border-white/5 rounded-xl p-1" role="group" aria-label="Language Selection">
             <button 
               onClick={() => setLanguage('id')}
               className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500 hover:text-white'}`}
+              aria-label="Switch to Indonesian"
+              aria-pressed={language === 'id'}
             >
               ID
             </button>
             <button 
               onClick={() => setLanguage('en')}
               className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'en' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500 hover:text-white'}`}
+              aria-label="Switch to English"
+              aria-pressed={language === 'en'}
             >
               EN
             </button>

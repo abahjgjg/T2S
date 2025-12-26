@@ -208,6 +208,7 @@ export const IdeaSelection: React.FC<Props> = ({
               <button 
                 onClick={() => setIsChatOpen(true)}
                 className="fixed z-40 bottom-6 left-6 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg hover:scale-105 transition-all flex items-center gap-2 border border-indigo-500/50 print:hidden animate-[fadeIn_0.5s_ease-out]"
+                aria-label="Ask AI Analyst"
               >
                 <Sparkles className="w-5 h-5" />
                 <span className="font-bold text-sm">Ask AI Analyst</span>
@@ -254,6 +255,7 @@ export const IdeaSelection: React.FC<Props> = ({
                  : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white hover:border-emerald-500/50'
                }`}
                title="Listen to Market Briefing"
+               aria-label={isBriefingPlaying ? "Stop Audio Briefing" : "Play Audio Briefing"}
              >
                {isBriefingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isBriefingPlaying ? <StopCircle className="w-4 h-4" /> : <Headphones className="w-4 h-4" />}
                <span className="hidden sm:inline">{isBriefingPlaying ? 'Stop Briefing' : 'Audio Briefing'}</span>
@@ -264,12 +266,16 @@ export const IdeaSelection: React.FC<Props> = ({
              <button
                onClick={() => setActiveTab('trends')}
                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'trends' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+               aria-label="View Trend Analysis"
+               aria-pressed={activeTab === 'trends'}
              >
                <BarChart3 className="w-4 h-4" /> {uiText.trendAnalysis || "Analysis"}
              </button>
              <button
                onClick={() => setActiveTab('news')}
                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'news' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+               aria-label="View News Wire"
+               aria-pressed={activeTab === 'news'}
              >
                <Newspaper className="w-4 h-4" /> News Wire <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{allNewsSources.length}</span>
              </button>
@@ -277,6 +283,7 @@ export const IdeaSelection: React.FC<Props> = ({
                onClick={handleExportReport}
                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 rounded-lg border border-slate-700 transition-colors ml-2"
                title={uiText.exportReport}
+               aria-label="Export Research Report"
              >
                <Download className="w-4 h-4" />
              </button>

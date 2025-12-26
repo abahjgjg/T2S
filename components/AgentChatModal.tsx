@@ -1,8 +1,9 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import { AgentProfile, ChatMessage, Language, AIProvider } from '../types';
 import { getAIService } from '../services/aiRegistry';
-import { X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { X, Send, Bot, User, Loader2, Sparkles, PlayCircle } from 'lucide-react';
 import { SafeMarkdown } from './SafeMarkdown';
 
 interface Props {
@@ -12,9 +13,10 @@ interface Props {
   uiText: any;
   provider: AIProvider;
   language: Language;
+  initialMessage?: string | null;
 }
 
-export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, uiText, provider, language }) => {
+export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, uiText, provider, language, initialMessage }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,25 +28,33 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, uiText
     }
   }, [messages, isOpen]);
 
-  // Initial greeting
+  // Initial greeting or task execution
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-       setMessages([{ 
-         role: 'model', 
-         content: language === 'id' 
-           ? `Halo! Saya ${agent.name}, ${agent.role} Anda. Apa yang bisa saya bantu?` 
-           : `Hello! I am ${agent.name}, your ${agent.role}. How can I assist you today?`
-       }]);
+    if (isOpen) {
+      if (initialMessage) {
+        // If there's a task, start immediately
+        setMessages([]); 
+        handleSend(undefined, initialMessage);
+      } else if (messages.length === 0) {
+        // Standard greeting
+        setMessages([{ 
+          role: 'model', 
+          content: language === 'id' 
+            ? `Halo! Saya ${agent.name}, ${agent.role} Anda. Apa yang bisa saya bantu?` 
+            : `Hello! I am ${agent.name}, your ${agent.role}. How can I assist you today?`
+        }]);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, initialMessage]);
 
   if (!isOpen) return null;
 
-  const handleSend = async (e?: React.FormEvent) => {
+  const handleSend = async (e?: React.FormEvent, overrideText?: string) => {
     e?.preventDefault();
-    if (!input.trim() || isLoading) return;
+    const textToSend = overrideText || input.trim();
+    if (!textToSend || isLoading) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: input.trim() };
+    const userMsg: ChatMessage = { role: 'user', content: textToSend };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
@@ -52,7 +62,8 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, uiText
     try {
       const aiService = getAIService(provider);
       // Remove the initial greeting from history sent to AI to avoid confusing it
-      const apiHistory = messages.filter((_, i) => i > 0); 
+      // If the first message is model (greeting), filter it out
+      const apiHistory = messages.filter(m => m.role !== 'model' || messages.indexOf(m) > 0); 
       
       const responseText = await aiService.chatWithAgent(apiHistory, userMsg.content, agent, language);
       
@@ -77,7 +88,8 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, uiText
              </div>
              <div>
                <h3 className="font-bold text-white flex items-center gap-2">
-                 {agent.name} <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-pink-400 border border-slate-700 font-mono">LIVE</span>
+                 {agent.name} 
+                 {initialMessage && <span className="text-[10px] bg-emerald-900/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 font-mono flex items-center gap-1"><PlayCircle className="w-3 h-3" /> WORKING</span>}
                </h3>
                <p className="text-xs text-slate-400">{agent.role}</p>
              </div>
@@ -116,7 +128,9 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, uiText
                </div>
                <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2">
                   <Loader2 className="w-4 h-4 text-pink-400 animate-spin" />
-                  <span className="text-xs text-slate-400">Thinking...</span>
+                  <span className="text-xs text-slate-400">
+                    {initialMessage && messages.length === 1 ? 'Executing task...' : 'Thinking...'}
+                  </span>
                </div>
             </div>
           )}
@@ -143,7 +157,7 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, uiText
            </div>
            <div className="mt-2 flex items-center gap-1 justify-center text-[10px] text-slate-500">
              <Sparkles className="w-3 h-3" />
-             <span>Interacting with generated persona</span>
+             <span>Interacting with {agent.name}</span>
            </div>
         </form>
       </div>

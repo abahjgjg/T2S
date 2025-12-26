@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Bot, Cpu, Terminal, Copy, Check, MessageSquare } from 'lucide-react';
-import { AgentProfile, Language, AIProvider } from '../types';
+import { Bot, Cpu, Terminal, Copy, Check, MessageSquare, PlayCircle, Plus, Trash2, Edit2, Save, X } from 'lucide-react';
+import { AgentProfile, Language, AIProvider, Blueprint } from '../types';
 import { toast } from './ToastNotifications';
 import { AgentChatModal } from './AgentChatModal';
 
@@ -9,14 +9,21 @@ interface Props {
   agents: AgentProfile[];
   isGenerating: boolean;
   onGenerate: () => void;
+  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
   uiText: any;
 }
 
-export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGenerate, uiText }) => {
+export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGenerate, onUpdateBlueprint, uiText }) => {
   const [copiedAgentIndex, setCopiedAgentIndex] = useState<number | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
+  const [initialTask, setInitialTask] = useState<string | null>(null);
+  
+  // Editing State
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Partial<AgentProfile>>({});
+  const [isAdding, setIsAdding] = useState(false);
 
-  // Get global settings (could be passed as props, but localStorage is consistent with App.tsx pattern)
+  // Get global settings
   const provider = (localStorage.getItem('trendventures_provider') as AIProvider) || 'gemini';
   const language = (localStorage.getItem('trendventures_lang') as Language) || 'id';
 
@@ -27,30 +34,173 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
     setTimeout(() => setCopiedAgentIndex(null), 2000);
   };
 
+  const handleDeleteAgent = (index: number) => {
+    if (window.confirm("Remove this agent from your team?")) {
+      const newAgents = [...agents];
+      newAgents.splice(index, 1);
+      onUpdateBlueprint({ agents: newAgents });
+      toast.success("Agent removed");
+    }
+  };
+
+  const handleStartEdit = (agent: AgentProfile, index: number) => {
+    setEditingIndex(index);
+    setEditForm({ ...agent });
+    setIsAdding(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editForm.name || !editForm.role) return;
+    
+    const newAgents = [...agents];
+    const updatedAgent = {
+      role: editForm.role || 'Agent',
+      name: editForm.name || 'New Agent',
+      objective: editForm.objective || '',
+      systemPrompt: editForm.systemPrompt || '',
+      recommendedTools: editForm.recommendedTools || [],
+      suggestedTasks: editForm.suggestedTasks || []
+    };
+
+    if (isAdding) {
+      newAgents.push(updatedAgent);
+    } else if (editingIndex !== null) {
+      newAgents[editingIndex] = updatedAgent;
+    }
+
+    onUpdateBlueprint({ agents: newAgents });
+    setEditingIndex(null);
+    setIsAdding(false);
+    setEditForm({});
+    toast.success(isAdding ? "Agent hired" : "Agent updated");
+  };
+
+  const handleAddAgent = () => {
+    setEditForm({
+      name: '',
+      role: '',
+      objective: '',
+      systemPrompt: 'You are a helpful assistant specialized in...',
+      recommendedTools: [],
+      suggestedTasks: []
+    });
+    setIsAdding(true);
+    setEditingIndex(null);
+  };
+
+  const startTask = (agent: AgentProfile, task: string) => {
+    setInitialTask(task);
+    setSelectedAgent(agent);
+  };
+
+  // Render Edit Form (Inline or Modal, let's do inline overlay)
+  const renderEditor = () => (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+      <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
+        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          {isAdding ? <Plus className="w-5 h-5 text-emerald-400" /> : <Edit2 className="w-5 h-5 text-blue-400" />}
+          {isAdding ? "Hire Custom Agent" : "Edit Agent Profile"}
+        </h3>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-slate-500 uppercase font-bold">Name</label>
+              <input 
+                type="text" 
+                value={editForm.name || ''} 
+                onChange={e => setEditForm({...editForm, name: e.target.value})}
+                className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 uppercase font-bold">Role</label>
+              <input 
+                type="text" 
+                value={editForm.role || ''} 
+                onChange={e => setEditForm({...editForm, role: e.target.value})}
+                className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white text-sm"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="text-xs text-slate-500 uppercase font-bold">Objective</label>
+            <input 
+              type="text" 
+              value={editForm.objective || ''} 
+              onChange={e => setEditForm({...editForm, objective: e.target.value})}
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-slate-500 uppercase font-bold">System Prompt</label>
+            <textarea 
+              value={editForm.systemPrompt || ''} 
+              onChange={e => setEditForm({...editForm, systemPrompt: e.target.value})}
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white text-sm h-32 font-mono"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button 
+              onClick={() => { setIsAdding(false); setEditingIndex(null); }}
+              className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSaveEdit}
+              className="px-4 py-2 bg-pink-600 hover:bg-pink-500 text-white rounded font-bold transition-colors flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" /> Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid">
       <div className="flex justify-between items-center mb-6">
-         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-           <Bot className="w-5 h-5 text-pink-400" /> {uiText.aiTeam}
-         </h3>
-         {!agents.length && !isGenerating && (
+         <div className="flex items-center gap-3">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <Bot className="w-5 h-5 text-pink-400" /> {uiText.aiTeam}
+            </h3>
+            <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">{agents.length} Agents</span>
+         </div>
+         
+         <div className="flex gap-2">
            <button 
-             onClick={onGenerate}
-             className="flex items-center gap-2 px-4 py-2 bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 hover:text-pink-300 border border-pink-500/50 rounded-lg transition-colors text-sm font-bold"
+             onClick={handleAddAgent}
+             className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition-colors text-xs font-bold"
            >
-             <Cpu className="w-4 h-4" /> {uiText.generateAgents}
+             <Plus className="w-3 h-3" /> Hire Custom
            </button>
-         )}
+           {!agents.length && !isGenerating && (
+             <button 
+               onClick={onGenerate}
+               className="flex items-center gap-2 px-4 py-2 bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 hover:text-pink-300 border border-pink-500/50 rounded-lg transition-colors text-sm font-bold"
+             >
+               <Cpu className="w-4 h-4" /> {uiText.generateAgents}
+             </button>
+           )}
+         </div>
       </div>
+
+      {(isAdding || editingIndex !== null) && renderEditor()}
 
       {selectedAgent && (
         <AgentChatModal 
           agent={selectedAgent}
           isOpen={!!selectedAgent}
-          onClose={() => setSelectedAgent(null)}
+          onClose={() => { setSelectedAgent(null); setInitialTask(null); }}
           uiText={uiText}
           provider={provider}
           language={language}
+          initialMessage={initialTask}
         />
       )}
 
@@ -62,7 +212,9 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
       ) : agents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {agents.map((agent, index) => (
-            <div key={index} className="bg-slate-950 border border-slate-800 rounded-xl p-5 hover:border-pink-500/30 transition-all flex flex-col group">
+            <div key={index} className="bg-slate-950 border border-slate-800 rounded-xl p-5 hover:border-pink-500/30 transition-all flex flex-col group relative">
+              
+              {/* Header */}
               <div className="flex justify-between items-start mb-3">
                  <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-pink-500/50 transition-colors">
@@ -73,41 +225,65 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
                       <p className="text-xs text-slate-500 font-mono">{agent.role}</p>
                     </div>
                  </div>
-                 <button 
-                   onClick={() => handleCopySystemPrompt(agent.systemPrompt, index)}
-                   className="text-slate-500 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-                   title={uiText.copyPrompt}
-                 >
-                   {copiedAgentIndex === index ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                 </button>
+                 <div className="flex gap-1">
+                    <button onClick={() => handleStartEdit(agent, index)} className="p-1.5 text-slate-500 hover:text-blue-400 transition-colors">
+                      <Edit2 className="w-3 h-3" />
+                    </button>
+                    <button onClick={() => handleDeleteAgent(index)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors">
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                 </div>
               </div>
               
               <p className="text-sm text-slate-400 mb-4 line-clamp-2 min-h-[40px]">
                 {agent.objective}
               </p>
 
-              <div className="mb-4">
-                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-wider flex items-center gap-1">
-                  <Terminal className="w-3 h-3" /> {uiText.agentTools}
-                </p>
+              {/* Tasks Chips */}
+              {agent.suggestedTasks && agent.suggestedTasks.length > 0 && (
+                <div className="mb-4 space-y-2">
+                   <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider flex items-center gap-1">
+                     <PlayCircle className="w-3 h-3" /> Action Items
+                   </p>
+                   <div className="flex flex-col gap-1.5">
+                     {agent.suggestedTasks.slice(0, 3).map((task, t) => (
+                       <button 
+                         key={t}
+                         onClick={() => startTask(agent, task)}
+                         className="text-left text-[10px] px-2 py-1.5 bg-slate-900 hover:bg-pink-900/20 hover:text-pink-300 border border-slate-800 rounded transition-colors text-slate-300 truncate"
+                       >
+                         • {task}
+                       </button>
+                     ))}
+                   </div>
+                </div>
+              )}
+
+              {/* Tools */}
+              <div className="mt-auto">
                 <div className="flex flex-wrap gap-1.5">
-                  {agent.recommendedTools.map((tool, i) => (
-                    <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">
+                  {agent.recommendedTools.slice(0, 3).map((tool, i) => (
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500">
                       {tool}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-auto pt-3 border-t border-slate-900 flex justify-between items-center gap-2">
-                <div className="bg-slate-900 rounded p-2 text-[10px] font-mono text-slate-500 truncate group-hover:text-slate-400 transition-colors cursor-pointer flex-1" onClick={() => handleCopySystemPrompt(agent.systemPrompt, index)}>
-                  {agent.systemPrompt.slice(0, 40)}...
-                </div>
+              {/* Actions Footer */}
+              <div className="mt-4 pt-3 border-t border-slate-900 flex justify-between items-center gap-2">
+                <button 
+                   onClick={() => handleCopySystemPrompt(agent.systemPrompt, index)}
+                   className="text-[10px] text-slate-500 hover:text-white flex items-center gap-1 transition-colors"
+                >
+                   {copiedAgentIndex === index ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                   System Prompt
+                </button>
                 <button
                   onClick={() => setSelectedAgent(agent)}
-                  className="px-2 py-1.5 bg-pink-600/10 hover:bg-pink-600/20 text-pink-400 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 border border-pink-500/20"
+                  className="px-3 py-1.5 bg-pink-600/10 hover:bg-pink-600/20 text-pink-400 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 border border-pink-500/20"
                 >
-                  <MessageSquare className="w-3 h-3" /> Test
+                  <MessageSquare className="w-3 h-3" /> Chat
                 </button>
               </div>
             </div>

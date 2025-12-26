@@ -1,14 +1,14 @@
 
 
-import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend } from "../../types";
+import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { affiliateService } from "../affiliateService";
-import { callOpenAI, getLanguageInstruction } from "./shared";
+import { callOpenAI, getLanguageInstruction, OpenAIToolDefinition } from "./shared";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
 
 // OpenAI Tool Definition
-const updateBlueprintToolDefinition = {
+const updateBlueprintToolDefinition: OpenAIToolDefinition = {
   type: "function",
   function: {
     name: "update_blueprint",
@@ -197,26 +197,130 @@ export const chatWithResearchAnalyst = async (history: ChatMessage[], newMessage
 
 export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language): Promise<AgentProfile[]> => {
   const langInstruction = getLanguageInstruction(lang);
+  const prompt = promptService.build('GENERATE_AGENTS', {
+    executiveSummary: blueprint.executiveSummary,
+    techStack: blueprint.technicalStack.join(', '),
+    roadmap: JSON.stringify(blueprint.roadmap.slice(0, 3)),
+    langInstruction
+  });
+
+  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  return JSON.parse(cleanJsonOutput(response.content || "[]"));
+};
+
+export const generateLaunchAssets = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<LaunchAssets> => {
+  const langInstruction = getLanguageInstruction(lang);
+  const prompt = promptService.build('GENERATE_LAUNCH_ASSETS', {
+    name: idea.name,
+    type: idea.type,
+    audience: blueprint.targetAudience,
+    summary: blueprint.executiveSummary,
+    langInstruction
+  });
+
+  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  return JSON.parse(cleanJsonOutput(response.content || "{}"));
+};
+
+export const conductViabilityAudit = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ViabilityAudit> => {
+  const langInstruction = getLanguageInstruction(lang);
+  const prompt = promptService.build('VIABILITY_AUDIT', {
+    name: idea.name,
+    type: idea.type,
+    summary: blueprint.executiveSummary,
+    techStack: blueprint.technicalStack.join(', '),
+    revenue: blueprint.revenueStreams.map(r => r.name).join(', '),
+    langInstruction
+  });
+
+  // Use COMPLEX model for reasoning
+  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
+  return JSON.parse(cleanJsonOutput(response.content || "{}"));
+};
+
+export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BMC> => {
+  const langInstruction = getLanguageInstruction(lang);
   const prompt = `
-    Analyze this Business Blueprint: ${blueprint.executiveSummary}
-    
-    Identify 3 autonomous AI Agent roles (e.g. "Content Manager", "DevOps") needed to execute this.
-    For each, write a detailed System Prompt for an LLM.
+    Analyze the business idea "${idea.name}" and its blueprint summary: "${blueprint.executiveSummary}".
+    Generate a strictly structured Business Model Canvas (BMC).
+    Populate each of the 9 blocks with 3-5 short, bullet-point style items.
+    ${langInstruction}
+
+    Output strictly valid JSON:
+    {
+      "keyPartners": ["Item 1", "Item 2"],
+      "keyActivities": ["Item 1", "Item 2"],
+      "keyResources": ["Item 1", "Item 2"],
+      "valuePropositions": ["Item 1", "Item 2"],
+      "customerRelationships": ["Item 1", "Item 2"],
+      "channels": ["Item 1", "Item 2"],
+      "customerSegments": ["Item 1", "Item 2"],
+      "costStructure": ["Item 1", "Item 2"],
+      "revenueStreams": ["Item 1", "Item 2"]
+    }
+  `;
+
+  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  return JSON.parse(cleanJsonOutput(response.content || "{}"));
+};
+
+export const generateLandingPageCode = async (idea: BusinessIdea, assets: LaunchAssets, lang: Language): Promise<string> => {
+  const langInstruction = getLanguageInstruction(lang);
+  
+  const prompt = promptService.build('GENERATE_CODE', {
+    name: idea.name,
+    type: idea.type,
+    headline: assets.landingPage.headline,
+    subheadline: assets.landingPage.subheadline,
+    cta: assets.landingPage.cta,
+    benefits: JSON.stringify(assets.landingPage.benefits),
+    langInstruction
+  });
+
+  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
+  const text = response.content || "";
+  return text.replace(/^```tsx?\s*/, '').replace(/\s*```$/, '');
+};
+
+export const generateContentCalendar = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ContentWeek[]> => {
+  const langInstruction = getLanguageInstruction(lang);
+  const prompt = promptService.build('GENERATE_CONTENT_CALENDAR', {
+    name: idea.name,
+    audience: blueprint.targetAudience,
+    market: idea.type,
+    langInstruction
+  });
+
+  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  return JSON.parse(cleanJsonOutput(response.content || "[]")) as ContentWeek[];
+};
+
+export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BrandIdentity> => {
+  const langInstruction = getLanguageInstruction(lang);
+  const prompt = `
+    Act as a professional Brand Strategist.
+    Create a Brand Identity for:
+    Business: ${idea.name}
+    Audience: ${blueprint.targetAudience}
+
+    Task:
+    1. Generate 5 creative alternative names.
+    2. Generate 5 slogans.
+    3. Define 5 color palette with hex codes.
+    4. Define Brand Tone and Values.
 
     ${langInstruction}
 
     Output strictly valid JSON:
-    [
-      {
-        "role": "Role Title",
-        "name": "Creative Name",
-        "objective": "Goal",
-        "systemPrompt": "Detailed instruction...",
-        "recommendedTools": ["Tool1"]
-      }
-    ]
+    {
+      "names": ["Name 1", "Name 2"],
+      "slogans": ["Slogan 1", "Slogan 2"],
+      "colors": [ { "name": "Ocean Blue", "hex": "#0077be" } ],
+      "tone": "Professional",
+      "brandValues": ["Trust", "Innovation"]
+    }
   `;
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
-  return JSON.parse(cleanJsonOutput(response.content || "[]"));
+  return JSON.parse(cleanJsonOutput(response.content || "{}"));
 };

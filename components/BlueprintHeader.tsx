@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Check, Link as LinkIcon, CheckCircle2, BookmarkPlus, FileJson, FileText, Printer } from 'lucide-react';
+import { ArrowLeft, Check, Link as LinkIcon, CheckCircle2, BookmarkPlus, FileJson, FileText, Printer, Presentation } from 'lucide-react';
 import { toast } from './ToastNotifications';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
   onExportJSON: () => void;
   onExportMD: () => void;
   onPrint: () => void;
+  onPresent: () => void;
   publishedUrl: string | null;
   isSaved: boolean;
   uiText: any;
@@ -20,6 +21,7 @@ export const BlueprintHeader: React.FC<Props> = ({
   onExportJSON, 
   onExportMD, 
   onPrint, 
+  onPresent,
   publishedUrl, 
   isSaved, 
   uiText 
@@ -61,6 +63,14 @@ export const BlueprintHeader: React.FC<Props> = ({
             {linkCopied ? uiText.copied : 'Copy Link'}
           </button>
         )}
+
+        <button 
+          onClick={onPresent}
+          className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm font-bold border border-slate-700"
+        >
+          <Presentation className="w-4 h-4 text-emerald-400" />
+          Present Deck
+        </button>
 
         <button 
           onClick={handleSaveWrapper}

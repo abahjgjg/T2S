@@ -75,6 +75,8 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
             ? 'bg-slate-700 text-slate-300' 
             : 'bg-emerald-600 text-white shadow-emerald-500/30'
         } print:hidden`}
+        aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
+        aria-expanded={isOpen}
       >
         {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
@@ -94,7 +96,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
                  </p>
                </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white" aria-label="Minimize Chat">
               <Minimize2 className="w-4 h-4" />
             </button>
           </div>
@@ -175,11 +177,13 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask to change something..."
                 className="w-full bg-slate-900 border border-slate-700 text-white pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                aria-label="Message Blueprint Editor"
               />
               <button 
                 type="submit" 
                 disabled={!input.trim() || isLoading}
                 className="absolute right-2 top-1.5 p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label="Send Message"
               >
                 <Send className="w-4 h-4" />
               </button>

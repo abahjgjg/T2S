@@ -4,6 +4,7 @@ import { AIProvider, Blueprint, Language } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { toast } from '../components/ToastNotifications';
 import { indexedDBService } from '../utils/storageUtils';
+import { supabaseService } from '../services/supabaseService';
 
 interface UseBlueprintMediaReturn {
   generateLogo: (ideaName: string, description: string, style: string) => Promise<void>;
@@ -20,6 +21,23 @@ export const useBlueprintMedia = (
   const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
 
+  // Helper to handle asset persistence (Cloud First -> Local Fallback)
+  const persistAsset = async (blob: Blob, type: 'images' | 'videos', ext: string): Promise<string> => {
+    // 1. Try Cloud Upload (if configured)
+    if (supabaseService.isConfigured()) {
+      const publicUrl = await supabaseService.uploadPublicAsset(blob, type, ext);
+      if (publicUrl) return publicUrl;
+    }
+
+    // 2. Fallback to Local IndexedDB
+    const assetId = crypto.randomUUID();
+    const assetKey = `${type === 'images' ? 'img' : 'vid'}_${assetId}`;
+    await indexedDBService.saveAsset(assetKey, blob);
+    
+    // Return protocol url for useAsset hook
+    return `asset://${assetKey}`;
+  };
+
   const generateLogo = async (ideaName: string, description: string, style: string) => {
     setIsGeneratingLogo(true);
     try {
@@ -32,14 +50,13 @@ export const useBlueprintMedia = (
         const response = await fetch(`data:image/png;base64,${imageBase64}`);
         const blob = await response.blob();
         
-        // Save to IndexedDB assets store
-        const assetId = crypto.randomUUID();
-        const assetKey = `img_${assetId}`;
-        await indexedDBService.saveAsset(assetKey, blob);
+        const assetUrl = await persistAsset(blob, 'images', 'png');
 
-        // Update Blueprint with lightweight reference
-        onUpdateBlueprint({ brandImageUrl: `asset://${assetKey}` });
-        toast.success("Brand Image Generated");
+        // Update Blueprint
+        onUpdateBlueprint({ brandImageUrl: assetUrl });
+        
+        const storageType = assetUrl.startsWith('http') ? 'Cloud' : 'Local';
+        toast.success(`Brand Image Generated (${storageType} Storage)`);
       } else {
         toast.error("Failed to generate image.");
       }
@@ -74,14 +91,13 @@ export const useBlueprintMedia = (
       const videoBlob = await aiService.generateMarketingVideo(ideaName, description, language);
       
       if (videoBlob) {
-        // Persist Blob to IndexedDB
-        const assetId = crypto.randomUUID();
-        const assetKey = `video_${assetId}`;
-        await indexedDBService.saveAsset(assetKey, videoBlob);
+        const assetUrl = await persistAsset(videoBlob, 'videos', 'mp4');
         
-        // Save using custom protocol to Blueprint state
-        onUpdateBlueprint({ marketingVideoUrl: `asset://${assetKey}` });
-        toast.success("Marketing Teaser Generated!");
+        // Update Blueprint
+        onUpdateBlueprint({ marketingVideoUrl: assetUrl });
+        
+        const storageType = assetUrl.startsWith('http') ? 'Cloud' : 'Local';
+        toast.success(`Marketing Teaser Generated (${storageType} Storage)`);
       } else {
         toast.error("Failed to generate video.");
       }

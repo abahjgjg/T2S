@@ -1,10 +1,11 @@
 
+
 import React, { useState, useMemo, useCallback } from 'react';
-import { Blueprint, BusinessIdea, AIProvider, CompetitorAnalysis } from '../types';
+import { Blueprint, BusinessIdea, AIProvider, CompetitorAnalysis, ViabilityAudit, Language } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { supabaseService } from '../services/supabaseService';
 import { toast } from './ToastNotifications'; 
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, ShieldCheck, Loader2 } from 'lucide-react';
 
 // Hooks
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
@@ -23,6 +24,11 @@ import { CompetitorAnalysisModal } from './CompetitorAnalysisModal';
 import { BlueprintRoadmap } from './BlueprintRoadmap';
 import { BlueprintRevenue } from './BlueprintRevenue';
 import { SafeMarkdown } from './SafeMarkdown';
+import { BlueprintLaunchpad } from './BlueprintLaunchpad';
+import { BlueprintAuditModal } from './BlueprintAuditModal';
+import { BusinessModelCanvas } from './BusinessModelCanvas';
+import { BrandStudio } from './BrandStudio';
+import { PresentationMode } from './PresentationMode'; // New Import
 
 // New Atomic Components
 import { BlueprintCompetitors } from './blueprint/BlueprintCompetitors';
@@ -82,16 +88,6 @@ const BlueprintMarkdownViewer = React.memo(({ content, affiliateMap, onAffiliate
            onLinkClick={handleLinkClick}
            components={{
              a: ({node, href, ...props}) => {
-               // We override 'a' here just to add the specific styling, 
-               // SafeMarkdown wrapper still enforces protocol safety in its own implementation 
-               // via the onLinkClick or its internal logic if we didn't fully replace it.
-               // However, SafeMarkdown's internal 'a' takes precedence for safety logic.
-               // To allow styling + safety, we rely on SafeMarkdown's default 'a' renderer 
-               // which accepts className. We don't need to override 'a' here unless we want 
-               // completely custom rendering. SafeMarkdown adds 'text-blue-400' by default.
-               // Let's rely on SafeMarkdown's styling but we can pass a className to the container 
-               // or just let SafeMarkdown handle it. 
-               // Actually, for this specific view, we want specific styling:
                return (
                  <a 
                    href={href} 
@@ -113,17 +109,23 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
   const [showPitchModal, setShowPitchModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showCompetitorModal, setShowCompetitorModal] = useState(false);
+  const [showAuditModal, setShowAuditModal] = useState(false);
+  const [showPresentation, setShowPresentation] = useState(false); // New State
 
   // Agent State
   const agents = blueprint.agents || [];
   const [isGeneratingAgents, setIsGeneratingAgents] = useState(false);
+
+  // Audit State
+  const [isAuditing, setIsAuditing] = useState(false);
+  const [isPivoting, setIsPivoting] = useState(false);
 
   // Competitor Analysis State
   const [analyzingCompetitor, setAnalyzingCompetitor] = useState<string | null>(null);
   const [competitorData, setCompetitorData] = useState<CompetitorAnalysis | null>(null);
 
   // Derived Values
-  const language = (localStorage.getItem('trendventures_lang') as 'id' | 'en') || 'id';
+  const language = (localStorage.getItem('trendventures_lang') as Language) || 'id';
   const isGemini = provider === 'gemini';
 
   // --- Custom Hooks ---
@@ -154,6 +156,52 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
   } = useBlueprintMedia(provider, language, onUpdateBlueprint);
 
   // --- Handlers ---
+
+  const handleRunAudit = async () => {
+    if (blueprint.viabilityAudit) {
+      setShowAuditModal(true);
+      return;
+    }
+
+    setIsAuditing(true);
+    try {
+      const aiService = getAIService(provider);
+      const auditResult = await aiService.conductViabilityAudit(idea, blueprint, language);
+      onUpdateBlueprint({ viabilityAudit: auditResult });
+      setShowAuditModal(true);
+      toast.success("Viability Audit Completed");
+    } catch (e) {
+      console.error(e);
+      toast.error("Audit failed. Try again.");
+    } finally {
+      setIsAuditing(false);
+    }
+  };
+
+  const handleApplyPivot = async (pivot: string) => {
+    setIsPivoting(true);
+    try {
+      const aiService = getAIService(provider);
+      const prompt = `Pivot Strategy: "${pivot}". 
+      ACTION REQUIRED: Completely rewrite the Executive Summary, Revenue Streams, and Roadmap to reflect this new strategic direction. 
+      Ensure the technical stack and marketing strategy align with this pivot.`;
+      
+      const { updates } = await aiService.sendBlueprintChat([], prompt, blueprint, language);
+      
+      if (updates) {
+        onUpdateBlueprint(updates);
+        toast.success(`Pivot Applied: ${pivot}`);
+        setShowAuditModal(false);
+      } else {
+        toast.error("AI could not generate pivot updates.");
+      }
+    } catch (e) {
+      console.error("Pivot failed", e);
+      toast.error("Pivot execution failed. Please try again.");
+    } finally {
+      setIsPivoting(false);
+    }
+  };
 
   const handleGenerateAgents = async () => {
     setIsGeneratingAgents(true);
@@ -232,6 +280,11 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
     });
   };
 
+  const handleUpdateRevenue = (newStreams: Blueprint['revenueStreams']) => {
+    onUpdateBlueprint({ revenueStreams: newStreams });
+    toast.success("Revenue projections updated");
+  };
+
   const handlePrint = () => window.print();
 
   const handleDownloadJSON = () => {
@@ -279,6 +332,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8 animate-[slideUp_0.4s_ease-out]">
       
+      {/* Modals */}
       {showPitchModal && (
         <LivePitchModal 
           blueprint={blueprint} 
@@ -299,6 +353,25 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         />
       )}
 
+      {showAuditModal && blueprint.viabilityAudit && (
+        <BlueprintAuditModal 
+          audit={blueprint.viabilityAudit}
+          isOpen={showAuditModal}
+          onClose={() => setShowAuditModal(false)}
+          onApplyPivot={handleApplyPivot}
+          isPivoting={isPivoting}
+        />
+      )}
+
+      {showPresentation && (
+        <PresentationMode 
+          idea={idea}
+          blueprint={blueprint}
+          onClose={() => setShowPresentation(false)}
+          uiText={uiText}
+        />
+      )}
+
       <CompetitorAnalysisModal 
         isOpen={showCompetitorModal}
         onClose={() => setShowCompetitorModal(false)}
@@ -315,6 +388,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         onExportJSON={handleDownloadJSON}
         onExportMD={handleDownloadMarkdown}
         onPrint={handlePrint}
+        onPresent={() => setShowPresentation(true)}
         publishedUrl={publishedUrl}
         isSaved={isSaved}
         uiText={uiText}
@@ -339,7 +413,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         </div>
 
         {/* Visual Identity & Media Card */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 flex flex-col gap-4">
           <BlueprintVisuals 
              blueprint={blueprint}
              ideaName={idea.name}
@@ -350,6 +424,16 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
              onGenerateLogo={(style) => generateLogo(idea.name, blueprint.executiveSummary, style)}
              onGenerateVideo={() => generateVideo(idea.name, blueprint.executiveSummary)}
           />
+          
+          {/* Audit Button */}
+          <button 
+            onClick={handleRunAudit}
+            disabled={isAuditing}
+            className="w-full bg-purple-900/20 border border-purple-500/30 hover:bg-purple-900/30 text-purple-300 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+          >
+            {isAuditing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+            {isAuditing ? "Analyzing..." : "Run Viability Audit"}
+          </button>
         </div>
       </div>
 
@@ -374,16 +458,47 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         uiText={uiText}
       />
 
+      {/* Brand Studio (NEW) */}
+      <BrandStudio 
+        idea={idea} 
+        blueprint={blueprint} 
+        brandIdentity={blueprint.brandIdentity}
+        onUpdateBlueprint={onUpdateBlueprint}
+      />
+
+      {/* Launchpad (New Feature) */}
+      <BlueprintLaunchpad 
+        idea={idea} 
+        blueprint={blueprint} 
+        assets={blueprint.launchAssets}
+        onUpdateBlueprint={onUpdateBlueprint}
+        uiText={uiText}
+      />
+
+      {/* Business Model Canvas (NEW) */}
+      <BusinessModelCanvas 
+        idea={idea} 
+        blueprint={blueprint} 
+        bmc={blueprint.bmc}
+        onUpdateBlueprint={onUpdateBlueprint}
+        uiText={uiText}
+      />
+
       {/* Agents Section */}
       <BlueprintAgents 
         agents={agents}
         isGenerating={isGeneratingAgents}
         onGenerate={handleGenerateAgents}
+        onUpdateBlueprint={onUpdateBlueprint}
         uiText={uiText}
       />
 
-      {/* Revenue Chart */}
-      <BlueprintRevenue revenueStreams={blueprint.revenueStreams} uiText={uiText} />
+      {/* Revenue Chart (Enhanced) */}
+      <BlueprintRevenue 
+        revenueStreams={blueprint.revenueStreams} 
+        onUpdate={handleUpdateRevenue}
+        uiText={uiText} 
+      />
 
       {/* SWOT Analysis */}
       {blueprint.swot && (

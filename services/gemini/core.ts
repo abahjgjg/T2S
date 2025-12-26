@@ -1,13 +1,13 @@
 
 
 import { Type, FunctionDeclaration } from "@google/genai";
-import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend } from "../../types";
+import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
 import { affiliateService } from "../affiliateService";
 import { getGeminiClient, getLanguageInstruction } from "./shared";
 import { GEMINI_MODELS } from "../../constants/aiConfig";
-import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema } from "../../utils/schemas";
+import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 
 // Tool Definition for Blueprint Updates
@@ -316,9 +316,10 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
             name: { type: Type.STRING, description: "A creative name for the agent, e.g. 'Atlas' or 'Pixel'" },
             objective: { type: Type.STRING, description: "One sentence goal of this agent" },
             systemPrompt: { type: Type.STRING, description: "The full, detailed instruction prompt for the LLM" },
-            recommendedTools: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 2-3 tools this agent might need (e.g. Python, Browser)" }
+            recommendedTools: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 2-3 tools this agent might need (e.g. Python, Browser)" },
+            suggestedTasks: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 3-4 specific tasks this agent can execute immediately" }
           },
-          required: ["role", "name", "objective", "systemPrompt", "recommendedTools"]
+          required: ["role", "name", "objective", "systemPrompt", "recommendedTools", "suggestedTasks"]
         }
       };
 
@@ -341,6 +342,335 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
 
     } catch (error) {
       console.error("Error generating agents:", error);
+      throw error;
+    }
+  });
+};
+
+export const generateLaunchAssets = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<LaunchAssets> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = promptService.build('GENERATE_LAUNCH_ASSETS', {
+        name: idea.name,
+        type: idea.type,
+        audience: blueprint.targetAudience,
+        summary: blueprint.executiveSummary,
+        langInstruction
+      });
+
+      const assetsSchema = {
+        type: Type.OBJECT,
+        properties: {
+          landingPage: {
+            type: Type.OBJECT,
+            properties: {
+              headline: { type: Type.STRING },
+              subheadline: { type: Type.STRING },
+              cta: { type: Type.STRING },
+              benefits: { type: Type.ARRAY, items: { type: Type.STRING } }
+            },
+            required: ["headline", "subheadline", "cta", "benefits"]
+          },
+          socialPost: { type: Type.STRING },
+          emailPitch: { type: Type.STRING }
+        },
+        required: ["landingPage", "socialPost", "emailPitch"]
+      };
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.BASIC,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: assetsSchema,
+          temperature: 0.8
+        },
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No launch assets generated");
+
+      return JSON.parse(cleanJsonOutput(text)) as LaunchAssets;
+
+    } catch (error) {
+      console.error("Error generating launch assets:", error);
+      throw error;
+    }
+  });
+};
+
+export const conductViabilityAudit = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ViabilityAudit> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = promptService.build('VIABILITY_AUDIT', {
+        name: idea.name,
+        type: idea.type,
+        summary: blueprint.executiveSummary,
+        techStack: blueprint.technicalStack.join(', '),
+        revenue: blueprint.revenueStreams.map(r => r.name).join(', '),
+        langInstruction
+      });
+
+      const auditSchema = {
+        type: Type.OBJECT,
+        properties: {
+          overallScore: { type: Type.NUMBER },
+          dimensions: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING },
+                score: { type: Type.NUMBER },
+                comment: { type: Type.STRING }
+              },
+              required: ["name", "score", "comment"]
+            }
+          },
+          hardTruths: { type: Type.ARRAY, items: { type: Type.STRING } },
+          pivotSuggestions: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        required: ["overallScore", "dimensions", "hardTruths", "pivotSuggestions"]
+      };
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.COMPLEX, // Use Smarter Model for Critique
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: auditSchema,
+          thinkingConfig: { thinkingBudget: 2048 }, 
+        },
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No audit generated");
+
+      return ViabilityAuditSchema.parse(JSON.parse(cleanJsonOutput(text)));
+
+    } catch (error) {
+      console.error("Error conducting viability audit:", error);
+      throw error;
+    }
+  });
+};
+
+export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BMC> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = `
+        Analyze the business idea "${idea.name}" and its blueprint summary: "${blueprint.executiveSummary}".
+        Generate a strictly structured Business Model Canvas (BMC).
+        Populate each of the 9 blocks with 3-5 short, bullet-point style items.
+        ${langInstruction}
+      `;
+
+      const bmcSchema = {
+        type: Type.OBJECT,
+        properties: {
+          keyPartners: { type: Type.ARRAY, items: { type: Type.STRING } },
+          keyActivities: { type: Type.ARRAY, items: { type: Type.STRING } },
+          keyResources: { type: Type.ARRAY, items: { type: Type.STRING } },
+          valuePropositions: { type: Type.ARRAY, items: { type: Type.STRING } },
+          customerRelationships: { type: Type.ARRAY, items: { type: Type.STRING } },
+          channels: { type: Type.ARRAY, items: { type: Type.STRING } },
+          customerSegments: { type: Type.ARRAY, items: { type: Type.STRING } },
+          costStructure: { type: Type.ARRAY, items: { type: Type.STRING } },
+          revenueStreams: { type: Type.ARRAY, items: { type: Type.STRING } },
+        },
+        required: ["keyPartners", "keyActivities", "keyResources", "valuePropositions", "customerRelationships", "channels", "customerSegments", "costStructure", "revenueStreams"]
+      };
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.BASIC,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: bmcSchema,
+          temperature: 0.5,
+        },
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No BMC generated");
+
+      return JSON.parse(cleanJsonOutput(text)) as BMC;
+
+    } catch (error) {
+      console.error("Error generating BMC:", error);
+      throw error;
+    }
+  });
+};
+
+export const generateLandingPageCode = async (idea: BusinessIdea, assets: LaunchAssets, lang: Language): Promise<string> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = promptService.build('GENERATE_CODE', {
+        name: idea.name,
+        type: idea.type,
+        headline: assets.landingPage.headline,
+        subheadline: assets.landingPage.subheadline,
+        cta: assets.landingPage.cta,
+        benefits: JSON.stringify(assets.landingPage.benefits),
+        langInstruction
+      });
+
+      // Use Code-capable model
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.COMPLEX, 
+        contents: prompt,
+        config: {
+          // No schema, we want raw text (TSX)
+          temperature: 0.2,
+        },
+      });
+
+      const text = response.text || "";
+      // Strip markdown code blocks if present
+      return text.replace(/^```tsx?\s*/, '').replace(/\s*```$/, '');
+
+    } catch (error) {
+      console.error("Error generating landing page code:", error);
+      throw error;
+    }
+  });
+};
+
+export const generateContentCalendar = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ContentWeek[]> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = promptService.build('GENERATE_CONTENT_CALENDAR', {
+        name: idea.name,
+        audience: blueprint.targetAudience,
+        market: idea.type,
+        langInstruction
+      });
+
+      const schema = {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            weekNumber: { type: Type.NUMBER },
+            theme: { type: Type.STRING },
+            posts: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  platform: { type: Type.STRING },
+                  type: { type: Type.STRING },
+                  content: { type: Type.STRING }
+                },
+                required: ["platform", "type", "content"]
+              }
+            }
+          },
+          required: ["weekNumber", "theme", "posts"]
+        }
+      };
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.BASIC,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+          temperature: 0.7
+        },
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No calendar generated");
+
+      return JSON.parse(cleanJsonOutput(text)) as ContentWeek[];
+
+    } catch (error) {
+      console.error("Error generating content calendar:", error);
+      throw error;
+    }
+  });
+};
+
+export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BrandIdentity> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = `
+        Act as a professional Brand Strategist and Creative Director.
+        Create a comprehensive Brand Identity for:
+        Business Name: ${idea.name}
+        Type: ${idea.type}
+        Target Audience: ${blueprint.targetAudience}
+        Executive Summary: ${blueprint.executiveSummary}
+
+        Task:
+        1. Generate 5 creative alternative business names.
+        2. Generate 5 catchy slogans/taglines.
+        3. Define a cohesive Color Palette (5 colors) with Hex codes and names.
+        4. Describe the Brand Tone (e.g., Professional, Playful, Futuristic).
+        5. List 3 core Brand Values.
+
+        ${langInstruction}
+      `;
+
+      const schema = {
+        type: Type.OBJECT,
+        properties: {
+          names: { type: Type.ARRAY, items: { type: Type.STRING } },
+          slogans: { type: Type.ARRAY, items: { type: Type.STRING } },
+          colors: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING },
+                hex: { type: Type.STRING }
+              },
+              required: ["name", "hex"]
+            }
+          },
+          tone: { type: Type.STRING },
+          brandValues: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        required: ["names", "slogans", "colors", "tone", "brandValues"]
+      };
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.BASIC,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+          temperature: 0.8
+        },
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No brand identity generated");
+
+      return JSON.parse(cleanJsonOutput(text)) as BrandIdentity;
+
+    } catch (error) {
+      console.error("Error generating brand identity:", error);
       throw error;
     }
   });

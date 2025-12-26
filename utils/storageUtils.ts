@@ -160,5 +160,77 @@ export const indexedDBService = {
       console.warn(`[IndexedDB] Asset read failed for ${key}`, e);
       return null;
     }
+  },
+
+  // --- Backup & Restore ---
+
+  async exportDatabase(): Promise<string> {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.getAll(); // Only exporting structured data, not heavy assets for now
+      
+      // We also need to get the keys to map them back
+      const keysRequest = store.getAllKeys();
+
+      let items: any[] = [];
+      let keys: any[] = [];
+
+      request.onsuccess = () => {
+        items = request.result;
+        if (keys.length > 0) finalize();
+      };
+
+      keysRequest.onsuccess = () => {
+        keys = keysRequest.result;
+        if (items.length > 0 || keys.length === 0) finalize();
+      };
+
+      const finalize = () => {
+        const exportData = keys.map((key, i) => ({ key, value: items[i] }));
+        // Also capture LocalStorage prompts
+        const prompts = localStorage.getItem('trendventures_prompts_v1');
+        const payload = {
+          version: 1,
+          timestamp: Date.now(),
+          db: exportData,
+          prompts: prompts ? JSON.parse(prompts) : {}
+        };
+        resolve(JSON.stringify(payload));
+      };
+
+      transaction.onerror = () => reject(transaction.error);
+    });
+  },
+
+  async importDatabase(jsonString: string): Promise<void> {
+    try {
+      const payload = JSON.parse(jsonString);
+      if (!payload.version || !payload.db) throw new Error("Invalid backup file format");
+
+      // Restore Prompts
+      if (payload.prompts) {
+        localStorage.setItem('trendventures_prompts_v1', JSON.stringify(payload.prompts));
+      }
+
+      // Restore DB
+      const db = await this.open();
+      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+
+      // We merge, not overwrite everything, unless key conflicts
+      for (const item of payload.db) {
+        store.put(item.value, item.key);
+      }
+
+      return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+      });
+    } catch (e) {
+      console.error("Import failed", e);
+      throw e;
+    }
   }
 };

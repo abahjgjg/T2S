@@ -1,26 +1,25 @@
 
+
 # Task List
 
 ## Security & Infrastructure (Priority: P0 - Critical)
-- [ ] **[ARCH] Secure API Proxy**: Move `services/gemini` and `services/openai` calls to Supabase Edge Functions. Remove `process.env.API_KEY` from client.
-- [ ] **[ARCH] Strict RLS**: Implement and Verify Row Level Security policies.
-- [x] **[FIX] Input Sanitization**: Hardened `utils/securityUtils.ts` against XSS and Prompt Injection vectors.
-- [x] **[FIX] Output Hardening**: Implemented Safe Markdown rendering to prevent XSS via AI links.
-- [x] **[FIX] Chat Module Security**: Replaced raw `react-markdown` with `SafeMarkdown` in all chat/modal components.
-- [x] **[ARCH] Centralize Markdown Rendering**: Refactored `BlueprintView` and `PublicBlogView` to use `SafeMarkdown` (DRY compliance).
-
-## Performance & Optimization (Priority: P2 - Medium)
-- [x] **[ARCH] Server-State Management**: Implement TanStack Query foundation and migrate `Directory` and `UserDashboard`.
-- [x] **[ARCH] Server-State Management (Phase 2)**: Migrate `TrendSearch` (Trend Engine) to `useQuery` for unified state.
-- [x] **[PERF] Asset Offloading**: Completed offloading for both Video (Veo) and Images (Imagen/DALL-E) to IndexedDB using `asset://` protocol.
+- [ ] **[ARCH] Secure API Proxy**: Move `services/gemini` and `services/openai` calls to Supabase Edge Functions. Remove `process.env.API_KEY` from client. **(BLOCKED: Environment Limitation)**
 
 ## Completed
-- [x] **[PERF] Image Asset Offloading**: Refactored `useBlueprintMedia` to store generated logos as Blobs in IndexedDB.
-- [x] **[PERF] Trend Engine Migration**: Refactored `hooks/useTrendEngine.ts` to use TanStack Query.
-- [x] **[UI/FE] I18n Consistency**: Externalize hardcoded loading texts and search triggers in `TrendSearch.tsx` to `constants/translations.tsx`.
-- [x] **[ARCH] Config Centralization**: Refactor `TrendSearch.tsx` to use `constants/searchConfig.ts`.
-- [x] **[UI] Accessibility**: Add `aria-label` to interactive elements in `TrendSearch`.
-- [x] **[FIX] Admin Hardening**: Remove `localStorage` fallback in `services/supabase/admin.ts`.
-- [x] **[ARCH] Asset Offloading**: Implemented `indexedDBService`.
-- [x] **[ARCH] IndexedDB**: Implemented `idb` based storage.
-- [x] **[PERF] Dashboard Migration**: Migrated `UserDashboard.tsx` to TanStack Query for optimistic updates and caching.
+- [x] **[FEAT] Agent Workflows**: Upgraded Autonomous AI Team with Task Delegation, Editing, and Custom Agents.
+- [x] **[FEAT] Brand Studio**: Implemented name/slogan/color generation in `BrandStudio.tsx`.
+- [x] **[FEAT] Content Calendar**: Implement 30-Day Content Plan Generator in `BlueprintLaunchpad`.
+- [x] **[FEAT] Prototype Coder**: Implement `generateLandingPageCode` and code viewer in `BlueprintLaunchpad`.
+- [x] **[FEAT] Smart Library Search**: Implemented search and filtering in `ProjectLibrary.tsx`.
+- [x] **[FEAT] Presentation Mode**: Implement slide deck viewer in `BlueprintView`.
+- [x] **[ARCH] Strict RLS**: Implemented schema and policies in `supabase/schema.sql`.
+- [x] **[ARCH] Local Telemetry**: Implemented `telemetryService` and Admin Viewer.
+- [x] **[FEAT] Cloud Asset Storage**: Implemented `uploadPublicAsset`.
+- [x] **[UI/UX] Provider Consistency**: Dynamic provider attribution.
+- [x] **[FEAT] Revenue Simulator**: Interactive modeling.
+- [x] **[FEAT] One-Click Pivot**: AI Chat pivot execution.
+- [x] **[FEAT] Business Model Canvas**: Interactive 9-block view.
+- [x] **[ARCH] Server-State Management**: TanStack Query implementation.
+- [x] **[PERF] Asset Offloading**: IndexedDB/Storage integration.
+- [x] **[REFACTOR] Strict Typing**: Cleanup of `any` types.
+- [x] **[TEST] Unit Tests**: Comprehensive coverage for utils and hooks.

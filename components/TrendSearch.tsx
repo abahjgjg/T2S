@@ -6,6 +6,30 @@ import { SearchRegion, SearchTimeframe, AIProvider } from '../types';
 import { toast } from './ToastNotifications';
 import { REGIONS, TIMEFRAMES, getDynamicTopics } from '../constants/searchConfig';
 
+// --- Type Definitions for Speech Recognition ---
+interface IWindow extends Window {
+  webkitSpeechRecognition: any;
+  SpeechRecognition: any;
+}
+
+interface SpeechRecognitionEvent {
+  results: {
+    [key: number]: {
+      [key: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface ISpeechRecognition {
+  lang: string;
+  start: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+}
+
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe) => void;
   isLoading: boolean;
@@ -107,14 +131,15 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
   };
 
   const startListening = () => {
-    if ('webkitSpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
+    const SpeechRecognition = (window as unknown as IWindow).webkitSpeechRecognition || (window as unknown as IWindow).SpeechRecognition;
+    
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition() as ISpeechRecognition;
       recognition.lang = 'en-US'; 
       recognition.start();
       setIsListening(true);
       
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event) => {
         const text = event.results[0][0].transcript;
         setInput(text);
         setIsListening(false);
@@ -122,7 +147,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
       recognition.onerror = () => setIsListening(false);
       recognition.onend = () => setIsListening(false);
     } else {
-      toast.error("Voice search requires a Chrome-based browser.");
+      toast.info("Voice search is not supported in this browser. Try Chrome or Edge.");
     }
   };
 

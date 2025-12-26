@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, TrendingUp, Calendar, ExternalLink, Loader2, Newspaper, ArrowRight, Share2, Copy, Telescope, Lightbulb, Target, Sparkles, MessageSquare, Globe, Link as LinkIcon } from 'lucide-react';
+import { X, TrendingUp, Calendar, ExternalLink, Loader2, Newspaper, ArrowRight, Share2, Copy, Telescope, Lightbulb, Target, Sparkles, MessageSquare, Globe, Link as LinkIcon, Bot, CheckCircle2 } from 'lucide-react';
 import { Trend, TrendDeepDive } from '../types';
 import { toast } from './ToastNotifications';
 
@@ -233,9 +233,17 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
         {/* Footer */}
         {deepDive && (
           <div className="p-4 border-t border-slate-800 bg-slate-950/50 flex justify-between items-center text-xs text-slate-500">
-            <span>AI-generated analysis based on real-time data.</span>
+            <span>AI-generated analysis based on {deepDive.provider === 'gemini' ? 'live' : 'internal'} data.</span>
             <div className="flex gap-2">
-               <span className="px-2 py-1 bg-slate-800 rounded">Gemini Grounding</span>
+               {deepDive.provider === 'gemini' ? (
+                 <span className="px-2 py-1 bg-emerald-950/50 border border-emerald-500/20 text-emerald-400 rounded flex items-center gap-1">
+                   <Sparkles className="w-3 h-3" /> Gemini Grounding
+                 </span>
+               ) : (
+                 <span className="px-2 py-1 bg-blue-950/50 border border-blue-500/20 text-blue-400 rounded flex items-center gap-1">
+                   <Bot className="w-3 h-3" /> OpenAI Knowledge
+                 </span>
+               )}
             </div>
           </div>
         )}

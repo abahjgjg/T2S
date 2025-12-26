@@ -1,4 +1,6 @@
 
+
+
 # Roadmap
 
 ## Phase 1-6: MVP to Advanced Features (Completed)
@@ -12,21 +14,33 @@
 
 ## Phase 7: Interactive Execution (Completed)
 - [x] **Interactive Roadmap**: Track task completion directly within the blueprint view. Progress is saved automatically.
+- [x] **Revenue Simulator**: Interactive financial modeling with growth scenarios.
+- [x] **One-Click Pivot**: Apply audit suggestions to automatically rewrite the blueprint.
+- [x] **Presentation Mode**: Auto-generate a slide deck from the blueprint for investor pitching.
 
-## Phase 8: Security & Infrastructure Hardening (CRITICAL PRIORITY)
-- [ ] **Secure API Proxy (P0)**: Move all AI calls (`geminiService`, `openaiService`) to Supabase Edge Functions to hide API Keys.
-- [ ] **Strict RLS (P0)**: Implement Row Level Security policies in Supabase for Admin and User data protection.
-- [ ] **Asset Offloading (P1)**: Stop storing Base64 media in LocalStorage. Upload generated assets (Images/Videos) to Supabase Storage Buckets.
-- [ ] **Admin Migration (P1)**: Move Admin "Owner" logic from LocalStorage to a protected database table.
-- [ ] **State Optimization**: Refactor `useResearch` hook into smaller, domain-specific hooks to reduce re-renders.
+## Phase 8: Security & Infrastructure Hardening
+- [ ] **Secure API Proxy (P0)**: Move all AI calls (`geminiService`, `openaiService`) to Supabase Edge Functions. Remove `process.env.API_KEY` from client. (BLOCKED)
+- [x] **Strict RLS (P0)**: Implement Row Level Security policies in Supabase for Admin and User data protection.
+- [x] **Local Telemetry (P1)**: Implemented client-side error logging visible in Admin Panel.
+- [x] **Asset Offloading (P1)**: Upload generated assets (Images/Videos) to Supabase Storage Buckets.
 
-## Phase 9: Performance & Scalability
-- [x] **Render Optimization**: Implemented `React.memo` and `useMemo` for heavy components (`TrendAnalysis`, `BlueprintView`) to reduce main-thread blocking.
-- [x] **UX Polish**: Upgraded "Trend Deep Dive" to a dedicated modal with visual timelines and sentiment badges.
-- [ ] **Server-State Management**: Implement TanStack Query (React Query) for efficient data fetching and caching.
-- [ ] **IndexedDB Migration**: Move local fallback storage from LocalStorage (5MB limit) to IndexedDB for offline capability.
-- [ ] **Remote Config**: Move AI System Prompts to a database table to allow dynamic prompt engineering updates.
+## Phase 9: Performance & Scalability (Completed)
+- [x] **Render Optimization**: Implemented `React.memo` and `useMemo` for heavy components (`TrendAnalysis`, `BlueprintView`).
+- [x] **UX Polish**: Upgraded "Trend Deep Dive" to a dedicated modal.
+- [x] **IndexedDB Migration**: Implemented `idb` for local state persistence.
+- [x] **Server-State Management**: Implement TanStack Query (React Query) for efficient data fetching and caching.
+- [x] **Remote Config**: System Prompts can be managed via Supabase `system_prompts` table.
+- [x] **Library Management**: Implemented Smart Search and Filtering for Saved Projects.
 
-## Phase 10: Collaboration
+## Phase 10: Collaboration (Future)
 - [ ] Shared workspaces for blueprint iteration.
 - [ ] Real-time multiplayer editing of blueprints.
+
+## Phase 11: Code Generation (Completed)
+- [x] **Prototype Coder**: Generate React/Tailwind code for landing pages based on Launch Assets.
+
+## Phase 12: Growth Operations (Completed)
+- [x] **Content Calendar**: AI generates a 30-day marketing plan with platform-specific posts.
+
+## Phase 13: Brand Strategy (Active)
+- [x] **Brand Studio**: AI-powered generation of Business Names, Slogans, Color Palettes, and Brand Tone.

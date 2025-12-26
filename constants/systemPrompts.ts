@@ -1,4 +1,5 @@
 
+
 export const DEFAULT_PROMPTS = {
   FETCH_TRENDS: `Act as a senior market analyst and news researcher.
 Current Date: {{currentDate}}
@@ -97,7 +98,9 @@ Roadmap: {{roadmap}}
 Task: Identify 3 to 5 critical AI Agent roles needed to autonomously execute or manage this business.
 For example: "SEO Manager", "Backend Developer", "Social Media Strategist".
 
-For each agent, write a high-quality "System Prompt" that a user could copy and paste into an LLM (like ChatGPT or Gemini) to make it act as that agent. The prompt should be detailed, defining tone, output format, and constraints.
+For each agent:
+1. Write a high-quality "System Prompt" that a user could copy and paste into an LLM.
+2. List 3-4 specific "Suggested Tasks" this agent can perform immediately (e.g. "Draft the welcome email", "Analyze competitors").
 
 {{langInstruction}}`,
 
@@ -163,7 +166,113 @@ Name: {{name}}
 Type: {{type}}
 Summary: {{summary}}
 Monetization: {{monetization}}
-Tech Stack: {{techStack}}`
+Tech Stack: {{techStack}}`,
+
+  GENERATE_LAUNCH_ASSETS: `Act as a professional Chief Marketing Officer (CMO) and Copywriter.
+Create specific Launch Assets for this business:
+Name: {{name}}
+Type: {{type}}
+Audience: {{audience}}
+Executive Summary: {{summary}}
+
+Task: Generate 3 high-impact marketing assets to help launch this product immediately.
+
+{{langInstruction}}
+
+Return ONLY a raw JSON object with this structure:
+{
+  "landingPage": {
+    "headline": "A high-converting, punchy H1 headline (max 10 words)",
+    "subheadline": "A persuasive H2 subheadline explaining the value proposition (max 20 words)",
+    "cta": "Primary Call-to-Action button text (e.g. 'Get Started Free')",
+    "benefits": ["Benefit 1", "Benefit 2", "Benefit 3"]
+  },
+  "socialPost": "A viral-style LinkedIn/Twitter launch post announcing the product. Use emojis and hashtags.",
+  "emailPitch": "A short, cold outreach email template to prospective customers. Subject line included."
+}`,
+
+  VIABILITY_AUDIT: `Act as a ruthless Venture Capitalist and Senior Engineer.
+Review the following Business Blueprint for viability:
+Name: {{name}}
+Type: {{type}}
+Summary: {{summary}}
+Tech Stack: {{techStack}}
+Revenue: {{revenue}}
+
+TASK:
+1. Score the business on 5 dimensions (0-100): Market Demand, Technical Feasibility, Scalability, Competitive Moat, Monetization Ease.
+2. Calculate an Overall Score (Weighted Average).
+3. Identify 3 "Hard Truths" - brutal, honest reasons why this might fail.
+4. Suggest 2 specific "Pivot" ideas to make it stronger.
+
+{{langInstruction}}
+
+Return strictly valid JSON:
+{
+  "overallScore": 85,
+  "dimensions": [
+    { "name": "Market Demand", "score": 90, "comment": "Brief reason" }
+  ],
+  "hardTruths": ["Truth 1", "Truth 2", "Truth 3"],
+  "pivotSuggestions": ["Pivot 1", "Pivot 2"]
+}`,
+
+  GENERATE_CODE: `Act as a Senior React Frontend Engineer.
+Create a high-converting Landing Page component for a business named "{{name}}".
+Type: {{type}}
+Headline: "{{headline}}"
+Subheadline: "{{subheadline}}"
+CTA: "{{cta}}"
+Benefits: {{benefits}}
+
+Design Requirements:
+- Use React (functional component).
+- Use Lucide React icons.
+- Use Tailwind CSS for all styling (Make it look modern, premium, and trustworthy).
+- Use a dark/light theme appropriate for the brand.
+- Include sections: Hero, Features (Benefits), Trust/Social Proof placeholder, and CTA Footer.
+- The output should be a single valid TSX file string.
+- Do NOT include 'import React' or imports other than 'lucide-react'. Assume they are available.
+- Export the component as 'default'.
+
+{{langInstruction}}
+
+Return ONLY the raw code string. No markdown formatting.`,
+
+  GENERATE_CONTENT_CALENDAR: `Act as an Expert Social Media Manager.
+Create a 4-week Content Marketing Calendar for:
+Business: {{name}}
+Audience: {{audience}}
+Target Market: {{market}}
+
+Strategy:
+Week 1: Awareness & Problem Agitation
+Week 2: Solution Education & USP
+Week 3: Social Proof & Trust Building
+Week 4: Conversion & Launch Offers
+
+{{langInstruction}}
+
+Return strictly valid JSON:
+[
+  {
+    "weekNumber": 1,
+    "theme": "The Problem with X",
+    "posts": [
+      { 
+        "platform": "LinkedIn", 
+        "type": "Educational", 
+        "content": "Hook for a post explaining the problem..." 
+      },
+      {
+        "platform": "Twitter",
+        "type": "Personal",
+        "content": "A tweet about the founder's journey..."
+      }
+    ]
+  }
+]
+Generate 2-3 posts per week.`
 };
 
 export type PromptKey = keyof typeof DEFAULT_PROMPTS;

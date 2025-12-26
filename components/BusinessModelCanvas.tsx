@@ -1,0 +1,151 @@
+
+import React, { useState } from 'react';
+import { BMC, Blueprint, BusinessIdea, Language, AIProvider } from '../types';
+import { getAIService } from '../services/aiRegistry';
+import { Loader2, LayoutGrid, Users, Link, Activity, Box, Heart, Megaphone, Wallet, CreditCard } from 'lucide-react';
+import { toast } from './ToastNotifications';
+
+interface Props {
+  idea: BusinessIdea;
+  blueprint: Blueprint;
+  bmc?: BMC;
+  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  uiText: any;
+}
+
+export const BusinessModelCanvas: React.FC<Props> = ({ idea, blueprint, bmc, onUpdateBlueprint, uiText }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const provider = (localStorage.getItem('trendventures_provider') as AIProvider) || 'gemini';
+      const lang = (localStorage.getItem('trendventures_lang') as Language) || 'id';
+      const aiService = getAIService(provider);
+      
+      const newBMC = await aiService.generateBMC(idea, blueprint, lang);
+      onUpdateBlueprint({ bmc: newBMC });
+      toast.success("Business Model Canvas Generated!");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to generate BMC.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  if (isGenerating) {
+    return (
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 className="w-12 h-12 text-indigo-400 animate-spin mb-6" />
+        <h3 className="text-xl font-bold text-white mb-2">Structuring Business Model...</h3>
+        <p className="text-slate-400">Mapping relationships, resources, and revenue streams.</p>
+      </div>
+    );
+  }
+
+  if (!bmc) {
+    return (
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center mb-8">
+        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
+          <LayoutGrid className="w-8 h-8 text-indigo-400" />
+        </div>
+        <h3 className="text-2xl font-bold text-white mb-2">Business Model Canvas</h3>
+        <p className="text-slate-400 max-w-md mx-auto mb-6">
+          Generate a strategic 9-block visual overview of your entire business model.
+        </p>
+        <button 
+          onClick={handleGenerate}
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/20"
+        >
+          Generate Canvas
+        </button>
+      </div>
+    );
+  }
+
+  // Helper for rendering a block
+  const renderBlock = (title: string, icon: React.ReactNode, items: string[], className: string) => (
+    <div className={`bg-slate-950/50 p-4 border border-slate-800 flex flex-col h-full ${className}`}>
+      <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+        {icon} {title}
+      </h4>
+      <ul className="space-y-2 flex-1">
+        {items.map((item, i) => (
+          <li key={i} className="text-xs text-slate-300 leading-relaxed pl-2 border-l border-slate-800">
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  return (
+    <div className="mb-10 animate-[fadeIn_0.3s_ease-out]">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+          <LayoutGrid className="w-5 h-5 text-indigo-400" /> Strategic Canvas
+        </h3>
+        <button 
+          onClick={handleGenerate} 
+          className="text-xs text-slate-400 hover:text-white underline"
+        >
+          Regenerate
+        </button>
+      </div>
+
+      {/* CSS Grid for Standard BMC Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-0 rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900">
+        
+        {/* Row 1 */}
+        {/* Key Partners (2/3 height, col 1) */}
+        <div className="md:col-span-1 md:row-span-2 min-h-[300px]">
+          {renderBlock('Key Partners', <Link className="w-3 h-3" />, bmc.keyPartners, 'border-r border-b md:border-b-0')}
+        </div>
+
+        {/* Key Activities (1/3 height, col 2) */}
+        <div className="md:col-span-1 md:row-span-1 min-h-[150px]">
+          {renderBlock('Key Activities', <Activity className="w-3 h-3" />, bmc.keyActivities, 'border-r border-b')}
+        </div>
+
+        {/* Value Propositions (2/3 height, col 3 - CENTER) */}
+        <div className="md:col-span-1 md:row-span-2 min-h-[300px]">
+          {renderBlock('Value Propositions', <Box className="w-3 h-3 text-indigo-400" />, bmc.valuePropositions, 'border-r border-b md:border-b-0 bg-indigo-900/10')}
+        </div>
+
+        {/* Customer Relationships (1/3 height, col 4) */}
+        <div className="md:col-span-1 md:row-span-1 min-h-[150px]">
+          {renderBlock('Relationships', <Heart className="w-3 h-3" />, bmc.customerRelationships, 'border-r border-b')}
+        </div>
+
+        {/* Customer Segments (2/3 height, col 5) */}
+        <div className="md:col-span-1 md:row-span-2 min-h-[300px]">
+          {renderBlock('Customer Segments', <Users className="w-3 h-3" />, bmc.customerSegments, 'border-b md:border-b-0')}
+        </div>
+
+        {/* Row 2 (Nested columns) */}
+        {/* Key Resources (1/3 height, col 2) */}
+        <div className="md:col-span-1 md:col-start-2 md:row-start-2 min-h-[150px]">
+          {renderBlock('Key Resources', <Box className="w-3 h-3" />, bmc.keyResources, 'border-r border-b md:border-b-0')}
+        </div>
+
+        {/* Channels (1/3 height, col 4) */}
+        <div className="md:col-span-1 md:col-start-4 md:row-start-2 min-h-[150px]">
+          {renderBlock('Channels', <Megaphone className="w-3 h-3" />, bmc.channels, 'border-r border-b md:border-b-0')}
+        </div>
+
+        {/* Row 3 (Bottom) */}
+        {/* Cost Structure (1/2 width) */}
+        <div className="md:col-span-2 md:row-start-3 min-h-[120px]">
+          {renderBlock('Cost Structure', <CreditCard className="w-3 h-3 text-red-400" />, bmc.costStructure, 'border-r border-t bg-slate-900')}
+        </div>
+
+        {/* Revenue Streams (1/2 width) */}
+        <div className="md:col-span-3 md:col-start-3 md:row-start-3 min-h-[120px]">
+          {renderBlock('Revenue Streams', <Wallet className="w-3 h-3 text-emerald-400" />, bmc.revenueStreams, 'border-t bg-emerald-900/5')}
+        </div>
+
+      </div>
+    </div>
+  );
+};

@@ -92,7 +92,10 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
       if (!text) throw new Error("No deep dive response");
 
       const rawData = JSON.parse(cleanJsonOutput(text));
-      return TrendDeepDiveSchema.parse(rawData) as TrendDeepDive;
+      const result = TrendDeepDiveSchema.parse(rawData) as TrendDeepDive;
+      
+      // Inject Provider
+      return { ...result, provider: 'gemini' };
 
     } catch (error) {
       console.error("Error inside getTrendDeepDive attempt:", error);

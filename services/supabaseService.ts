@@ -12,6 +12,8 @@ import {
   saveAffiliateProduct, deleteAffiliateProduct, incrementAffiliateClick, 
   saveLead, getLeads 
 } from './supabase/admin';
+import { getRemotePrompts, saveRemotePrompt, deleteRemotePrompt } from './supabase/prompts';
+import { uploadPublicAsset } from './supabase/storage';
 
 // Unified Service Facade for Backward Compatibility
 export const supabaseService = {
@@ -47,5 +49,13 @@ export const supabaseService = {
   deleteAffiliateProduct,
   incrementAffiliateClick,
   saveLead,
-  getLeads
+  getLeads,
+
+  // Config Module (Prompts)
+  getRemotePrompts,
+  saveRemotePrompt,
+  deleteRemotePrompt,
+
+  // Storage Module (Assets)
+  uploadPublicAsset
 };

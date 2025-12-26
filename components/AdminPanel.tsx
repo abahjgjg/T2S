@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabaseService } from '../services/supabaseService';
 import { AffiliateProduct, Lead, UserProfile, AIProvider } from '../types';
-import { ShieldCheck, ShieldAlert, LogIn, UserCheck, X, Package, Users, Settings, Lock, Loader2, MessageSquareCode, Unlock, Database } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, LogIn, UserCheck, X, Package, Users, Settings, Lock, Loader2, MessageSquareCode, Unlock, Database, Activity } from 'lucide-react';
 import { toast } from './ToastNotifications';
 
 // Sub-components
@@ -10,6 +10,7 @@ import { AdminAffiliates } from './admin/AdminAffiliates';
 import { AdminLeads } from './admin/AdminLeads';
 import { AdminSettings } from './admin/AdminSettings';
 import { AdminPrompts } from './admin/AdminPrompts';
+import { AdminLogs } from './admin/AdminLogs'; // New Import
 
 interface Props {
   onExit: () => void;
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export const AdminPanel: React.FC<Props> = ({ onExit, user, onLogin, provider, setProvider }) => {
-  const [activeTab, setActiveTab] = useState<'affiliates' | 'leads' | 'settings' | 'prompts'>('affiliates');
+  const [activeTab, setActiveTab] = useState<'affiliates' | 'leads' | 'settings' | 'prompts' | 'logs'>('affiliates');
   const [ownerEmail, setOwnerEmail] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   
@@ -274,6 +275,12 @@ export const AdminPanel: React.FC<Props> = ({ onExit, user, onLogin, provider, s
              <MessageSquareCode className="w-4 h-4" /> Prompts
            </button>
            <button
+             onClick={() => setActiveTab('logs')}
+             className={`px-4 py-2 rounded-t-lg font-bold text-sm transition-colors flex items-center gap-2 ${activeTab === 'logs' ? 'bg-slate-800 text-emerald-400 border-b-2 border-emerald-400' : 'text-slate-500 hover:text-white'}`}
+           >
+             <Activity className="w-4 h-4" /> System Logs
+           </button>
+           <button
              onClick={() => setActiveTab('settings')}
              className={`px-4 py-2 rounded-t-lg font-bold text-sm transition-colors flex items-center gap-2 ${activeTab === 'settings' ? 'bg-slate-800 text-emerald-400 border-b-2 border-emerald-400' : 'text-slate-500 hover:text-white'}`}
            >
@@ -292,6 +299,10 @@ export const AdminPanel: React.FC<Props> = ({ onExit, user, onLogin, provider, s
 
         {activeTab === 'prompts' && (
            <AdminPrompts />
+        )}
+
+        {activeTab === 'logs' && (
+           <AdminLogs />
         )}
 
         {activeTab === 'settings' && (

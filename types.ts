@@ -1,4 +1,3 @@
-
 export interface Trend {
   title: string;
   description: string;
@@ -19,6 +18,7 @@ export interface TrendDeepDive {
   futureOutlook: string; // Prediction for next 3-6 months
   actionableTips: string[]; // Strategic moves for entrepreneurs
   suggestedQuestions?: string[]; // New: AI-suggested follow-up questions for the chat
+  provider?: 'gemini' | 'openai'; // New: Source attribution
 }
 
 export interface CompetitorAnalysis {
@@ -69,6 +69,7 @@ export interface AgentProfile {
   objective: string; // Short description of responsibility
   systemPrompt: string; // The actual prompt to copy-paste into an LLM
   recommendedTools: string[]; // e.g. "Google Search Console", "Python"
+  suggestedTasks?: string[]; // New: Specific tasks this agent can execute immediately
 }
 
 export interface SWOTAnalysis {
@@ -76,6 +77,58 @@ export interface SWOTAnalysis {
   weaknesses: string[];
   opportunities: string[];
   threats: string[];
+}
+
+export interface ContentPost {
+  platform: 'LinkedIn' | 'Twitter' | 'Blog' | 'TikTok' | 'Instagram';
+  content: string;
+  type: 'Educational' | 'Promotional' | 'Personal' | 'Curated';
+}
+
+export interface ContentWeek {
+  weekNumber: number;
+  theme: string;
+  posts: ContentPost[];
+}
+
+export interface LaunchAssets {
+  landingPage: {
+    headline: string;
+    subheadline: string;
+    cta: string;
+    benefits: string[];
+  };
+  socialPost: string;
+  emailPitch: string;
+  landingPageCode?: string; // New: Generated React/Tailwind code
+  contentCalendar?: ContentWeek[]; // New: 4-Week Plan
+}
+
+export interface ViabilityAudit {
+  overallScore: number;
+  dimensions: { name: string; score: number; comment: string }[];
+  hardTruths: string[];
+  pivotSuggestions: string[];
+}
+
+export interface BMC {
+  keyPartners: string[];
+  keyActivities: string[];
+  keyResources: string[];
+  valuePropositions: string[];
+  customerRelationships: string[];
+  channels: string[];
+  customerSegments: string[];
+  costStructure: string[];
+  revenueStreams: string[];
+}
+
+export interface BrandIdentity {
+  names: string[];
+  slogans: string[];
+  colors: { name: string; hex: string }[];
+  tone: string;
+  brandValues: string[];
 }
 
 export interface Blueprint {
@@ -91,7 +144,11 @@ export interface Blueprint {
   brandImageUrl?: string; // New: Generated Logo/Brand Concept
   marketingVideoUrl?: string; // New: Generated Veo Video
   swot?: SWOTAnalysis; // New: Strategic analysis
+  launchAssets?: LaunchAssets; // New: GTM Assets
+  viabilityAudit?: ViabilityAudit; // New: VC-style audit
   roadmapProgress?: Record<string, boolean>; // New: Track completed tasks { "Task Name": true }
+  bmc?: BMC; // New: Business Model Canvas
+  brandIdentity?: BrandIdentity; // New: Brand Studio Data
 }
 
 export interface SavedProject {
@@ -176,4 +233,10 @@ export interface AIService {
   generateMarketingVideo(ideaName: string, description: string, lang: Language): Promise<Blob | null>; // Returns Blob (for persistence) or null
   analyzeCompetitor(name: string, niche: string, lang: Language): Promise<CompetitorAnalysis>;
   scoutLocation(businessType: string, location: string, lang: Language): Promise<LocationAnalysis>;
+  generateLaunchAssets(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<LaunchAssets>; 
+  conductViabilityAudit(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ViabilityAudit>;
+  generateBMC(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BMC>;
+  generateLandingPageCode(idea: BusinessIdea, assets: LaunchAssets, lang: Language): Promise<string>;
+  generateContentCalendar(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ContentWeek[]>;
+  generateBrandIdentity(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BrandIdentity>; // New
 }

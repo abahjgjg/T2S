@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SavedProject, UserProfile } from '../types';
 import { supabaseService } from '../services/supabaseService';
-import { X, Trash2, FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn } from 'lucide-react';
+import { X, Trash2, FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search, Filter } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 
@@ -17,8 +17,13 @@ interface Props {
   onOpenLogin: () => void;
 }
 
+const BUSINESS_TYPES = ['All', 'SaaS', 'Agency', 'Content', 'E-commerce', 'Platform'];
+
 export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: localProjects, onLoad, onDelete, uiText, user, onOpenLogin }) => {
   const [activeTab, setActiveTab] = useState<'local' | 'cloud'>('local');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('All');
+  
   const queryClient = useQueryClient();
 
   // Query: Fetch Cloud Projects
@@ -63,16 +68,27 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
     deleteMutation.mutate(id);
   };
 
-  if (!isOpen) return null;
+  // Filter Logic
+  const filteredProjects = useMemo(() => {
+    const source = activeTab === 'local' ? localProjects : cloudProjects;
+    return source
+      .filter(p => {
+        const matchesSearch = p.idea.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              p.niche.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesType = filterType === 'All' || p.idea.type === filterType;
+        return matchesSearch && matchesType;
+      })
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }, [activeTab, localProjects, cloudProjects, searchTerm, filterType]);
 
-  const projectsToRender = activeTab === 'local' ? localProjects : cloudProjects;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[80vh] animate-[slideUp_0.3s_ease-out] relative h-full">
+      <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[85vh] animate-[slideUp_0.3s_ease-out] relative h-full">
         
         {/* Header */}
-        <div className="p-6 pb-0 border-b border-slate-800 flex flex-col gap-4 bg-slate-950/50 rounded-t-2xl">
+        <div className="p-6 pb-0 border-b border-slate-800 flex flex-col gap-4 bg-slate-950/50 rounded-t-2xl z-10">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <FolderOpen className="text-emerald-400" />
@@ -88,7 +104,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 border-b border-slate-800/50">
             <button
               onClick={() => setActiveTab('local')}
               className={`pb-3 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'local' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
@@ -101,6 +117,36 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
             >
               <Cloud className="w-4 h-4" /> Cloud Saves
             </button>
+          </div>
+
+          {/* Search & Filters */}
+          <div className="flex flex-col gap-3 pb-4">
+             <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+                <input 
+                  type="text" 
+                  placeholder="Search projects..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                />
+             </div>
+             
+             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                {BUSINESS_TYPES.map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setFilterType(type)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap border transition-all ${
+                      filterType === type 
+                      ? 'bg-emerald-900/30 text-emerald-400 border-emerald-500/50' 
+                      : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+             </div>
           </div>
         </div>
         
@@ -137,24 +183,28 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           )}
 
           {/* Empty State */}
-          {((activeTab === 'local' && projectsToRender.length === 0) || (activeTab === 'cloud' && user && !loadingCloud && !cloudError && projectsToRender.length === 0)) && (
+          {((activeTab === 'local' && filteredProjects.length === 0) || (activeTab === 'cloud' && user && !loadingCloud && !cloudError && filteredProjects.length === 0)) && (
             <div className="text-center py-12 text-slate-500">
               <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-20" />
-              <p className="text-lg font-medium">{activeTab === 'local' ? uiText.noProjects : "No cloud saves yet."}</p>
-              <p className="text-sm mt-2 opacity-60">Generated blueprints can be saved here.</p>
+              <p className="text-lg font-medium">
+                {searchTerm || filterType !== 'All' ? "No matches found." : (activeTab === 'local' ? uiText.noProjects : "No cloud saves yet.")}
+              </p>
+              <p className="text-sm mt-2 opacity-60">
+                {searchTerm ? "Try adjusting your filters." : "Generated blueprints can be saved here."}
+              </p>
             </div>
           )}
 
           {/* Project List */}
-          {(activeTab === 'local' || (activeTab === 'cloud' && user)) && projectsToRender.length > 0 && projectsToRender.sort((a,b) => b.timestamp - a.timestamp).map((project) => (
-              <div key={project.id} className="bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-4 transition-all group relative">
+          {(activeTab === 'local' || (activeTab === 'cloud' && user)) && filteredProjects.map((project) => (
+              <div key={project.id} className="bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-4 transition-all group relative animate-[fadeIn_0.2s_ease-out]">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 cursor-pointer" onClick={() => onLoad(project)}>
                     <h3 className="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mb-1.5 text-lg">
                       {project.idea.name}
                     </h3>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                      <span className="bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-slate-400 font-mono">
+                      <span className="bg-slate-950 border border-slate-800 px-2 py-0.5 rounded text-slate-400 font-mono">
                         {project.idea.type}
                       </span>
                       <span className="text-slate-400 font-medium px-2 py-0.5 bg-slate-800/50 rounded">
@@ -195,7 +245,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
         </div>
         
         <div className="p-4 border-t border-slate-800 text-center text-xs text-slate-500 bg-slate-950/30 rounded-b-2xl">
-          {projectsToRender.length} {uiText.savedProjects} in {activeTab === 'local' ? 'Browser' : 'Cloud'}
+          {filteredProjects.length} {uiText.savedProjects} found
         </div>
       </div>
     </div>

@@ -1,18 +1,21 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { promptService } from '../../services/promptService';
 import { PromptKey, DEFAULT_PROMPTS } from '../../constants/systemPrompts';
-import { Save, RotateCcw, MessageSquareCode, Info } from 'lucide-react';
+import { Save, RotateCcw, MessageSquareCode, Info, Cloud, Check } from 'lucide-react';
 import { toast } from '../ToastNotifications';
+import { supabaseService } from '../../services/supabaseService';
 
 export const AdminPrompts: React.FC = () => {
   const [prompts, setPrompts] = useState<Record<string, string>>({});
   const [selectedKey, setSelectedKey] = useState<PromptKey>('GENERATE_BLUEPRINT');
   const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isCloudEnabled, setIsCloudEnabled] = useState(false);
 
   useEffect(() => {
     loadPrompts();
+    setIsCloudEnabled(supabaseService.isConfigured());
   }, []);
 
   const loadPrompts = () => {
@@ -26,17 +29,29 @@ export const AdminPrompts: React.FC = () => {
     setHasChanges(true);
   };
 
-  const handleSave = () => {
-    promptService.saveTemplate(selectedKey, prompts[selectedKey]);
-    setHasChanges(false);
-    toast.success("System Prompt Updated");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await promptService.saveTemplate(selectedKey, prompts[selectedKey]);
+      setHasChanges(false);
+      toast.success("System Prompt Updated & Synced");
+    } catch (e) {
+      toast.error("Failed to save changes");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (window.confirm("Reset this prompt to system default?")) {
-      promptService.resetTemplate(selectedKey);
-      loadPrompts();
-      toast.info("Restored to Default");
+      setIsSaving(true);
+      try {
+        await promptService.resetTemplate(selectedKey);
+        loadPrompts();
+        toast.info("Restored to Default");
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -51,7 +66,11 @@ export const AdminPrompts: React.FC = () => {
     PERSONA_VC_SKEPTIC: [],
     PERSONA_CUSTOMER_CURIOUS: [],
     PERSONA_TECH_CTO: [],
-    PITCH_SESSION_MASTER: ['personaInstruction', 'name', 'type', 'summary', 'monetization', 'techStack']
+    PITCH_SESSION_MASTER: ['personaInstruction', 'name', 'type', 'summary', 'monetization', 'techStack'],
+    GENERATE_LAUNCH_ASSETS: ['name', 'type', 'audience', 'summary', 'langInstruction'],
+    VIABILITY_AUDIT: ['name', 'type', 'summary', 'techStack', 'revenue', 'langInstruction'],
+    GENERATE_CODE: ['name', 'type', 'headline', 'subheadline', 'cta', 'benefits', 'langInstruction'],
+    GENERATE_CONTENT_CALENDAR: ['name', 'audience', 'market', 'langInstruction']
   };
 
   return (
@@ -87,7 +106,14 @@ export const AdminPrompts: React.FC = () => {
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg flex flex-col h-[600px]">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h2 className="text-lg font-bold text-white">{selectedKey}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-white">{selectedKey}</h2>
+                {isCloudEnabled && (
+                  <span className="text-[10px] flex items-center gap-1 bg-blue-900/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20" title="Syncs to Cloud">
+                    <Cloud className="w-3 h-3" /> Cloud
+                  </span>
+                )}
+              </div>
               <div className="flex gap-2 mt-1">
                 {variablesMap[selectedKey]?.map(v => (
                    <span key={v} className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">
@@ -100,6 +126,7 @@ export const AdminPrompts: React.FC = () => {
             <div className="flex gap-2">
               <button
                  onClick={handleReset}
+                 disabled={isSaving}
                  className="p-2 text-slate-500 hover:text-white bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
                  title="Reset to Default"
               >
@@ -107,10 +134,10 @@ export const AdminPrompts: React.FC = () => {
               </button>
               <button
                  onClick={handleSave}
-                 disabled={!hasChanges}
+                 disabled={!hasChanges || isSaving}
                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Save className="w-4 h-4" /> Save Changes
+                {isSaving ? <span className="animate-pulse">Saving...</span> : <><Save className="w-4 h-4" /> Save Changes</>}
               </button>
             </div>
           </div>
@@ -125,8 +152,8 @@ export const AdminPrompts: React.FC = () => {
             <Info className="w-4 h-4 shrink-0 text-blue-400" />
             <p>
               Modifying system prompts affects how the AI generates content. 
-              Ensure you keep the JSON structure instructions intact or the app may fail to parse results.
-              Variables like <code>{`{{niche}}`}</code> are injected automatically at runtime.
+              Ensure you keep the JSON structure instructions intact. 
+              {isCloudEnabled ? "Changes are synced to the cloud DB." : "Changes are saved locally only."}
             </p>
           </div>
         </div>
