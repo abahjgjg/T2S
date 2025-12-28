@@ -1,7 +1,9 @@
 
+
+
 import { AIService } from "../types";
 import { fetchMarketTrends, getTrendDeepDive } from "./openai/trends";
-import { generateBusinessIdeas, generateSystemBlueprint, sendBlueprintChat, generateTeamOfAgents, chatWithAgent, chatWithResearchAnalyst, generateLaunchAssets, conductViabilityAudit, generateBMC, generateLandingPageCode, generateContentCalendar, generateBrandIdentity } from "./openai/core";
+import { generateBusinessIdeas, generateSystemBlueprint, sendBlueprintChat, generateTeamOfAgents, chatWithAgent, chatWithResearchAnalyst, generateLaunchAssets, conductViabilityAudit, generateBMC, generateLandingPageCode, generateContentCalendar, generateBrandIdentity, generatePersonas } from "./openai/core";
 import { generateVoiceSummary, generateBrandImage, generateMarketingVideo } from "./openai/media";
 import { analyzeCompetitor, scoutLocation } from "./openai/analysis";
 
@@ -24,5 +26,6 @@ export const openaiService: AIService = {
   generateBMC,
   generateLandingPageCode,
   generateContentCalendar,
-  generateBrandIdentity
+  generateBrandIdentity,
+  generatePersonas
 };

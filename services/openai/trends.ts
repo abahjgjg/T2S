@@ -58,6 +58,7 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
    const prompt = `
       Provide a detailed news analysis of the trend "${trend}" in "${niche}".
       Use your internal knowledge to estimate the current sentiment, key recent events (approximate dates), and future outlook.
+      Identify 3-5 "Key Players" (Companies, Organizations, or Figures) driving this trend.
       
       ${langInstruction}
 
@@ -69,7 +70,9 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
            { "date": "YYYY-MM-DD", "title": "Event description", "url": "" }
         ],
         "futureOutlook": "Prediction for next 3-6 months...",
-        "actionableTips": ["Tip 1", "Tip 2", "Tip 3"]
+        "actionableTips": ["Tip 1", "Tip 2", "Tip 3"],
+        "suggestedQuestions": ["Question 1?", "Question 2?"],
+        "keyPlayers": ["Company A", "Person B"]
       }
    `;
    const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);

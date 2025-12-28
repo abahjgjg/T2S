@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, TrendingUp, Calendar, ExternalLink, Loader2, Newspaper, ArrowRight, Share2, Copy, Telescope, Lightbulb, Target, Sparkles, MessageSquare, Globe, Link as LinkIcon, Bot, CheckCircle2 } from 'lucide-react';
+import { X, TrendingUp, Calendar, ExternalLink, Loader2, Newspaper, ArrowRight, Share2, Copy, Telescope, Lightbulb, Target, Sparkles, MessageSquare, Globe, Link as LinkIcon, Bot, CheckCircle2, Users } from 'lucide-react';
 import { Trend, TrendDeepDive } from '../types';
 import { toast } from './ToastNotifications';
 
@@ -100,7 +100,23 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
                 </div>
               </div>
 
-              {/* Primary Sources (NEW) */}
+              {/* Key Players (NEW) */}
+              {deepDive.keyPlayers && deepDive.keyPlayers.length > 0 && (
+                <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-5">
+                   <h3 className="text-sm font-bold text-orange-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <Users className="w-4 h-4" /> Key Players
+                   </h3>
+                   <div className="flex flex-wrap gap-2">
+                      {deepDive.keyPlayers.map((player, i) => (
+                        <span key={i} className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-sm font-medium shadow-sm">
+                          {player}
+                        </span>
+                      ))}
+                   </div>
+                </div>
+              )}
+
+              {/* Primary Sources */}
               {trend.sources && trend.sources.length > 0 && (
                 <div className="bg-slate-950 border border-slate-800 rounded-xl p-5">
                    <h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2">

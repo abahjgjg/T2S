@@ -70,7 +70,8 @@ export const AdminPrompts: React.FC = () => {
     GENERATE_LAUNCH_ASSETS: ['name', 'type', 'audience', 'summary', 'langInstruction'],
     VIABILITY_AUDIT: ['name', 'type', 'summary', 'techStack', 'revenue', 'langInstruction'],
     GENERATE_CODE: ['name', 'type', 'headline', 'subheadline', 'cta', 'benefits', 'langInstruction'],
-    GENERATE_CONTENT_CALENDAR: ['name', 'audience', 'market', 'langInstruction']
+    GENERATE_CONTENT_CALENDAR: ['name', 'audience', 'market', 'langInstruction'],
+    GENERATE_PERSONAS: ['name', 'audience', 'summary', 'langInstruction']
   };
 
   return (

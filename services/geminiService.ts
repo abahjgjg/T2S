@@ -1,7 +1,9 @@
 
+
+
 import { AIService } from "../types";
 import { fetchMarketTrends, getTrendDeepDive } from "./gemini/trends";
-import { generateBusinessIdeas, generateSystemBlueprint, sendBlueprintChat, generateTeamOfAgents, chatWithAgent, chatWithResearchAnalyst, generateLaunchAssets, conductViabilityAudit, generateBMC, generateLandingPageCode, generateContentCalendar, generateBrandIdentity } from "./gemini/core";
+import { generateBusinessIdeas, generateSystemBlueprint, sendBlueprintChat, generateTeamOfAgents, chatWithAgent, chatWithResearchAnalyst, generateLaunchAssets, conductViabilityAudit, generateBMC, generateLandingPageCode, generateContentCalendar, generateBrandIdentity, generatePersonas } from "./gemini/core";
 import { generateBrandImage, generateMarketingVideo, generateVoiceSummary } from "./gemini/media";
 import { analyzeCompetitor, scoutLocation } from "./gemini/analysis";
 
@@ -24,5 +26,6 @@ export const geminiService: AIService = {
   generateBMC,
   generateLandingPageCode,
   generateContentCalendar,
-  generateBrandIdentity
+  generateBrandIdentity,
+  generatePersonas
 };

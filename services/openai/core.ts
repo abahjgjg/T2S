@@ -1,6 +1,7 @@
 
 
-import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity } from "../../types";
+
+import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity, CustomerPersona } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { affiliateService } from "../affiliateService";
 import { callOpenAI, getLanguageInstruction, OpenAIToolDefinition } from "./shared";
@@ -323,4 +324,17 @@ export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Bluep
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
   return JSON.parse(cleanJsonOutput(response.content || "{}"));
+};
+
+export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<CustomerPersona[]> => {
+  const langInstruction = getLanguageInstruction(lang);
+  const prompt = promptService.build('GENERATE_PERSONAS', {
+    name: idea.name,
+    audience: blueprint.targetAudience,
+    summary: blueprint.executiveSummary,
+    langInstruction
+  });
+
+  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  return JSON.parse(cleanJsonOutput(response.content || "[]"));
 };

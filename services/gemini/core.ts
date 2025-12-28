@@ -1,7 +1,8 @@
 
 
+
 import { Type, FunctionDeclaration } from "@google/genai";
-import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity } from "../../types";
+import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity, CustomerPersona } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
 import { affiliateService } from "../affiliateService";
@@ -671,6 +672,59 @@ export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Bluep
 
     } catch (error) {
       console.error("Error generating brand identity:", error);
+      throw error;
+    }
+  });
+};
+
+export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<CustomerPersona[]> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = promptService.build('GENERATE_PERSONAS', {
+        name: idea.name,
+        audience: blueprint.targetAudience,
+        summary: blueprint.executiveSummary,
+        langInstruction
+      });
+
+      const schema = {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            age: { type: Type.STRING },
+            occupation: { type: Type.STRING },
+            bio: { type: Type.STRING },
+            painPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
+            goals: { type: Type.ARRAY, items: { type: Type.STRING } },
+            channels: { type: Type.ARRAY, items: { type: Type.STRING } },
+            quote: { type: Type.STRING }
+          },
+          required: ["name", "age", "occupation", "bio", "painPoints", "goals", "channels", "quote"]
+        }
+      };
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.BASIC,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+          temperature: 0.8
+        },
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No personas generated");
+
+      return JSON.parse(cleanJsonOutput(text)) as CustomerPersona[];
+
+    } catch (error) {
+      console.error("Error generating personas:", error);
       throw error;
     }
   });

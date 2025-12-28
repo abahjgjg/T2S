@@ -1,3 +1,4 @@
+
 export interface Trend {
   title: string;
   description: string;
@@ -18,6 +19,7 @@ export interface TrendDeepDive {
   futureOutlook: string; // Prediction for next 3-6 months
   actionableTips: string[]; // Strategic moves for entrepreneurs
   suggestedQuestions?: string[]; // New: AI-suggested follow-up questions for the chat
+  keyPlayers?: string[]; // New: Companies or Figures involved
   provider?: 'gemini' | 'openai'; // New: Source attribution
 }
 
@@ -131,6 +133,18 @@ export interface BrandIdentity {
   brandValues: string[];
 }
 
+export interface CustomerPersona {
+  name: string;
+  age: string; // Range or specific number
+  occupation: string;
+  bio: string;
+  painPoints: string[];
+  goals: string[];
+  channels: string[]; // e.g. Reddit, LinkedIn
+  quote: string; // A representative quote
+  avatarUrl?: string; // Optional generated image
+}
+
 export interface Blueprint {
   executiveSummary: string;
   targetAudience: string;
@@ -149,6 +163,7 @@ export interface Blueprint {
   roadmapProgress?: Record<string, boolean>; // New: Track completed tasks { "Task Name": true }
   bmc?: BMC; // New: Business Model Canvas
   brandIdentity?: BrandIdentity; // New: Brand Studio Data
+  personas?: CustomerPersona[]; // New: Target Audience Profiles
 }
 
 export interface SavedProject {
@@ -238,5 +253,6 @@ export interface AIService {
   generateBMC(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BMC>;
   generateLandingPageCode(idea: BusinessIdea, assets: LaunchAssets, lang: Language): Promise<string>;
   generateContentCalendar(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ContentWeek[]>;
-  generateBrandIdentity(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BrandIdentity>; // New
+  generateBrandIdentity(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BrandIdentity>; 
+  generatePersonas(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<CustomerPersona[]>; // New
 }

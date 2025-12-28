@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 // --- Trend Schemas ---
@@ -25,6 +26,7 @@ export const TrendDeepDiveSchema = z.object({
   futureOutlook: z.string(),
   actionableTips: z.array(z.string()),
   suggestedQuestions: z.array(z.string()).optional(),
+  keyPlayers: z.array(z.string()).optional(), // New field
   provider: z.enum(['gemini', 'openai']).optional() // Added field
 });
 

@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { Blueprint, BusinessIdea, AIProvider, CompetitorAnalysis, ViabilityAudit, Language } from '../types';
 import { getAIService } from '../services/aiRegistry';
@@ -28,7 +29,8 @@ import { BlueprintLaunchpad } from './BlueprintLaunchpad';
 import { BlueprintAuditModal } from './BlueprintAuditModal';
 import { BusinessModelCanvas } from './BusinessModelCanvas';
 import { BrandStudio } from './BrandStudio';
-import { PresentationMode } from './PresentationMode'; // New Import
+import { CustomerPersonas } from './CustomerPersonas'; // New Import
+import { PresentationMode } from './PresentationMode'; 
 
 // New Atomic Components
 import { BlueprintCompetitors } from './blueprint/BlueprintCompetitors';
@@ -110,7 +112,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showCompetitorModal, setShowCompetitorModal] = useState(false);
   const [showAuditModal, setShowAuditModal] = useState(false);
-  const [showPresentation, setShowPresentation] = useState(false); // New State
+  const [showPresentation, setShowPresentation] = useState(false); 
 
   // Agent State
   const agents = blueprint.agents || [];
@@ -458,7 +460,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         uiText={uiText}
       />
 
-      {/* Brand Studio (NEW) */}
+      {/* Brand Studio */}
       <BrandStudio 
         idea={idea} 
         blueprint={blueprint} 
@@ -466,7 +468,15 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         onUpdateBlueprint={onUpdateBlueprint}
       />
 
-      {/* Launchpad (New Feature) */}
+      {/* Customer Personas (NEW) */}
+      <CustomerPersonas 
+        idea={idea}
+        blueprint={blueprint}
+        personas={blueprint.personas}
+        onUpdateBlueprint={onUpdateBlueprint}
+      />
+
+      {/* Launchpad */}
       <BlueprintLaunchpad 
         idea={idea} 
         blueprint={blueprint} 
@@ -475,7 +485,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         uiText={uiText}
       />
 
-      {/* Business Model Canvas (NEW) */}
+      {/* Business Model Canvas */}
       <BusinessModelCanvas 
         idea={idea} 
         blueprint={blueprint} 

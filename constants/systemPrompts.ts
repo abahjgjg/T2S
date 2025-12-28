@@ -1,5 +1,6 @@
 
 
+
 export const DEFAULT_PROMPTS = {
   FETCH_TRENDS: `Act as a senior market analyst and news researcher.
 Current Date: {{currentDate}}
@@ -49,8 +50,9 @@ THINKING PROCESS:
 1. Analyze the root cause of this trend. Why now?
 2. Consider the future implications for the next 3-6 months.
 3. Identify the sentiment based on recent headlines.
-4. Formulate actionable advice for business owners.
-5. Generate 3 specific "Follow-up Questions" a user might want to ask an analyst to dig deeper (e.g., "Who are the key players?", "How does this affect X?").
+4. Identify 3-5 key "Key Players" (Companies, People, or Organizations) driving this trend.
+5. Formulate actionable advice for business owners.
+6. Generate 3 specific "Follow-up Questions" a user might want to ask an analyst to dig deeper.
 
 {{langInstruction}}
 
@@ -63,7 +65,8 @@ Return ONLY a raw JSON object with this structure:
   ],
   "futureOutlook": "A predictive paragraph about where this trend is heading in the next 3-6 months.",
   "actionableTips": ["Specific tip 1", "Specific tip 2", "Specific tip 3"],
-  "suggestedQuestions": ["Question 1?", "Question 2?", "Question 3?"]
+  "suggestedQuestions": ["Question 1?", "Question 2?", "Question 3?"],
+  "keyPlayers": ["Company A", "Person B", "Organization C"]
 }`,
 
   GENERATE_IDEAS: `Context: The user is interested in the "{{niche}}" market.
@@ -272,7 +275,32 @@ Return strictly valid JSON:
     ]
   }
 ]
-Generate 2-3 posts per week.`
+Generate 2-3 posts per week.`,
+
+  GENERATE_PERSONAS: `Act as a User Research Specialist.
+Create 3 detailed Customer Personas for:
+Business: {{name}}
+Target Audience: {{audience}}
+Summary: {{summary}}
+
+Task: Develop 3 distinct profiles representing the Ideal Customer Profile (ICP).
+Include varied demographics and psychographics.
+
+{{langInstruction}}
+
+Return strictly valid JSON:
+[
+  {
+    "name": "Full Name",
+    "age": "30-35",
+    "occupation": "Job Title",
+    "bio": "A short paragraph describing their daily life and background.",
+    "painPoints": ["Pain 1", "Pain 2"],
+    "goals": ["Goal 1", "Goal 2"],
+    "channels": ["LinkedIn", "Twitter"],
+    "quote": "A first-person quote about their struggle."
+  }
+]`
 };
 
 export type PromptKey = keyof typeof DEFAULT_PROMPTS;
