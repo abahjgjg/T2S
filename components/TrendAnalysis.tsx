@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, 
   ScatterChart, Scatter, ZAxis, ReferenceLine, Label, Cell 
 } from 'recharts';
-import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Zap, Radio, TrendingUp, TrendingDown, Minus, Calendar } from 'lucide-react';
+import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Zap, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock } from 'lucide-react';
 import { TrendDeepDiveModal } from './TrendDeepDiveModal';
 
 interface Props {
@@ -47,7 +47,7 @@ export const TrendAnalysis: React.FC<Props> = ({
   onToggleExpand,
   onAskQuestion
 }) => {
-  const [viewMode, setViewMode] = useState<'list' | 'matrix'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'matrix' | 'timeline'>('list');
   
   // Performance Optimization: Memoize chart data
   const chartData = useMemo(() => {
@@ -71,6 +71,15 @@ export const TrendAnalysis: React.FC<Props> = ({
       z: t.impactScore || 50,
       sentiment: t.sentiment
     }));
+  }, [trends]);
+
+  // Memoize Timeline Data (Sorted by Date)
+  const timelineData = useMemo(() => {
+    return [...trends].sort((a, b) => {
+      const dateA = a.date ? new Date(a.date).getTime() : 0;
+      const dateB = b.date ? new Date(b.date).getTime() : 0;
+      return dateB - dateA; // Newest first
+    });
   }, [trends]);
 
   // Memoize average growth for the summary metric
@@ -145,16 +154,27 @@ export const TrendAnalysis: React.FC<Props> = ({
                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${
                    viewMode === 'list' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'
                  }`}
+                 title="Ranked List"
                >
-                 <List className="w-3 h-3" /> List
+                 <List className="w-3 h-3" />
                </button>
                <button 
                  onClick={() => setViewMode('matrix')}
                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${
                    viewMode === 'matrix' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
                  }`}
+                 title="Growth Matrix"
                >
-                 <LayoutGrid className="w-3 h-3" /> Matrix
+                 <LayoutGrid className="w-3 h-3" />
+               </button>
+               <button 
+                 onClick={() => setViewMode('timeline')}
+                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${
+                   viewMode === 'timeline' ? 'bg-slate-800 text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
+                 }`}
+                 title="Timeline"
+               >
+                 <Calendar className="w-3 h-3" />
                </button>
             </div>
 
@@ -178,7 +198,7 @@ export const TrendAnalysis: React.FC<Props> = ({
          
          {/* Charts Panel */}
          <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 h-[300px] relative overflow-hidden">
-            {viewMode === 'list' ? (
+            {viewMode === 'list' && (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={true} vertical={false} />
@@ -196,7 +216,9 @@ export const TrendAnalysis: React.FC<Props> = ({
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
-            ) : (
+            )}
+            
+            {viewMode === 'matrix' && (
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
@@ -221,15 +243,53 @@ export const TrendAnalysis: React.FC<Props> = ({
                 </ScatterChart>
               </ResponsiveContainer>
             )}
+
+            {viewMode === 'timeline' && (
+              <div className="absolute inset-0 overflow-y-auto custom-scrollbar p-2">
+                 <div className="relative pl-4 space-y-4">
+                    <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-500/20 via-slate-800 to-transparent"></div>
+                    {timelineData.map((trend, i) => (
+                      <div 
+                        key={i} 
+                        className="relative pl-6 group cursor-pointer animate-[fadeIn_0.3s_ease-out]"
+                        onClick={() => {
+                           // Find original index for toggle
+                           const originalIdx = trends.findIndex(t => t.title === trend.title);
+                           onToggleExpand(trend, originalIdx);
+                        }}
+                      >
+                         <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-slate-900 border-2 border-slate-700 group-hover:border-blue-400 group-hover:bg-blue-900/30 transition-colors z-10"></div>
+                         <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-800 group-hover:border-blue-500/30 hover:bg-slate-800/50 transition-all">
+                            <div className="flex justify-between items-start mb-1">
+                               <span className="text-[10px] font-mono text-blue-400 flex items-center gap-1">
+                                 <Clock className="w-3 h-3" /> {trend.date || 'Recent Update'}
+                               </span>
+                               <span className={`text-[10px] font-bold ${
+                                 trend.sentiment === 'Positive' ? 'text-emerald-400' : 
+                                 trend.sentiment === 'Negative' ? 'text-red-400' : 'text-slate-500'
+                               }`}>
+                                 {trend.sentiment}
+                               </span>
+                            </div>
+                            <h5 className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">{trend.title}</h5>
+                            <p className="text-xs text-slate-400 line-clamp-1 mt-1">{trend.triggerEvent}</p>
+                         </div>
+                      </div>
+                    ))}
+                 </div>
+              </div>
+            )}
             
-            <div className="absolute top-2 right-2 flex gap-2">
-               <div className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-950/80 px-2 py-1 rounded border border-slate-800">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Pos
-               </div>
-               <div className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-950/80 px-2 py-1 rounded border border-slate-800">
-                 <div className="w-2 h-2 rounded-full bg-red-500"></div> Neg
-               </div>
-            </div>
+            {viewMode !== 'timeline' && (
+              <div className="absolute top-2 right-2 flex gap-2">
+                 <div className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-950/80 px-2 py-1 rounded border border-slate-800">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Pos
+                 </div>
+                 <div className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-950/80 px-2 py-1 rounded border border-slate-800">
+                   <div className="w-2 h-2 rounded-full bg-red-500"></div> Neg
+                 </div>
+              </div>
+            )}
          </div>
       </div>
 

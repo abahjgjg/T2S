@@ -3,6 +3,7 @@ import React from 'react';
 import { X, TrendingUp, Calendar, ExternalLink, Loader2, Newspaper, ArrowRight, Share2, Copy, Telescope, Lightbulb, Target, Sparkles, MessageSquare, Globe, Link as LinkIcon, Bot, CheckCircle2, Users } from 'lucide-react';
 import { Trend, TrendDeepDive } from '../types';
 import { toast } from './ToastNotifications';
+import { SafeMarkdown } from './SafeMarkdown';
 
 interface Props {
   trend: Trend;
@@ -80,9 +81,9 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
                     <Copy className="w-3 h-3" /> Copy
                   </button>
                 </div>
-                <p className="text-lg text-slate-200 leading-relaxed">
-                  {deepDive.summary}
-                </p>
+                <div className="prose prose-invert prose-sm max-w-none text-slate-200 leading-relaxed">
+                  <SafeMarkdown content={deepDive.summary} />
+                </div>
                 
                 {/* Sentiment Badge */}
                 <div className="mt-6 flex items-center gap-3">
