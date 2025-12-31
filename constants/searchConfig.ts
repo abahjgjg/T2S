@@ -10,6 +10,17 @@ export const TIMEFRAMES: { label: string, value: SearchTimeframe }[] = [
   { label: '90 Days', value: '90d' }
 ];
 
+export const SEARCH_CATEGORIES = [
+  "Technology", 
+  "SaaS", 
+  "E-commerce", 
+  "Finance", 
+  "Health & Bio", 
+  "Sustainability", 
+  "AI & Robotics", 
+  "Digital Marketing"
+];
+
 export const getDynamicTopics = (): string[] => {
   const now = new Date();
   const year = now.getFullYear();

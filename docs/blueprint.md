@@ -1,5 +1,4 @@
 
-
 # Blueprint: TrendVentures AI
 
 ## Overview
@@ -13,7 +12,9 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
   - `useBlueprintMedia`: Handles generation of logos and Veo videos.
 - **Components**:
   - `BlueprintView` serves as an orchestration container.
-  - **Atomic Sub-components**: `BlueprintCompetitors`, `BlueprintAffiliates`, `BlueprintStrategies`, `BlueprintAgents` (upgraded).
+  - **Atomic Sub-components**: 
+    - `BlueprintCompetitors`, `BlueprintAffiliates`, `BlueprintStrategies`, `BlueprintAgents`.
+    - **New**: `CustomerPersonas` (Target Audience Analysis) and `BrandStudio` (Identity Generation).
   - **Research UI**: `TrendSearch` now supports **Region-Aware** searching and displays **Live Date Context** to ensure users know the AI is operating in "Now" time.
 - **Data Layer**: 
   - **Modular Supabase Service**: Split into `auth`, `projects`, `community`, `admin`, and **`storage`** modules for scalability.
@@ -31,9 +32,10 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
 
 ## Security & Hardening (New)
 - **Input Validation**: `securityUtils` sanitizes all user inputs (Niche search) to prevent buffer overflows and basic prompt injection.
-- **Integration Robustness**: 
-  - `retryOperation` handles transient API failures.
-  - `liveService` sanitized to follow strict `@google/genai` guidelines (Transcription Config).
+- **API Robustness**: 
+  - **Credential Validation**: Strict runtime checks for `process.env.API_KEY` in `getGeminiClient` and OpenAI services to prevent SDK crashes.
+  - **Integration Reliability**: `retryOperation` handles transient API failures.
+  - **Live Audio Stability**: `liveService` now handles `AudioContext` suspension (Autoplay Policy) by explicitly resuming context on connection.
 - **Standard Standards**: Adheres to basic OWASP client-side security practices (Sanitization, Validation).
 - **RLS Policies**: Admin-only write access for Affiliates/Leads. Owner-only access for `saved_projects`.
 
@@ -48,6 +50,7 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
 - **Trend**: Market signal with relevance/growth metrics.
 - **BusinessIdea**: Generated concept based on trends.
 - **Blueprint**: Full execution plan (Roadmap, Tech, SWOT, Revenue).
+- **CustomerPersona**: Detailed AI-generated profile of the ideal buyer.
 - **PublishedBlueprint**: Public record for the directory.
 
 ## Known Limitations

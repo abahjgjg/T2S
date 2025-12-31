@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp } from 'lucide-react';
+import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, AIProvider } from '../types';
 import { toast } from './ToastNotifications';
-import { REGIONS, TIMEFRAMES, getDynamicTopics } from '../constants/searchConfig';
+import { REGIONS, TIMEFRAMES, getDynamicTopics, SEARCH_CATEGORIES } from '../constants/searchConfig';
 
 // --- Type Definitions for Speech Recognition ---
 interface IWindow extends Window {
@@ -48,7 +48,6 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
   const [loadingText, setLoadingText] = useState(uiText.scanning);
   const [isListening, setIsListening] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
-  const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
   const [allTickerTopics, setAllTickerTopics] = useState<string[]>([]);
   
   useEffect(() => {
@@ -68,8 +67,6 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
 
     // Get topics from config
     const DYNAMIC_POOL = getDynamicTopics();
-    const shuffled = [...DYNAMIC_POOL].sort(() => 0.5 - Math.random());
-    setSuggestedTopics(shuffled.slice(0, 6));
     setAllTickerTopics([...DYNAMIC_POOL, ...DYNAMIC_POOL]); // Duplicate for seamless marquee
   }, []);
 
@@ -77,8 +74,6 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
   useEffect(() => {
     if (isLoading) {
       const texts = uiText.searchSteps || [uiText.scanning];
-      // Start with the dynamic region text if desired, or just cycle the list.
-      // For consistency, we cycle the localized list.
       let i = 0;
       setLoadingText(texts[0]);
       const interval = setInterval(() => {
@@ -152,7 +147,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto text-center mt-8 md:mt-12 px-4 animate-[fadeIn_0.5s_ease-out]">
+    <div className="w-full max-w-4xl mx-auto text-center mt-8 md:mt-12 px-4 animate-[fadeIn_0.5s_ease-out]">
       
       {/* Background Market Ticker (Subtle) */}
       {!isLoading && (
@@ -238,7 +233,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
          </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="relative group mb-12 max-w-2xl mx-auto z-10">
+      <form onSubmit={handleSubmit} className="relative group mb-8 max-w-2xl mx-auto z-10">
         <div className={`absolute -inset-0.5 bg-gradient-to-r ${validationError ? 'from-red-500 to-orange-500' : 'from-emerald-500 via-blue-500 to-purple-500'} rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500`}></div>
         <div className={`relative flex items-center bg-slate-950 rounded-2xl border ${validationError ? 'border-red-500/50' : 'border-slate-800'} p-2 shadow-2xl`}>
           <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-400'}`} aria-hidden="true" />
@@ -286,28 +281,30 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
         </div>
       )}
 
-      {/* Suggested Topics Chips */}
+      {/* Discovery Categories */}
       {!isLoading && (
-        <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-2xl mx-auto relative z-10">
-          {suggestedTopics.map((topic, i) => (
+        <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-3xl mx-auto relative z-10 animate-[fadeIn_0.5s_ease-out]">
+          <button 
+             onClick={handleGlobalPulse}
+             className="px-4 py-1.5 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-600/30 transition-all flex items-center gap-1.5 shadow-sm"
+             title="Scan latest global headlines"
+          >
+             <Activity className="w-3 h-3" /> {uiText.headlines || "Global Headlines"}
+          </button>
+          
+          {SEARCH_CATEGORIES.map((cat, i) => (
              <button
                key={i}
                onClick={() => {
-                 setInput(topic);
-                 handleSearchTrigger(topic);
+                 const query = `Latest trends in ${cat}`;
+                 setInput(query);
+                 handleSearchTrigger(query);
                }}
-               className="px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-xs font-medium hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-slate-800 transition-all flex items-center gap-1.5"
+               className="px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-xs font-medium hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-slate-800/80 transition-all flex items-center gap-1.5"
              >
-               <Radio className="w-3 h-3 text-orange-500/70" /> {topic}
+               <Hash className="w-3 h-3 opacity-50" /> {cat}
              </button>
           ))}
-          <button 
-             onClick={handleGlobalPulse}
-             className="px-3 py-1.5 rounded-full bg-blue-900/20 border border-blue-500/30 text-blue-400 text-xs font-medium hover:bg-blue-900/40 transition-all flex items-center gap-1.5"
-             title="Scan latest global headlines"
-          >
-             <Activity className="w-3 h-3" /> {uiText.headlines || "Headlines"}
-          </button>
         </div>
       )}
 

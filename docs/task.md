@@ -1,11 +1,12 @@
 
-
 # Task List
 
 ## Security & Infrastructure (Priority: P0 - Critical)
 - [ ] **[ARCH] Secure API Proxy**: Move `services/gemini` and `services/openai` calls to Supabase Edge Functions. Remove `process.env.API_KEY` from client. **(BLOCKED: Environment Limitation)**
 
 ## Completed
+- [x] **[FEAT] Customer Personas**: Implemented AI generation of ICP profiles with visual avatars (`components/CustomerPersonas.tsx`).
+- [x] **[FEAT] Trend Discovery Categories**: Implemented categories in `TrendSearch` for instant research.
 - [x] **[FEAT] Agent Workflows**: Upgraded Autonomous AI Team with Task Delegation, Editing, and Custom Agents.
 - [x] **[FEAT] Brand Studio**: Implemented name/slogan/color generation in `BrandStudio.tsx`.
 - [x] **[FEAT] Content Calendar**: Implement 30-Day Content Plan Generator in `BlueprintLaunchpad`.

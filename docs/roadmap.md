@@ -1,6 +1,4 @@
 
-
-
 # Roadmap
 
 ## Phase 1-6: MVP to Advanced Features (Completed)
@@ -42,5 +40,9 @@
 ## Phase 12: Growth Operations (Completed)
 - [x] **Content Calendar**: AI generates a 30-day marketing plan with platform-specific posts.
 
-## Phase 13: Brand Strategy (Active)
+## Phase 13: Brand & Audience Strategy (Completed)
 - [x] **Brand Studio**: AI-powered generation of Business Names, Slogans, Color Palettes, and Brand Tone.
+- [x] **Customer Personas**: Deep-dive generation of Ideal Customer Profiles (ICPs) with avatars, pain points, and goals.
+
+## Phase 14: Research Optimization (Active)
+- [x] **Trend Discovery Categories**: Implemented instant category filters for rapid market scanning.

@@ -1,18 +1,18 @@
 
 import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
-import { API_KEY } from "./shared";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
 
 export const generateVoiceSummary = async (text: string, lang: Language): Promise<string | null> => {
-  if (!API_KEY) return null;
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) return null;
 
   return retryOperation(async () => {
     const response = await fetch("https://api.openai.com/v1/audio/speech", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: OPENAI_MODELS.TTS,
@@ -39,7 +39,8 @@ export const generateVoiceSummary = async (text: string, lang: Language): Promis
 };
 
 export const generateBrandImage = async (ideaName: string, description: string, style: string): Promise<string | null> => {
-  if (!API_KEY) throw new Error("API Key not configured");
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) throw new Error("API Key not configured");
 
   return retryOperation(async () => {
     const prompt = `Professional logo design for "${ideaName}". ${description}. Style: ${style}. Vector flat design.`;
@@ -48,7 +49,7 @@ export const generateBrandImage = async (ideaName: string, description: string, 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: OPENAI_MODELS.IMAGE,

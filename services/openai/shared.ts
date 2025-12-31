@@ -3,8 +3,7 @@ import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
 
-export const API_KEY = process.env.API_KEY;
-
+// Removed module-level constant to ensure runtime evaluation of env vars
 export const getLanguageInstruction = (lang: Language) => {
   return lang === 'id' 
     ? "Provide all content values in Indonesian language (Bahasa Indonesia). However, KEEP THE JSON KEYS in English."
@@ -55,7 +54,8 @@ export const callOpenAI = async (
   model: string = OPENAI_MODELS.BASIC,
   options: OpenAIOptions = {}
 ): Promise<OpenAIMessage> => {
-  if (!API_KEY) throw new Error("API Key not configured");
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) throw new Error("OpenAI API Key is missing. Please verify your environment configuration.");
   
   return retryOperation(async () => {
     const body: OpenAIRequestBody = {
@@ -69,7 +69,7 @@ export const callOpenAI = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify(body)
     });

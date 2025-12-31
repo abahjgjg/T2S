@@ -1,10 +1,11 @@
 
-import { GoogleGenAI, LiveServerMessage, Modality } from "@google/genai";
+import { LiveServerMessage, Modality } from "@google/genai";
 import { Blueprint, BusinessIdea } from "../types";
 import { decodeAudioData, float32ToPcm16Base64 } from "../utils/audioUtils";
 import { GEMINI_MODELS } from "../constants/aiConfig";
 import { promptService } from "./promptService";
 import { PromptKey } from "../constants/systemPrompts";
+import { getGeminiClient } from "./gemini/shared";
 
 export interface LiveSessionCallbacks {
   onConnect: () => void;
@@ -70,21 +71,26 @@ export class LivePitchService {
     if (this.isConnected) return;
 
     try {
-      if (!process.env.API_KEY) {
-        throw new Error("API Key is missing in environment variables.");
-      }
-
-      // 0. Initialize AI Client (Fresh instance to ensure Key validity)
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // 0. Initialize AI Client using standard factory (Validates Key)
+      const ai = getGeminiClient();
 
       // 1. Setup Audio Contexts
       this.inputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       this.outputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+      
+      // Hardening: Resume contexts if suspended (Browser Autoplay Policy)
+      if (this.inputContext.state === 'suspended') await this.inputContext.resume();
+      if (this.outputContext.state === 'suspended') await this.outputContext.resume();
+
       this.outputNode = this.outputContext.createGain();
       this.outputNode.connect(this.outputContext.destination);
 
       // 2. Get Microphone Stream
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      try {
+        this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (e) {
+        throw new Error("Microphone access denied. Please allow audio permissions.");
+      }
 
       // 3. Prepare System Instruction
       const personaInstruction = promptService.getTemplate(persona.promptKey);
@@ -132,6 +138,7 @@ export class LivePitchService {
             let msg = "Connection error occurred.";
             if (e.message?.includes("403")) msg = "API Key invalid or quota exceeded.";
             if (e.message?.includes("404")) msg = "Model not found or unavailable.";
+            if (e.message?.includes("503")) msg = "Service overloaded. Retry shortly.";
             
             callbacks.onError(msg);
             this.disconnect();

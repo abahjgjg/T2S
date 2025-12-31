@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 import { telemetryService } from '../services/telemetryService';
 
@@ -11,17 +11,17 @@ interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends React.Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null
   };
 
-  static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
     telemetryService.logError(error, `ErrorBoundary: ${errorInfo.componentStack?.slice(0, 50)}...`);
   }
@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
     window.location.reload();
   };
 
-  render() {
+  public render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center animate-[fadeIn_0.5s_ease-out]">
