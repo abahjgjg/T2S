@@ -102,7 +102,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
 
   // --- Actions ---
 
-  const executeFreshAIResearch = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d') => {
+  const executeFreshAIResearch = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false) => {
     setAppState('RESEARCHING');
     setIsFromCache(false);
     setError(null);
@@ -112,7 +112,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     blueprintEngine.clearBlueprint();
 
     try {
-      await trendEngine.fetchTrends(searchTerm, region, timeframe);
+      await trendEngine.fetchTrends(searchTerm, region, timeframe, deepMode);
       setAppState('ANALYZING');
     } catch (e: any) {
       console.error(e);
@@ -137,11 +137,12 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     }
   };
 
-  const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d') => {
+  const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false) => {
     try {
       // 1. Check Cache (Supabase Public Directory)
-      // Only use cache if region is Global and timeframe is 30d (standard)
-      const isStandardSearch = region === 'Global' && timeframe === '30d';
+      // Only use cache if region is Global and timeframe is 30d (standard) and NOT Deep Mode
+      // Deep mode implies the user wants fresh, deep reasoning, so we skip cache unless it's a perfect match (unlikely for "deep" intent)
+      const isStandardSearch = region === 'Global' && timeframe === '30d' && !deepMode;
       const cachedIdeas = isStandardSearch ? await supabaseService.findBlueprintsByNiche(searchTerm) : [];
 
       if (cachedIdeas.length > 0) {
@@ -159,11 +160,11 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
         setAppState('ANALYZING');
       } else {
         // MISS
-        await executeFreshAIResearch(searchTerm, region, timeframe);
+        await executeFreshAIResearch(searchTerm, region, timeframe, deepMode);
       }
     } catch (e: any) {
       console.error("Cache check failed", e);
-      await executeFreshAIResearch(searchTerm, region, timeframe);
+      await executeFreshAIResearch(searchTerm, region, timeframe, deepMode);
     }
   }, [language]); 
 

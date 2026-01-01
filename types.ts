@@ -235,7 +235,7 @@ export type SearchRegion = 'Global' | 'Indonesia' | 'USA' | 'Europe' | 'Asia';
 export type SearchTimeframe = '24h' | '7d' | '30d' | '90d';
 
 export interface AIService {
-  fetchMarketTrends(niche: string, lang: Language, region?: SearchRegion, timeframe?: SearchTimeframe): Promise<Trend[]>;
+  fetchMarketTrends(niche: string, lang: Language, region?: SearchRegion, timeframe?: SearchTimeframe, deepMode?: boolean): Promise<Trend[]>;
   getTrendDeepDive(trend: string, niche: string, lang: Language): Promise<TrendDeepDive>;
   generateBusinessIdeas(niche: string, trends: Trend[], lang: Language): Promise<BusinessIdea[]>;
   generateSystemBlueprint(idea: BusinessIdea, lang: Language): Promise<Blueprint>;

@@ -9,18 +9,20 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     niche: string; 
     region: SearchRegion; 
     timeframe: SearchTimeframe;
+    deepMode: boolean; // Added
   } | null>(null);
 
   // Use React Query for fetching trends
   const { data: trends = [], refetch, isFetching } = useQuery({
-    queryKey: ['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, language],
+    queryKey: ['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language],
     queryFn: async () => {
       if (!searchParams) return [];
       return await aiService.fetchMarketTrends(
         searchParams.niche, 
         language, 
         searchParams.region, 
-        searchParams.timeframe
+        searchParams.timeframe,
+        searchParams.deepMode
       );
     },
     enabled: false, // Triggered manually via fetchTrends
@@ -28,19 +30,17 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     gcTime: 1000 * 60 * 60, // Keep unused data for 1 hour
   });
 
-  const fetchTrends = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d') => {
-    setSearchParams({ niche: searchTerm, region, timeframe });
+  const fetchTrends = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false) => {
+    setSearchParams({ niche: searchTerm, region, timeframe, deepMode });
     
     // We explicitly trigger the refetch after setting params to ensure the query runs
-    // Note: In a real-world scenario with 'enabled: true', setting params would auto-trigger.
-    // However, we want strict control for the 'Analyze' button click.
     setTimeout(() => {
-        // Small tick to allow state to propagate if needed, though react-query handles keys well.
+        // Small tick to allow state to propagate if needed
     }, 0);
     
     const result = await queryClient.fetchQuery({
-      queryKey: ['marketTrends', searchTerm, region, timeframe, language],
-      queryFn: () => aiService.fetchMarketTrends(searchTerm, language, region, timeframe),
+      queryKey: ['marketTrends', searchTerm, region, timeframe, deepMode, language],
+      queryFn: () => aiService.fetchMarketTrends(searchTerm, language, region, timeframe, deepMode),
       staleTime: 1000 * 60 * 15
     });
     
@@ -49,23 +49,12 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
 
   // Support manual hydration from IDB or Deep Dive updates
   const setTrends = useCallback((newTrends: Trend[] | ((prev: Trend[]) => Trend[])) => {
-    // We use a generic key for the "current" trends in view, or we update the specific query if we knew it.
-    // Since this is a "Selection" engine, we can treat the current data as the active state.
-    // However, React Query's `data` is read-only. We must update the cache.
-    
-    // Strategy: We update the cache for the *current* search params if they exist, 
-    // or just rely on a local override if we are restoring from IDB without a search context.
-    
     if (typeof newTrends === 'function') {
-        // Functional update logic requires reading current data
-        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, language], (old: Trend[] | undefined) => {
+        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language], (old: Trend[] | undefined) => {
             return newTrends(old || []);
         });
     } else {
-        // Direct set (used by IDB restore)
-        // If we are restoring, we might not have searchParams set yet. 
-        // We set the data for the *current* active key context.
-        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, language], newTrends);
+        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language], newTrends);
     }
   }, [queryClient, searchParams, language]);
 
@@ -81,7 +70,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
 
   const analyzeTrendDeepDive = async (index: number) => {
     // Access current data synchronously from cache or hook
-    const currentTrends = queryClient.getQueryData<Trend[]>(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, language]) || trends;
+    const currentTrends = queryClient.getQueryData<Trend[]>(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language]) || trends;
     const trend = currentTrends[index];
     
     if (!trend) return;
@@ -103,7 +92,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
 
   return {
     niche: searchParams?.niche || '',
-    setNiche: (n: string) => setSearchParams(prev => ({ ...prev!, niche: n })), // Simple setter for compatibility
+    setNiche: (n: string) => setSearchParams(prev => ({ ...prev!, niche: n, deepMode: prev?.deepMode || false })), // Safe update
     trends,
     setTrends,
     fetchTrends,

@@ -7,7 +7,7 @@ import { GEMINI_MODELS } from "../../constants/aiConfig";
 import { TrendListSchema, TrendDeepDiveSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 
-export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d'): Promise<Trend[]> => {
+export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false): Promise<Trend[]> => {
   return retryOperation(async () => {
     try {
       const ai = getGeminiClient();
@@ -21,11 +21,18 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
         currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       });
 
+      // Select Model based on mode
+      // Basic: Flash (Fast, Cheap)
+      // Deep: Pro (Reasoning, Comprehensive)
+      const model = deepMode ? GEMINI_MODELS.COMPLEX : GEMINI_MODELS.BASIC;
+
       const response = await ai.models.generateContent({
-        model: GEMINI_MODELS.BASIC,
+        model: model,
         contents: prompt,
         config: {
           tools: [{ googleSearch: {} }],
+          // If Deep Mode, enable Thinking for better analysis
+          ...(deepMode ? { thinkingConfig: { thinkingBudget: 1024 } } : {})
         },
       });
 

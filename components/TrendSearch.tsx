@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash } from 'lucide-react';
+import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, AIProvider } from '../types';
 import { toast } from './ToastNotifications';
@@ -31,7 +31,7 @@ interface ISpeechRecognition {
 }
 
 interface Props {
-  onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe) => void;
+  onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean) => void;
   isLoading: boolean;
   uiText: any;
   provider: AIProvider;
@@ -43,6 +43,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
   const [input, setInput] = useState('');
   const [region, setRegion] = useState<SearchRegion>('Global');
   const [timeframe, setTimeframe] = useState<SearchTimeframe>('30d');
+  const [deepMode, setDeepMode] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState(uiText.scanning);
@@ -111,7 +112,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
 
     const cleanTerm = sanitizeInput(term);
     addToHistory(cleanTerm);
-    onSearch(cleanTerm, region, timeframe);
+    onSearch(cleanTerm, region, timeframe, deepMode);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -179,7 +180,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
         
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
            <Cpu className="w-3 h-3" />
-           {uiText.modelDisplay?.[provider] || (provider === 'gemini' ? 'Gemini 3 Pro' : 'OpenAI GPT-4o')}
+           {uiText.modelDisplay?.[provider] || (provider === 'gemini' ? 'Gemini 3' : 'OpenAI GPT-4o')}
         </div>
       </div>
 
@@ -191,7 +192,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
       </p>
       
       {/* Search Configuration */}
-      <div className="flex flex-col sm:flex-row justify-center gap-3 mb-6 relative z-10">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-6 relative z-10">
          {/* Region Selector */}
          <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative z-10 shrink-0" role="group" aria-label="Select Region">
             {REGIONS.map(r => (
@@ -231,6 +232,20 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
               </button>
             ))}
          </div>
+
+         {/* Deep Mode Toggle */}
+         <button 
+           onClick={() => setDeepMode(!deepMode)}
+           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all shadow-xl ${
+             deepMode 
+             ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-900/50' 
+             : 'bg-slate-900/80 border-slate-800 text-slate-500 hover:text-white hover:border-slate-600'
+           }`}
+           title="Deep Research Mode: Uses Reasoning Model (Slower but detailed)"
+         >
+           {deepMode ? <BrainCircuit className="w-4 h-4 animate-pulse" /> : <Zap className="w-4 h-4" />}
+           {deepMode ? "Deep Research" : "Fast Scan"}
+         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="relative group mb-8 max-w-2xl mx-auto z-10">
@@ -266,7 +281,11 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0 whitespace-nowrap shadow-lg shadow-emerald-900/20"
+            className={`font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0 whitespace-nowrap shadow-lg ${
+              deepMode 
+              ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/30'
+              : 'bg-emerald-600 hover:bg-emerald-500 text-slate-950 shadow-emerald-900/20'
+            }`}
             aria-label={isLoading ? "Analyzing..." : "Start Analysis"}
           >
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : uiText.analyzeBtn}
@@ -340,12 +359,18 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
       
       {isLoading && (
         <div className="mt-8 flex flex-col items-center animate-[fadeIn_0.5s_ease-in] relative z-10" role="status">
-          <div className="text-emerald-400 text-sm font-bold font-mono mb-3 flex items-center gap-2 bg-emerald-950/30 px-4 py-1.5 rounded-full border border-emerald-500/20">
-            <Zap className="w-3.5 h-3.5 animate-bounce" />
+          <div className={`text-sm font-bold font-mono mb-3 flex items-center gap-2 px-4 py-1.5 rounded-full border ${
+            deepMode 
+            ? 'text-indigo-400 bg-indigo-950/30 border-indigo-500/20' 
+            : 'text-emerald-400 bg-emerald-950/30 border-emerald-500/20'
+          }`}>
+            {deepMode ? <BrainCircuit className="w-3.5 h-3.5 animate-pulse" /> : <Zap className="w-3.5 h-3.5 animate-bounce" />}
             <span className="animate-pulse">{loadingText}</span>
           </div>
           <div className="w-64 h-1 bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 w-1/3 animate-[shimmer_2s_infinite_linear]"></div>
+            <div className={`h-full w-1/3 animate-[shimmer_2s_infinite_linear] ${
+              deepMode ? 'bg-indigo-500' : 'bg-emerald-500'
+            }`}></div>
           </div>
           <div className="flex items-center gap-4 mt-3">
              <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">

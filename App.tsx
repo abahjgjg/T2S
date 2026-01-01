@@ -123,7 +123,7 @@ const App: React.FC = () => {
       } else {
         // Fresh Search Trigger
         if (isInitialLoad || rState.niche !== sharedNiche) {
-          rActions.executeSearchSequence(sharedNiche, 'Global', '30d'); // Default region/timeframe for shared links
+          rActions.executeSearchSequence(sharedNiche, 'Global', '30d'); // Default params for shared links
         }
       }
       return;
@@ -220,11 +220,11 @@ const App: React.FC = () => {
     }
   };
 
-  const handleSearch = async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe) => {
+  const handleSearch = async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean) => {
     // Update URL first
     const newUrl = `/idea?niche=${encodeURIComponent(searchTerm)}`;
     safePushState(newUrl);
-    rActions.executeSearchSequence(searchTerm, region, timeframe);
+    rActions.executeSearchSequence(searchTerm, region, timeframe, deepMode);
   };
 
   const handleIdeaSelectionWrapper = async (idea: any) => {

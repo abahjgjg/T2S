@@ -4,7 +4,7 @@ import { cleanJsonOutput } from "../../utils/textUtils";
 import { callOpenAI, getLanguageInstruction } from "./shared";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
 
-export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d'): Promise<Trend[]> => {
+export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false): Promise<Trend[]> => {
   // OpenAI Standard API does not have real-time Google Search tools built-in without extensions.
   // We simulate this by asking the model to use its internal knowledge base.
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -42,8 +42,10 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
     - date: The approximate date of the trigger event.
   `;
 
-  // Uses OPENAI_MODELS.BASIC default
-  const response = await callOpenAI([{ role: "user", content: prompt }]);
+  // Use Complex model if Deep Mode is enabled, otherwise Basic (Mini)
+  const model = deepMode ? OPENAI_MODELS.COMPLEX : OPENAI_MODELS.BASIC;
+
+  const response = await callOpenAI([{ role: "user", content: prompt }], model);
   const rawTrends = JSON.parse(cleanJsonOutput(response.content || "[]"));
   
   // Map to new interface, adding empty sources
