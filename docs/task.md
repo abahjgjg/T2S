@@ -5,6 +5,7 @@
 - [ ] **[ARCH] Secure API Proxy**: Move `services/gemini` and `services/openai` calls to Supabase Edge Functions. Remove `process.env.API_KEY` from client. **(BLOCKED: Environment Limitation)**
 
 ## Completed
+- [x] **[DOCS] User & Developer Guides**: Created comprehensive documentation (`docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`).
 - [x] **[FEAT] Customer Personas**: Implemented AI generation of ICP profiles with visual avatars (`components/CustomerPersonas.tsx`).
 - [x] **[FEAT] Trend Discovery Categories**: Implemented categories in `TrendSearch` for instant research.
 - [x] **[FEAT] Agent Workflows**: Upgraded Autonomous AI Team with Task Delegation, Editing, and Custom Agents.
