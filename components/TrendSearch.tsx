@@ -4,7 +4,7 @@ import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, C
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, AIProvider } from '../types';
 import { toast } from './ToastNotifications';
-import { REGIONS, TIMEFRAMES, getDynamicTopics, SEARCH_CATEGORIES } from '../constants/searchConfig';
+import { REGIONS, TIMEFRAMES } from '../constants/searchConfig';
 
 // --- Type Definitions for Speech Recognition ---
 interface IWindow extends Window {
@@ -62,14 +62,16 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
       }
     }
     
-    // Set Date & Dynamic Topics
+    // Set Date
     const now = new Date();
     setCurrentDate(now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }));
-
-    // Get topics from config
-    const DYNAMIC_POOL = getDynamicTopics();
-    setAllTickerTopics([...DYNAMIC_POOL, ...DYNAMIC_POOL]); // Duplicate for seamless marquee
   }, []);
+
+  // Update Ticker topics when language changes (uiText changes)
+  useEffect(() => {
+    const dynamicPool = uiText.tickerTopics || ["AI Trends", "Market Shifts"];
+    setAllTickerTopics([...dynamicPool, ...dynamicPool]); // Duplicate for seamless marquee
+  }, [uiText]);
 
   // Cycle loading text to show AI reasoning steps
   useEffect(() => {
@@ -228,7 +230,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
                 }`}
               >
                 {timeframe === t.value && <Clock4 className="w-3 h-3" />}
-                {t.label}
+                {uiText.timeframes?.[t.value] || t.label}
               </button>
             ))}
          </div>
@@ -300,8 +302,8 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
         </div>
       )}
 
-      {/* Discovery Categories */}
-      {!isLoading && (
+      {/* Discovery Categories (Localized) */}
+      {!isLoading && uiText.searchCategories && (
         <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-3xl mx-auto relative z-10 animate-[fadeIn_0.5s_ease-out]">
           <button 
              onClick={handleGlobalPulse}
@@ -311,7 +313,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
              <Activity className="w-3 h-3" /> {uiText.headlines || "Global Headlines"}
           </button>
           
-          {SEARCH_CATEGORIES.map((cat, i) => (
+          {uiText.searchCategories.map((cat: string, i: number) => (
              <button
                key={i}
                onClick={() => {
@@ -377,7 +379,7 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
                <MapPin className="w-3 h-3" /> {region.toUpperCase()}
              </div>
              <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
-               <Clock4 className="w-3 h-3" /> {timeframe}
+               <Clock4 className="w-3 h-3" /> {uiText.timeframes?.[timeframe] || timeframe}
              </div>
           </div>
         </div>

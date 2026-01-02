@@ -125,7 +125,19 @@ export const TRANSLATIONS = {
       gemini: "Gemini 3 Pro",
       openai: "OpenAI GPT-4o"
     },
-    headlines: "Berita Utama"
+    headlines: "Berita Utama",
+    searchCategories: [
+      "Teknologi", "SaaS", "E-commerce", "Keuangan", "Kesehatan", "AI & Robotik", "Pemasaran Digital", "Energi Hijau"
+    ],
+    tickerTopics: [
+      "Regulasi AI", "IPO Teknologi", "Pasar Kripto", "Hukum Kerja Remote", "Inflasi Global", "Mobil Listrik"
+    ],
+    timeframes: {
+      '24h': '24 Jam',
+      '7d': '7 Hari',
+      '30d': '30 Hari',
+      '90d': '90 Hari'
+    }
   },
   en: {
     heroTitle: <>Research News & Trends <br /><span className="text-emerald-400">in Real-Time</span></>,
@@ -250,6 +262,18 @@ export const TRANSLATIONS = {
       gemini: "Gemini 3 Pro",
       openai: "OpenAI GPT-4o"
     },
-    headlines: "Headlines"
+    headlines: "Headlines",
+    searchCategories: [
+      "Technology", "SaaS", "E-commerce", "Finance", "Health & Bio", "Sustainability", "AI & Robotics", "Digital Marketing"
+    ],
+    tickerTopics: [
+      "AI Regulation", "Tech IPOs", "Crypto Markets", "Remote Work Laws", "Global Inflation", "EV Market"
+    ],
+    timeframes: {
+      '24h': '24 Hours',
+      '7d': '7 Days',
+      '30d': '30 Days',
+      '90d': '90 Days'
+    }
   }
 };
