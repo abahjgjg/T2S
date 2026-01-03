@@ -1,28 +1,35 @@
+
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { BusinessIdea, Trend, Language, AIService } from '../types';
 
 export const useIdeaEngine = (aiService: AIService, language: Language) => {
   const [ideas, setIdeas] = useState<BusinessIdea[]>([]);
-  const [isGeneratingIdeas, setIsGeneratingIdeas] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: async (variables: { niche: string, selectedTrends: Trend[] }) => {
+      return await aiService.generateBusinessIdeas(variables.niche, variables.selectedTrends, language);
+    },
+    onSuccess: (data) => {
+      setIdeas(data);
+    }
+  });
 
   const generateIdeas = async (niche: string, selectedTrends: Trend[]) => {
-    setIsGeneratingIdeas(true);
-    try {
-      const results = await aiService.generateBusinessIdeas(niche, selectedTrends, language);
-      setIdeas(results);
-      return results;
-    } finally {
-      setIsGeneratingIdeas(false);
-    }
+    return await mutation.mutateAsync({ niche, selectedTrends });
   };
 
-  const clearIdeas = () => setIdeas([]);
+  const clearIdeas = () => {
+    setIdeas([]);
+    mutation.reset();
+  };
 
   return {
     ideas,
     setIdeas,
-    isGeneratingIdeas,
+    isGeneratingIdeas: mutation.isPending,
     generateIdeas,
-    clearIdeas
+    clearIdeas,
+    error: mutation.error
   };
 };

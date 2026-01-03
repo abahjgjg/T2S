@@ -9,7 +9,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     niche: string; 
     region: SearchRegion; 
     timeframe: SearchTimeframe;
-    deepMode: boolean; // Added
+    deepMode: boolean; 
   } | null>(null);
 
   // Use React Query for fetching trends
@@ -90,9 +90,23 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     queryClient.removeQueries({ queryKey: ['marketTrends'] });
   };
 
+  const setSearchContext = (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean) => {
+    setSearchParams({ niche, region, timeframe, deepMode });
+  };
+
   return {
     niche: searchParams?.niche || '',
-    setNiche: (n: string) => setSearchParams(prev => ({ ...prev!, niche: n, deepMode: prev?.deepMode || false })), // Safe update
+    region: searchParams?.region || 'Global',
+    timeframe: searchParams?.timeframe || '30d',
+    deepMode: searchParams?.deepMode || false,
+    setNiche: (n: string) => setSearchParams(prev => ({ 
+      ...prev, 
+      niche: n, 
+      region: prev?.region || 'Global',
+      timeframe: prev?.timeframe || '30d',
+      deepMode: prev?.deepMode || false 
+    })),
+    setSearchContext, // Helper for bulk restoration
     trends,
     setTrends,
     fetchTrends,

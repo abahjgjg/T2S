@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { supabaseService } from '../services/supabaseService';
-import { X, Mail, Lock, LogIn, UserPlus, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, LogIn, UserPlus, Loader2, AlertCircle } from 'lucide-react';
+import { Modal } from './ui/Modal';
 
 interface Props {
   isOpen: boolean;
@@ -15,8 +16,6 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,28 +45,20 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
-        
-        {/* Header */}
-        <div className="p-6 pb-2">
-          <button 
-            onClick={onClose} 
-            className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <h2 className="text-2xl font-bold text-white mb-1">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
-          </h2>
-          <p className="text-slate-400 text-sm">
-            {isLogin ? 'Sign in to access your cloud library.' : 'Sign up to sync your projects across devices.'}
-          </p>
-        </div>
+  const Header = (
+    <div>
+      <h2 className="text-xl font-bold text-white">
+        {isLogin ? 'Welcome Back' : 'Create Account'}
+      </h2>
+      <p className="text-slate-400 text-xs font-normal">
+        {isLogin ? 'Sign in to access your cloud library.' : 'Sign up to sync your projects across devices.'}
+      </p>
+    </div>
+  );
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-4">
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={Header} className="max-w-sm">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start gap-2 text-xs text-red-400">
                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -83,7 +74,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
                 placeholder="you@example.com"
                 required
               />
@@ -98,7 +89,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
                 placeholder="••••••••"
                 required
               />
@@ -108,7 +99,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
           <button 
             type="submit" 
             disabled={isLoading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -121,7 +112,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
         </form>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-950/50 border-t border-slate-800 text-center text-sm">
+        <div className="p-4 bg-slate-950/50 border-t border-slate-800 text-center text-xs">
           <span className="text-slate-400">
             {isLogin ? "Don't have an account? " : "Already have an account? "}
           </span>
@@ -135,7 +126,6 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
             {isLogin ? 'Sign Up' : 'Log In'}
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };

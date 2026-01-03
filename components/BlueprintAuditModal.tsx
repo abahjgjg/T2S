@@ -1,8 +1,11 @@
 
+
+
 import React from 'react';
 import { ViabilityAudit } from '../types';
-import { X, Target, Zap, AlertTriangle, ArrowRight, ShieldCheck, CheckCircle2, RefreshCcw } from 'lucide-react';
+import { Target, Zap, AlertTriangle, ShieldCheck, CheckCircle2, RefreshCcw } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
+import { Modal } from './ui/Modal';
 
 interface Props {
   audit: ViabilityAudit;
@@ -13,8 +16,6 @@ interface Props {
 }
 
 export const BlueprintAuditModal: React.FC<Props> = ({ audit, isOpen, onClose, onApplyPivot, isPivoting }) => {
-  if (!isOpen) return null;
-
   // Prepare data for Radar Chart
   const radarData = audit.dimensions.map(d => ({
     subject: d.name,
@@ -28,28 +29,21 @@ export const BlueprintAuditModal: React.FC<Props> = ({ audit, isOpen, onClose, o
     return 'text-red-400';
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-[fadeIn_0.2s_ease-out]">
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col relative max-h-[90vh] overflow-hidden">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-slate-800 bg-slate-950/50 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-             <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-               <ShieldCheck className="w-6 h-6 text-purple-500" />
-             </div>
-             <div>
-               <h2 className="text-xl font-bold text-white">Viability Audit</h2>
-               <p className="text-xs text-slate-400">AI Venture Capitalist Assessment</p>
-             </div>
-          </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white p-2 hover:bg-slate-800 rounded-full transition-colors">
-            <X className="w-5 h-5" />
-          </button>
+  const Header = (
+    <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+          <ShieldCheck className="w-6 h-6 text-purple-500" />
         </div>
+        <div>
+          <h2 className="text-xl font-bold text-white">Viability Audit</h2>
+          <p className="text-xs text-slate-400">AI Venture Capitalist Assessment</p>
+        </div>
+    </div>
+  );
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-8">
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={Header} className="max-w-3xl">
+      <div className="p-6 space-y-8">
            
            {/* Top Section: Score & Chart */}
            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -149,9 +143,7 @@ export const BlueprintAuditModal: React.FC<Props> = ({ audit, isOpen, onClose, o
                 ))}
               </div>
            </div>
-
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 };

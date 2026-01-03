@@ -1,15 +1,16 @@
-
 import React from 'react';
 import { Swords, Map as MapIcon, ArrowLeft } from 'lucide-react';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 interface Props {
   competitors: string[];
   onAnalyze: (name: string) => void;
   onScoutLocation: () => void;
-  uiText: any;
 }
 
-export const BlueprintCompetitors: React.FC<Props> = ({ competitors, onAnalyze, onScoutLocation, uiText }) => {
+export const BlueprintCompetitors: React.FC<Props> = ({ competitors, onAnalyze, onScoutLocation }) => {
+  const { uiText } = usePreferences();
+  
   if (!competitors || competitors.length === 0) return null;
 
   return (

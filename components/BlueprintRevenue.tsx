@@ -1,16 +1,16 @@
-
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine, Legend } from 'recharts';
 import { BarChart as BarChartIcon, RefreshCcw, Save, TrendingUp, Calculator } from 'lucide-react';
 import { Blueprint } from '../types';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   revenueStreams: Blueprint['revenueStreams'];
-  uiText: any;
   onUpdate?: (streams: Blueprint['revenueStreams']) => void;
 }
 
-export const BlueprintRevenue: React.FC<Props> = ({ revenueStreams, uiText, onUpdate }) => {
+export const BlueprintRevenue: React.FC<Props> = ({ revenueStreams, onUpdate }) => {
+  const { uiText } = usePreferences();
   const [trafficMultiplier, setTrafficMultiplier] = useState(1);
   const [pricingMultiplier, setPricingMultiplier] = useState(1);
   const [isSimulating, setIsSimulating] = useState(false);

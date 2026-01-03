@@ -1,15 +1,16 @@
 
-
 import React from 'react';
 import { SWOTAnalysis } from '../types';
 import { Shield, Zap, TrendingUp, AlertTriangle, Target } from 'lucide-react';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   data: SWOTAnalysis;
-  uiText: any;
 }
 
-export const SwotAnalysis: React.FC<Props> = ({ data, uiText }) => {
+export const SwotAnalysis: React.FC<Props> = ({ data }) => {
+  const { uiText } = usePreferences();
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid">
       <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">

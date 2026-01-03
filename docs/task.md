@@ -4,6 +4,10 @@
 ## Security & Infrastructure (Priority: P0 - Critical)
 - [ ] **[ARCH] Secure API Proxy**: Move `services/gemini` and `services/openai` calls to Supabase Edge Functions. Remove `process.env.API_KEY` from client. **(BLOCKED: Environment Limitation)**
 
+## Optimization & Refinement (Active)
+- [x] **[UX] Dynamic Market Ticker**: `TrendSearch` ticker now reflects recent user search history for personalization.
+- [x] **[AI] Real-Time Prompting**: Strengthened `fetchMarketTrends` system instruction to aggressively prioritize breaking news when using short timeframes.
+
 ## Completed
 - [x] **[DOCS] User & Developer Guides**: Created comprehensive documentation (`docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`).
 - [x] **[FEAT] Customer Personas**: Implemented AI generation of ICP profiles with visual avatars (`components/CustomerPersonas.tsx`).

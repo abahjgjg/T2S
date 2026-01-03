@@ -1,23 +1,46 @@
-
 import React, { useEffect, useState } from 'react';
 import { PublishedBlueprint, BusinessIdea, Comment } from '../types';
-import { ArrowLeft, Calendar, Share2, TrendingUp, Layers, DollarSign, ArrowRight, Heart, Mail, CheckCircle, Copy, Check, MessageSquare, Send, User, Swords } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, TrendingUp, Layers, DollarSign, ArrowRight, Heart, Mail, CheckCircle, Copy, Check, MessageSquare, Send, User, Swords, Loader2 } from 'lucide-react';
 import { supabaseService } from '../services/supabaseService';
 import { useMetaTags } from '../hooks/useMetaTags';
 import { toast } from './ToastNotifications'; 
 import { SafeMarkdown } from './SafeMarkdown';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
-  data: PublishedBlueprint;
+  id?: string | null;
+  data?: PublishedBlueprint;
   onHome: () => void;
-  uiText: any;
 }
 
-export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
-  const { idea, blueprint } = data.full_data;
+export const PublicBlogView: React.FC<Props> = ({ id, data: initialData, onHome }) => {
+  const { uiText } = usePreferences();
+  const [fetchedData, setFetchedData] = useState<PublishedBlueprint | null>(null);
+  const [loading, setLoading] = useState(!initialData);
+  const [error, setError] = useState<string | null>(null);
+
+  const data = initialData || fetchedData;
+
+  useEffect(() => {
+    if (!initialData && id) {
+      setLoading(true);
+      supabaseService.fetchBlueprint(id)
+        .then(bp => {
+          if (bp) {
+            setFetchedData(bp);
+          } else {
+            setError("Blueprint not found");
+          }
+        })
+        .catch(err => setError(err.message))
+        .finally(() => setLoading(false));
+    }
+  }, [id, initialData]);
+
+  const { idea, blueprint } = data?.full_data || { idea: {} as any, blueprint: {} as any };
   const [related, setRelated] = useState<BusinessIdea[]>([]);
-  const [votes, setVotes] = useState(data.votes || 0);
-  const [hasVoted, setHasVoted] = useState(false);
+  const [votes, setVotes] = useState(data?.votes || 0);
+  const [hasVotedState, setHasVotedState] = useState(false);
   
   // Newsletter State
   const [email, setEmail] = useState('');
@@ -34,16 +57,19 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
   const [isPostingComment, setIsPostingComment] = useState(false);
 
   // Dynamic SEO & Open Graph Tags
-  const ogImage = `https://placehold.co/1200x630/0f172a/10b981?text=${encodeURIComponent(idea.name)}&font=roboto`;
+  const ogImage = idea?.name ? `https://placehold.co/1200x630/0f172a/10b981?text=${encodeURIComponent(idea.name)}&font=roboto` : '';
   useMetaTags(
-    `${idea.name} | TrendVentures`,
-    blueprint.executiveSummary.slice(0, 160) + '...',
+    idea?.name ? `${idea.name} | TrendVentures` : 'TrendVentures',
+    blueprint?.executiveSummary ? blueprint.executiveSummary.slice(0, 160) + '...' : 'Business Blueprint',
     ogImage,
     window.location.href
   );
 
   useEffect(() => {
-    setHasVoted(supabaseService.hasVoted(data.id));
+    if (!data) return;
+
+    setHasVotedState(supabaseService.hasVoted(data.id));
+    setVotes(data.votes || 0);
 
     // Fetch related blueprints
     const fetchRelated = async () => {
@@ -60,15 +86,35 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
     };
     loadComments();
 
-  }, [idea.name, blueprint.executiveSummary, data.niche, data.id]);
+  }, [data?.id, data?.niche]); // Only depend on ID/Niche to avoid loops
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-emerald-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">Blueprint Not Found</h2>
+        <p className="text-slate-600 mb-6">The requested blueprint could not be loaded or does not exist.</p>
+        <button onClick={onHome} className="text-emerald-600 font-bold hover:underline">
+          Return Home
+        </button>
+      </div>
+    );
+  }
 
   const handleRelatedClick = (id: string) => {
     window.location.href = `/blueprint?id=${id}`;
   };
 
   const handleVote = async () => {
-    if (hasVoted) return;
-    setHasVoted(true);
+    if (hasVotedState) return;
+    setHasVotedState(true);
     setVotes(v => v + 1);
     await supabaseService.voteBlueprint(data.id);
     toast.success("Thanks for voting!");
@@ -77,7 +123,7 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      toast.error(uiText.invalidEmail || "Invalid Email");
+      toast.error(uiText?.invalidEmail || "Invalid Email");
       return;
     }
     
@@ -86,7 +132,7 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
     setIsSubmitting(false);
     setIsSubscribed(true);
     setEmail('');
-    toast.success(uiText.subscribed || "Subscribed successfully!");
+    toast.success(uiText?.subscribed || "Subscribed successfully!");
   };
 
   const handleShare = async () => {
@@ -110,7 +156,7 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
     // Fallback to clipboard
     navigator.clipboard.writeText(url);
     setLinkCopied(true);
-    toast.info(uiText.copied || "Link copied!");
+    toast.info(uiText?.copied || "Link copied!");
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
@@ -145,15 +191,15 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
           <div className="flex items-center gap-3">
              <button
                onClick={handleVote}
-               disabled={hasVoted}
+               disabled={hasVotedState}
                className={`flex items-center gap-2 px-3 py-2 rounded-full border text-sm font-bold transition-all ${
-                 hasVoted 
+                 hasVotedState 
                  ? 'bg-red-50 border-red-200 text-red-500' 
                  : 'bg-white border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-500'
                }`}
              >
-               <Heart className={`w-4 h-4 ${hasVoted ? 'fill-red-500' : ''}`} />
-               {votes} <span className="hidden sm:inline">{uiText.likes}</span>
+               <Heart className={`w-4 h-4 ${hasVotedState ? 'fill-red-500' : ''}`} />
+               {votes} <span className="hidden sm:inline">{uiText?.likes || 'Likes'}</span>
              </button>
              
              <button
@@ -161,7 +207,7 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
                className="flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 bg-white text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors text-sm font-bold"
              >
                {linkCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-               <span className="hidden sm:inline">{linkCopied ? uiText.copied : uiText.share}</span>
+               <span className="hidden sm:inline">{linkCopied ? (uiText?.copied || 'Copied') : (uiText?.share || 'Share')}</span>
              </button>
 
              <button 
@@ -204,14 +250,14 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 text-slate-500 mb-2">
               <DollarSign className="w-5 h-5 text-emerald-500" />
-              <h3 className="font-bold text-sm uppercase">{uiText.model}</h3>
+              <h3 className="font-bold text-sm uppercase">{uiText?.model || 'Model'}</h3>
             </div>
             <p className="text-lg font-semibold text-slate-900">{idea.monetizationModel}</p>
           </div>
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 text-slate-500 mb-2">
               <Layers className="w-5 h-5 text-blue-500" />
-              <h3 className="font-bold text-sm uppercase">{uiText.techStack}</h3>
+              <h3 className="font-bold text-sm uppercase">{uiText?.techStack || 'Tech Stack'}</h3>
             </div>
             <div className="flex flex-wrap gap-1">
               {blueprint.technicalStack.slice(0, 3).map((t, i) => (
@@ -285,18 +331,18 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
                  <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
                    <CheckCircle className="w-8 h-8 text-emerald-400" />
                  </div>
-                 <h3 className="text-2xl font-bold text-white mb-2">{uiText.subscribed}</h3>
+                 <h3 className="text-2xl font-bold text-white mb-2">{uiText?.subscribed || 'Subscribed!'}</h3>
                  <p className="text-slate-400">We'll notify you about {idea.name} updates.</p>
                </div>
              ) : (
                <>
-                 <h3 className="text-2xl font-bold text-white mb-3">{uiText.waitlistTitle}</h3>
-                 <p className="text-slate-400 mb-8">{uiText.waitlistDesc}</p>
+                 <h3 className="text-2xl font-bold text-white mb-3">{uiText?.waitlistTitle || 'Interested in building this?'}</h3>
+                 <p className="text-slate-400 mb-8">{uiText?.waitlistDesc || 'Join the waitlist to get updates on when this business concept launches.'}</p>
                  
                  <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
                    <input 
                      type="email" 
-                     placeholder={uiText.emailPlaceholder}
+                     placeholder={uiText?.emailPlaceholder || 'Enter your email...'}
                      className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
                      value={email}
                      onChange={(e) => setEmail(e.target.value)}
@@ -307,7 +353,7 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
                      disabled={isSubmitting}
                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-colors whitespace-nowrap disabled:opacity-50"
                    >
-                     {isSubmitting ? '...' : uiText.joinWaitlist}
+                     {isSubmitting ? '...' : (uiText?.joinWaitlist || 'Join Waitlist')}
                    </button>
                  </form>
                </>
@@ -319,13 +365,13 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
         <div className="max-w-3xl mx-auto mt-16 pt-10 border-t border-slate-200">
           <div className="flex items-center gap-2 mb-8">
             <MessageSquare className="w-6 h-6 text-slate-400" />
-            <h3 className="text-2xl font-bold text-slate-900">{uiText.comments} ({comments.length})</h3>
+            <h3 className="text-2xl font-bold text-slate-900">{uiText?.comments || 'Comments'} ({comments.length})</h3>
           </div>
 
           <form onSubmit={handlePostComment} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-10">
             <div className="flex flex-col gap-4">
                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">{uiText.namePlaceholder}</label>
+                  <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">{uiText?.namePlaceholder || 'Name'}</label>
                   <input
                     type="text"
                     value={commentAuthor}
@@ -336,7 +382,7 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
                   />
                </div>
                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">{uiText.commentPlaceholder}</label>
+                  <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">{uiText?.commentPlaceholder || 'Comment'}</label>
                   <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
@@ -351,9 +397,9 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
                  disabled={!newComment.trim() || !commentAuthor.trim() || isPostingComment}
                  className="self-end bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
                >
-                 {isPostingComment ? uiText.posting : (
+                 {isPostingComment ? (uiText?.posting || 'Posting...') : (
                    <>
-                     <Send className="w-4 h-4" /> {uiText.postComment}
+                     <Send className="w-4 h-4" /> {uiText?.postComment || 'Post Comment'}
                    </>
                  )}
                </button>
@@ -363,7 +409,7 @@ export const PublicBlogView: React.FC<Props> = ({ data, onHome, uiText }) => {
           <div className="space-y-6">
             {comments.length === 0 ? (
                <div className="text-center py-10 text-slate-500 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
-                 {uiText.noComments}
+                 {uiText?.noComments || 'No comments yet. Be the first!'}
                </div>
             ) : (
                comments.map((comment) => (

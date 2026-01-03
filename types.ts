@@ -166,6 +166,17 @@ export interface Blueprint {
   personas?: CustomerPersona[]; // New: Target Audience Profiles
 }
 
+export interface PitchAnalysis {
+  feedbackSummary: string;
+  criticisms: string[];
+  suggestedPivots: {
+    section: 'executiveSummary' | 'marketingStrategy' | 'technicalStack' | 'revenueStreams';
+    suggestion: string;
+    reason: string;
+    proposedValue?: any; // The actual data to update if applied
+  }[];
+}
+
 export interface SavedProject {
   id: string;
   timestamp: number;
@@ -234,6 +245,30 @@ export type SearchRegion = 'Global' | 'Indonesia' | 'USA' | 'Europe' | 'Asia';
 
 export type SearchTimeframe = '24h' | '7d' | '30d' | '90d';
 
+// --- Speech Recognition Types ---
+export interface IWindow extends Window {
+  webkitSpeechRecognition: any;
+  SpeechRecognition: any;
+}
+
+export interface SpeechRecognitionEvent {
+  results: {
+    [key: number]: {
+      [key: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+export interface ISpeechRecognition {
+  lang: string;
+  start: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+}
+
 export interface AIService {
   fetchMarketTrends(niche: string, lang: Language, region?: SearchRegion, timeframe?: SearchTimeframe, deepMode?: boolean): Promise<Trend[]>;
   getTrendDeepDive(trend: string, niche: string, lang: Language): Promise<TrendDeepDive>;
@@ -254,5 +289,7 @@ export interface AIService {
   generateLandingPageCode(idea: BusinessIdea, assets: LaunchAssets, lang: Language): Promise<string>;
   generateContentCalendar(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<ContentWeek[]>;
   generateBrandIdentity(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BrandIdentity>; 
-  generatePersonas(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<CustomerPersona[]>; // New
+  generatePersonas(idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<CustomerPersona[]>;
+  extractTopicFromImage(base64Image: string, lang: Language): Promise<string>; // New: Multimodal Search
+  analyzePitchTranscript(transcript: string, idea: BusinessIdea, blueprint: Blueprint, personaRole: string, lang: Language): Promise<PitchAnalysis>;
 }

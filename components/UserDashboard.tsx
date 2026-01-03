@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { UserProfile, PublishedBlueprint } from '../types';
 import { supabaseService } from '../services/supabaseService';
@@ -6,14 +5,15 @@ import { LayoutDashboard, ArrowLeft, Heart, FileText, Loader2, Share2, BarChart2
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   user: UserProfile;
   onHome: () => void;
-  uiText: any;
 }
 
-export const UserDashboard: React.FC<Props> = ({ user, onHome, uiText }) => {
+export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
+  const { uiText } = usePreferences();
   const queryClient = useQueryClient();
 
   // Query: Fetch User Blueprints

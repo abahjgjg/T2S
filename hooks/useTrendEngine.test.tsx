@@ -27,7 +27,9 @@ const mockAIService: AIService = {
   generateLandingPageCode: vi.fn(),
   generateContentCalendar: vi.fn(),
   generateBrandIdentity: vi.fn(),
-  generatePersonas: vi.fn()
+  generatePersonas: vi.fn(),
+  extractTopicFromImage: vi.fn(),
+  analyzePitchTranscript: vi.fn()
 };
 
 // Wrapper for React Query

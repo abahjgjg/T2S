@@ -1,16 +1,16 @@
-
 import React, { useMemo } from 'react';
 import { Share2, CheckSquare, Square, CheckCircle2 } from 'lucide-react';
 import { Blueprint } from '../types';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   roadmap: Blueprint['roadmap'];
   progress?: Record<string, boolean>;
   onToggleTask?: (task: string) => void;
-  uiText: any;
 }
 
-export const BlueprintRoadmap: React.FC<Props> = ({ roadmap, progress = {}, onToggleTask, uiText }) => {
+export const BlueprintRoadmap: React.FC<Props> = ({ roadmap, progress = {}, onToggleTask }) => {
+  const { uiText } = usePreferences();
   
   // Calculate completion stats
   const stats = useMemo(() => {

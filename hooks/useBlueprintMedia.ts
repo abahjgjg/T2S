@@ -9,6 +9,7 @@ import { supabaseService } from '../services/supabaseService';
 interface UseBlueprintMediaReturn {
   generateLogo: (ideaName: string, description: string, style: string) => Promise<void>;
   generateVideo: (ideaName: string, description: string) => Promise<void>;
+  generateAvatar: (name: string, bio: string) => Promise<string | null>; // Returns the Asset URL directly
   isGeneratingLogo: boolean;
   isGeneratingVideo: boolean;
 }
@@ -68,6 +69,27 @@ export const useBlueprintMedia = (
     }
   };
 
+  const generateAvatar = async (name: string, bio: string): Promise<string | null> => {
+    try {
+      const aiService = getAIService(provider);
+      const prompt = `Create a realistic, professional headshot avatar for a customer persona.
+      Description: ${bio.slice(0, 150)}.
+      Style: High quality photography portrait, neutral background.`;
+      
+      const imageBase64 = await aiService.generateBrandImage(name, prompt, "Realistic Portrait");
+      
+      if (imageBase64) {
+        const response = await fetch(`data:image/png;base64,${imageBase64}`);
+        const blob = await response.blob();
+        return await persistAsset(blob, 'images', 'png');
+      }
+      return null;
+    } catch (e) {
+      console.error("Failed to generate avatar", e);
+      return null;
+    }
+  };
+
   const generateVideo = async (ideaName: string, description: string) => {
     if (provider === 'openai') {
       toast.info("Video generation requires Gemini Veo.");
@@ -112,6 +134,7 @@ export const useBlueprintMedia = (
   return {
     generateLogo,
     generateVideo,
+    generateAvatar,
     isGeneratingLogo,
     isGeneratingVideo
   };

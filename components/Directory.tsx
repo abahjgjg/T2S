@@ -1,16 +1,17 @@
-
 import React, { useState, useEffect } from 'react';
 import { PublishedBlueprint } from '../types';
 import { supabaseService } from '../services/supabaseService';
 import { Calendar, Search, ArrowRight, Loader2, AlertCircle, Heart, Flame, Clock, ChevronDown } from 'lucide-react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   onViewBlueprint: (id: string) => void;
-  uiText: any;
 }
 
-export const Directory: React.FC<Props> = ({ onViewBlueprint, uiText }) => {
+export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
+  const { uiText } = usePreferences();
+  
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -35,8 +36,6 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint, uiText }) => {
       throw new Error("Database connection not configured.");
     }
     // We modify searchPublicBlueprints to handle limit properly for infinite scroll simulation
-    // Since original service uses page/limit, we just request page 0 with larger limit for simplicity
-    // or we could implement useInfiniteQuery. For now, sticking to expanded limit.
     const page = 0; 
     return await supabaseService.searchPublicBlueprints(search, sort, page, currentLimit);
   };
@@ -58,7 +57,6 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint, uiText }) => {
     // Local Optimistic Update
     setVotingMap(prev => ({ ...prev, [id]: true }));
     await supabaseService.voteBlueprint(id);
-    // Note: We don't invalidate query immediately to avoid jumpy UI, rely on local state or eventual refetch
   };
 
   return (

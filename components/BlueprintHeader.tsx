@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Check, Link as LinkIcon, CheckCircle2, BookmarkPlus, FileJson, FileText, Printer, Presentation } from 'lucide-react';
 import { toast } from './ToastNotifications';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   onBack: () => void;
@@ -12,7 +12,6 @@ interface Props {
   onPresent: () => void;
   publishedUrl: string | null;
   isSaved: boolean;
-  uiText: any;
 }
 
 export const BlueprintHeader: React.FC<Props> = ({ 
@@ -23,9 +22,9 @@ export const BlueprintHeader: React.FC<Props> = ({
   onPrint, 
   onPresent,
   publishedUrl, 
-  isSaved, 
-  uiText 
+  isSaved
 }) => {
+  const { uiText } = usePreferences();
   const [linkCopied, setLinkCopied] = useState(false);
 
   const handleCopyLink = () => {

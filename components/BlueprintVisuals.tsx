@@ -1,15 +1,13 @@
-
 import React, { useState } from 'react';
 import { Palette, Loader2, ImageIcon, Download, Video, Play, AlertCircle } from 'lucide-react';
-import { Blueprint, AIProvider } from '../types';
+import { Blueprint } from '../types';
 import { toast } from './ToastNotifications';
 import { useAsset } from '../hooks/useAsset';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   blueprint: Blueprint;
   ideaName: string;
-  uiText: any;
-  provider: AIProvider;
   isGeneratingLogo: boolean;
   isGeneratingVideo: boolean;
   onGenerateLogo: (style: string) => void;
@@ -19,8 +17,6 @@ interface Props {
 export const BlueprintVisuals: React.FC<Props> = ({ 
   blueprint, 
   ideaName, 
-  uiText, 
-  provider, 
   isGeneratingLogo, 
   isGeneratingVideo, 
   onGenerateLogo, 
@@ -31,6 +27,9 @@ export const BlueprintVisuals: React.FC<Props> = ({
   // Resolve persistent assets
   const { url: resolvedVideoUrl, isLoading: isResolvingVideo, error: videoError } = useAsset(blueprint.marketingVideoUrl);
   const { url: resolvedImageUrl, isLoading: isResolvingImage, error: imageError } = useAsset(blueprint.brandImageUrl);
+  
+  // Use context for provider check in UI
+  const { provider, uiText } = usePreferences();
 
   const handleDownloadLogo = () => {
     if (!resolvedImageUrl) return;
@@ -110,7 +109,7 @@ export const BlueprintVisuals: React.FC<Props> = ({
          </div>
 
          {/* Video Section (Veo) */}
-         <div className="relative group min-h-[160px] bg-slate-950/50 rounded-xl border border-slate-800 overflow-hidden flex items-center justify-center">
+         <div className="relative group min-h-[160px] bg-slate-900/50 rounded-xl border border-slate-800 overflow-hidden flex items-center justify-center">
              {blueprint.marketingVideoUrl ? (
                 isResolvingVideo ? (
                   <div className="flex flex-col items-center">

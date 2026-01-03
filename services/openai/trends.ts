@@ -1,46 +1,24 @@
 
 import { Trend, TrendDeepDive, Language, SearchRegion, SearchTimeframe } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
-import { callOpenAI, getLanguageInstruction } from "./shared";
+import { callOpenAI } from "./shared";
+import { getLanguageInstruction } from "../../utils/promptUtils";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
+import { promptService } from "../promptService";
 
 export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false): Promise<Trend[]> => {
   // OpenAI Standard API does not have real-time Google Search tools built-in without extensions.
   // We simulate this by asking the model to use its internal knowledge base.
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const langInstruction = getLanguageInstruction(lang);
-  const prompt = `
-    Act as a senior market analyst.
-    Current Date: ${currentDate}
-    
-    Identify 5 breaking news or emerging trends in the niche: "${niche}".
-    Focus on the most recent developments you are aware of (Breaking News) in the region: ${region} within the timeframe: ${timeframe}.
-    For each, identify a specific news headline or recent event that represents this trend.
-    Determine the sentiment (Positive/Negative/Neutral).
-    
-    ${langInstruction}
-    
-    Return ONLY a raw JSON array:
-    [
-      {
-        "title": "Name",
-        "description": "Why it is trending in ${region}",
-        "relevanceScore": 85,
-        "growthScore": 90, 
-        "impactScore": 75,
-        "sentiment": "Positive" | "Negative" | "Neutral",
-        "triggerEvent": "Breaking news headline or event",
-        "date": "YYYY-MM-DD"
-      }
-    ]
-
-    metric_definitions:
-    - relevanceScore: How closely this matches the "${niche}" search (0-100).
-    - growthScore: The velocity/hype of this trend right now (0-100).
-    - impactScore: The potential market size or financial impact (0-100).
-    - sentiment: The overall mood of the news.
-    - date: The approximate date of the trigger event.
-  `;
+  
+  const prompt = promptService.build('OPENAI_FETCH_TRENDS', {
+    niche,
+    region,
+    timeframe,
+    currentDate,
+    langInstruction
+  });
 
   // Use Complex model if Deep Mode is enabled, otherwise Basic (Mini)
   const model = deepMode ? OPENAI_MODELS.COMPLEX : OPENAI_MODELS.BASIC;
@@ -57,28 +35,44 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
 
 export const getTrendDeepDive = async (trend: string, niche: string, lang: Language): Promise<TrendDeepDive> => {
    const langInstruction = getLanguageInstruction(lang);
-   const prompt = `
-      Provide a detailed news analysis of the trend "${trend}" in "${niche}".
-      Use your internal knowledge to estimate the current sentiment, key recent events (approximate dates), and future outlook.
-      Identify 3-5 "Key Players" (Companies, Organizations, or Figures) driving this trend.
-      
-      ${langInstruction}
+   
+   const prompt = promptService.build('OPENAI_DEEP_DIVE', {
+     trend,
+     niche,
+     langInstruction
+   });
 
-      Return strictly valid JSON:
-      {
-        "summary": "Detailed summary...",
-        "sentiment": "Positive" | "Negative" | "Neutral",
-        "keyEvents": [
-           { "date": "YYYY-MM-DD", "title": "Event description", "url": "" }
-        ],
-        "futureOutlook": "Prediction for next 3-6 months...",
-        "actionableTips": ["Tip 1", "Tip 2", "Tip 3"],
-        "suggestedQuestions": ["Question 1?", "Question 2?"],
-        "keyPlayers": ["Company A", "Person B"]
-      }
-   `;
    const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
    const result = JSON.parse(cleanJsonOutput(response.content || "{}"));
    
    return { ...result, provider: 'openai' };
+};
+
+export const extractTopicFromImage = async (base64Image: string, lang: Language): Promise<string> => {
+  const prompt = `
+    Identify the MAIN SUBJECT, NICHE, or TREND topic represented in this image.
+    Return ONLY a short, searchable string (max 5 words).
+    ${lang === 'id' ? 'Output in Indonesian.' : 'Output in English.'}
+  `;
+
+  const response = await callOpenAI(
+    [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          {
+            type: "image_url",
+            image_url: {
+              url: base64Image // Must be full data URL
+            }
+          }
+        ]
+      }
+    ],
+    OPENAI_MODELS.COMPLEX // Use GPT-4o for Vision
+  );
+
+  const text = response.content?.trim() || "";
+  return text.replace(/["\.]/g, "");
 };

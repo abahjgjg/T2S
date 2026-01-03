@@ -1,14 +1,15 @@
-
 import React from 'react';
 import { Layers, Globe, CheckCircle2 } from 'lucide-react';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 interface Props {
   technicalStack: string[];
   marketingStrategy: string[];
-  uiText: any;
 }
 
-export const BlueprintStrategies: React.FC<Props> = ({ technicalStack, marketingStrategy, uiText }) => {
+export const BlueprintStrategies: React.FC<Props> = ({ technicalStack, marketingStrategy }) => {
+  const { uiText } = usePreferences();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
       {/* Tech Stack */}

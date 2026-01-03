@@ -1,7 +1,9 @@
+
 import { Trend, TrendDeepDive, Language, SearchRegion, SearchTimeframe } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
-import { getGeminiClient, getLanguageInstruction } from "./shared";
+import { getLanguageInstruction } from "../../utils/promptUtils";
+import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS } from "../../constants/aiConfig";
 import { TrendListSchema, TrendDeepDiveSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
@@ -14,15 +16,15 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
       
       // Reinforce "Latest" context if timeframe is short
       const urgencyInstruction = (timeframe === '24h' || timeframe === '7d')
-        ? "URGENT: Prioritize BREAKING NEWS and events from the last few hours/days. Do not list old trends."
-        : "Focus on established market shifts from the last month.";
+        ? "CRITICAL: You are a Real-Time News Scanner. Prioritize BREAKING NEWS, LIVE EVENTS, and DEVELOPING STORIES from the last few hours. IGNORE outdated trends. If no breaking news exists, find the most recent relevant update."
+        : "Focus on established market shifts and emerging patterns from the last month.";
 
       const prompt = promptService.build('FETCH_TRENDS', {
         niche,
         langInstruction: `${langInstruction} ${urgencyInstruction}`,
         region,
         timeframe,
-        currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+        currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       });
 
       // Select Model based on mode
@@ -110,6 +112,44 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
 
     } catch (error) {
       console.error("Error inside getTrendDeepDive attempt:", error);
+      throw error;
+    }
+  });
+};
+
+export const extractTopicFromImage = async (base64Image: string, lang: Language): Promise<string> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      
+      // Remove header if present
+      const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
+      
+      const prompt = `
+        Analyze this image. It could be a chart, a product photo, a screenshot of a news article, or a real-world scene.
+        Identify the MAIN SUBJECT, NICHE, or TREND topic represented in this image.
+        Return ONLY a short, searchable string (max 5 words) describing this topic.
+        Example: "AI Semiconductor Market", "Sustainable Sneaker Trends", "EV Battery Tech".
+        Do not explain. Just return the topic string.
+        ${lang === 'id' ? 'Output in Indonesian.' : 'Output in English.'}
+      `;
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.BASIC, // Flash supports vision
+        contents: {
+          parts: [
+            { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
+            { text: prompt }
+          ]
+        }
+      });
+
+      const text = response.text?.trim() || "";
+      // Remove any quotes or periods
+      return text.replace(/["\.]/g, "");
+
+    } catch (error) {
+      console.error("Error extracting topic from image:", error);
       throw error;
     }
   });

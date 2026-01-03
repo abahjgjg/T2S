@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { BrandIdentity, Blueprint, BusinessIdea, Language, AIProvider } from '../types';
+import { BrandIdentity, Blueprint, BusinessIdea } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check } from 'lucide-react';
 import { toast } from './ToastNotifications';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   idea: BusinessIdea;
@@ -15,15 +16,14 @@ interface Props {
 export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, onUpdateBlueprint }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedName, setSelectedName] = useState<string | null>(null);
+  
+  const { provider, language } = usePreferences();
 
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const provider = (localStorage.getItem('trendventures_provider') as AIProvider) || 'gemini';
-      const lang = (localStorage.getItem('trendventures_lang') as Language) || 'id';
       const aiService = getAIService(provider);
-      
-      const identity = await aiService.generateBrandIdentity(idea, blueprint, lang);
+      const identity = await aiService.generateBrandIdentity(idea, blueprint, language);
       onUpdateBlueprint({ brandIdentity: identity });
       toast.success("Brand Identity Generated!");
     } catch (e) {
@@ -35,11 +35,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
   };
 
   const handleApplyName = (name: string) => {
-    // Only update if confirmed
     if (window.confirm(`Update business name to "${name}"? This will affect the entire blueprint.`)) {
-        // We can't easily update the 'BusinessIdea' parent state from here without a prop callback,
-        // but we can update the Blueprint's internal consistency if needed.
-        // For now, we just track selection locally as a "Proposed Name".
         setSelectedName(name);
         toast.info(`Selected "${name}" as preferred brand.`);
     }
@@ -92,7 +88,6 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Names & Slogans */}
         <div className="space-y-6">
            <div className="bg-slate-950/50 rounded-xl p-5 border border-slate-800">
               <h4 className="text-sm font-bold text-pink-300 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -120,9 +115,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
            </div>
         </div>
 
-        {/* Visuals & Values */}
         <div className="space-y-6">
-           {/* Color Palette */}
            <div className="bg-slate-950/50 rounded-xl p-5 border border-slate-800">
               <h4 className="text-sm font-bold text-emerald-300 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Palette className="w-4 h-4" /> Color Palette
@@ -140,7 +133,6 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
               </div>
            </div>
 
-           {/* Brand Core */}
            <div className="bg-slate-950/50 rounded-xl p-5 border border-slate-800">
               <h4 className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Hash className="w-4 h-4" /> Core Values & Tone

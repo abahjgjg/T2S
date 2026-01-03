@@ -1,20 +1,20 @@
 
-
 import React, { useState } from 'react';
-import { LaunchAssets, Blueprint, BusinessIdea, Language, AIProvider } from '../types';
+import { LaunchAssets, Blueprint, BusinessIdea } from '../types';
 import { getAIService } from '../services/aiRegistry';
-import { Rocket, Copy, Check, RefreshCcw, Loader2, Layout, Twitter, Mail, ExternalLink, Megaphone, Code, Calendar, FileText } from 'lucide-react';
+import { Rocket, Copy, Check, RefreshCcw, Loader2, Layout, Twitter, Mail, Megaphone, Code, Calendar, FileText } from 'lucide-react';
 import { toast } from './ToastNotifications';
+import { usePreferences } from '../contexts/PreferencesContext';
+import { SafeMarkdown } from './SafeMarkdown';
 
 interface Props {
   idea: BusinessIdea;
   blueprint: Blueprint;
   assets?: LaunchAssets;
   onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
-  uiText: any;
 }
 
-export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, onUpdateBlueprint, uiText }) => {
+export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, onUpdateBlueprint }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
   const [isGeneratingCalendar, setIsGeneratingCalendar] = useState(false);
@@ -22,14 +22,13 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
   const [activeTab, setActiveTab] = useState<'landing' | 'social' | 'email' | 'code' | 'calendar'>('landing');
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
+  const { provider, language } = usePreferences();
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const provider = (localStorage.getItem('trendventures_provider') as AIProvider) || 'gemini';
-      const lang = (localStorage.getItem('trendventures_lang') as Language) || 'id';
       const aiService = getAIService(provider);
-      
-      const newAssets = await aiService.generateLaunchAssets(idea, blueprint, lang);
+      const newAssets = await aiService.generateLaunchAssets(idea, blueprint, language);
       onUpdateBlueprint({ launchAssets: newAssets });
       toast.success("Launch Assets Generated!");
     } catch (e) {
@@ -44,11 +43,8 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
     if (!assets) return;
     setIsGeneratingCode(true);
     try {
-      const provider = (localStorage.getItem('trendventures_provider') as AIProvider) || 'gemini';
-      const lang = (localStorage.getItem('trendventures_lang') as Language) || 'id';
       const aiService = getAIService(provider);
-      
-      const code = await aiService.generateLandingPageCode(idea, assets, lang);
+      const code = await aiService.generateLandingPageCode(idea, assets, language);
       onUpdateBlueprint({ 
         launchAssets: { ...assets, landingPageCode: code } 
       });
@@ -65,11 +61,8 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
     if (!assets) return;
     setIsGeneratingCalendar(true);
     try {
-      const provider = (localStorage.getItem('trendventures_provider') as AIProvider) || 'gemini';
-      const lang = (localStorage.getItem('trendventures_lang') as Language) || 'id';
       const aiService = getAIService(provider);
-      
-      const calendar = await aiService.generateContentCalendar(idea, blueprint, lang);
+      const calendar = await aiService.generateContentCalendar(idea, blueprint, language);
       onUpdateBlueprint({ 
         launchAssets: { ...assets, contentCalendar: calendar } 
       });
@@ -231,14 +224,14 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
              
              <div className="flex gap-4">
                 <div className="w-12 h-12 bg-slate-800 rounded-full shrink-0"></div>
-                <div className="space-y-2">
+                <div className="space-y-2 flex-1">
                    <div className="flex items-center gap-2">
                       <span className="font-bold text-white">Founder</span>
                       <span className="text-slate-500 text-sm">@founder</span>
                    </div>
-                   <p className="text-slate-300 whitespace-pre-wrap leading-relaxed text-sm">
-                     {assets.socialPost}
-                   </p>
+                   <div className="text-slate-300 text-sm prose prose-invert prose-p:my-1 prose-a:text-blue-400">
+                     <SafeMarkdown content={assets.socialPost} />
+                   </div>
                    <div className="pt-2 text-slate-500 text-xs flex gap-4">
                       <span>💬 12</span>
                       <span>Retweet 45</span>
@@ -271,8 +264,8 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
                </div>
              </div>
              
-             <div className="prose prose-slate prose-sm max-w-none whitespace-pre-wrap font-sans">
-               {assets.emailPitch}
+             <div className="prose prose-slate prose-sm max-w-none font-sans">
+               <SafeMarkdown content={assets.emailPitch} />
              </div>
           </div>
         )}
@@ -360,7 +353,9 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
                                    <span className="text-[10px] uppercase font-bold text-slate-500">{post.platform}</span>
                                    <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">{post.type}</span>
                                 </div>
-                                <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                                <div className="text-xs text-slate-300 leading-relaxed prose prose-invert prose-p:my-0">
+                                  <SafeMarkdown content={post.content} />
+                                </div>
                              </div>
                            ))}
                         </div>

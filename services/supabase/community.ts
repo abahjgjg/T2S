@@ -4,6 +4,21 @@ import { supabase } from './client';
 
 const VOTES_STORAGE_KEY = 'trendventures_votes_v1';
 
+// --- DB Row Definition ---
+interface DBBlueprintRow {
+  id: string;
+  niche: string;
+  title: string;
+  summary: string;
+  full_data: {
+    idea: BusinessIdea;
+    blueprint: Blueprint;
+  };
+  votes: number;
+  created_at: string;
+  user_id?: string;
+}
+
 // --- Public Blueprints ---
 
 interface PublishPayload {
@@ -91,7 +106,7 @@ export const findBlueprintsByNiche = async (niche: string): Promise<BusinessIdea
 
   // Map published blueprints back to BusinessIdea structure
   // We attach the full blueprint to 'cachedBlueprint' so we don't need AI to generate it again
-  return data.map((item: any) => {
+  return (data as DBBlueprintRow[]).map((item) => {
     const full = item.full_data;
     return {
       ...full.idea,

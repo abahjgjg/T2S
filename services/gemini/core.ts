@@ -1,12 +1,10 @@
 
-
-
 import { Type, FunctionDeclaration } from "@google/genai";
-import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity, CustomerPersona } from "../../types";
+import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, LaunchAssets, ViabilityAudit, BMC, ContentWeek, BrandIdentity, CustomerPersona, PitchAnalysis } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
-import { affiliateService } from "../affiliateService";
-import { getGeminiClient, getLanguageInstruction } from "./shared";
+import { getLanguageInstruction } from "../../utils/promptUtils";
+import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS } from "../../constants/aiConfig";
 import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
@@ -175,10 +173,8 @@ export const generateSystemBlueprint = async (idea: BusinessIdea, lang: Language
       const rawData = JSON.parse(cleanJsonOutput(text));
       const validatedBlueprint = BlueprintSchema.parse(rawData);
 
-      // INJECT AFFILIATE LINKS HERE
-      const enrichedBlueprint = await affiliateService.enrichBlueprint(validatedBlueprint as Blueprint);
-      
-      return enrichedBlueprint;
+      // Return raw blueprint (Affiliate enrichment handled by orchestrator)
+      return validatedBlueprint as Blueprint;
 
     } catch (error) {
       console.error("Error inside generateSystemBlueprint attempt:", error);
@@ -468,12 +464,11 @@ export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang
       const ai = getGeminiClient();
       const langInstruction = getLanguageInstruction(lang);
       
-      const prompt = `
-        Analyze the business idea "${idea.name}" and its blueprint summary: "${blueprint.executiveSummary}".
-        Generate a strictly structured Business Model Canvas (BMC).
-        Populate each of the 9 blocks with 3-5 short, bullet-point style items.
-        ${langInstruction}
-      `;
+      const prompt = promptService.build('GENERATE_BMC', {
+        name: idea.name,
+        summary: blueprint.executiveSummary,
+        langInstruction
+      });
 
       const bmcSchema = {
         type: Type.OBJECT,
@@ -615,23 +610,13 @@ export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Bluep
       const ai = getGeminiClient();
       const langInstruction = getLanguageInstruction(lang);
       
-      const prompt = `
-        Act as a professional Brand Strategist and Creative Director.
-        Create a comprehensive Brand Identity for:
-        Business Name: ${idea.name}
-        Type: ${idea.type}
-        Target Audience: ${blueprint.targetAudience}
-        Executive Summary: ${blueprint.executiveSummary}
-
-        Task:
-        1. Generate 5 creative alternative business names.
-        2. Generate 5 catchy slogans/taglines.
-        3. Define a cohesive Color Palette (5 colors) with Hex codes and names.
-        4. Describe the Brand Tone (e.g., Professional, Playful, Futuristic).
-        5. List 3 core Brand Values.
-
-        ${langInstruction}
-      `;
+      const prompt = promptService.build('GENERATE_BRAND_IDENTITY', {
+        name: idea.name,
+        type: idea.type,
+        audience: blueprint.targetAudience,
+        summary: blueprint.executiveSummary,
+        langInstruction
+      });
 
       const schema = {
         type: Type.OBJECT,
@@ -725,6 +710,64 @@ export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint,
 
     } catch (error) {
       console.error("Error generating personas:", error);
+      throw error;
+    }
+  });
+};
+
+export const analyzePitchTranscript = async (transcript: string, idea: BusinessIdea, blueprint: Blueprint, personaRole: string, lang: Language): Promise<PitchAnalysis> => {
+  return retryOperation(async () => {
+    try {
+      const ai = getGeminiClient();
+      const langInstruction = getLanguageInstruction(lang);
+      
+      const prompt = promptService.build('ANALYZE_PITCH', {
+        transcript,
+        name: idea.name,
+        summary: blueprint.executiveSummary,
+        role: personaRole,
+        langInstruction
+      });
+
+      const schema = {
+        type: Type.OBJECT,
+        properties: {
+          feedbackSummary: { type: Type.STRING },
+          criticisms: { type: Type.ARRAY, items: { type: Type.STRING } },
+          suggestedPivots: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                section: { type: Type.STRING, enum: ["executiveSummary", "marketingStrategy", "technicalStack", "revenueStreams"] },
+                suggestion: { type: Type.STRING, description: "Description of what to change" },
+                reason: { type: Type.STRING },
+                proposedValue: { type: Type.STRING, description: "The new string value or JSON stringified value to replace the section with if applied." }
+              },
+              required: ["section", "suggestion", "reason", "proposedValue"]
+            }
+          }
+        },
+        required: ["feedbackSummary", "criticisms", "suggestedPivots"]
+      };
+
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODELS.COMPLEX,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+          thinkingConfig: { thinkingBudget: 2048 },
+        },
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("No analysis generated");
+
+      return JSON.parse(cleanJsonOutput(text)) as PitchAnalysis;
+
+    } catch (error) {
+      console.error("Error analyzing pitch:", error);
       throw error;
     }
   });

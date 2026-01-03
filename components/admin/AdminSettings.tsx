@@ -1,13 +1,13 @@
 
 import React, { useRef } from 'react';
 import { Sparkles, Bot, ShieldCheck, ShieldAlert, Database, Upload, Download, AlertTriangle } from 'lucide-react';
-import { AIProvider } from '../../types';
 import { toast } from '../ToastNotifications';
 import { indexedDBService } from '../../utils/storageUtils';
+import { AIProvider } from '../../types';
 
 interface Props {
   provider: AIProvider;
-  setProvider: (p: AIProvider) => void;
+  setProvider: (provider: AIProvider) => void;
   ownerEmail: string | null;
   onResetOwnership: () => void;
 }
@@ -27,157 +27,134 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      toast.success("System backup created");
+      toast.success("Database Exported");
     } catch (e) {
       console.error(e);
-      toast.error("Failed to create backup");
+      toast.error("Export Failed");
     }
   };
 
-  const handleImportClick = () => {
-    if (window.confirm("Restoring a backup will merge old projects into your current library. Overwriting may occur. Continue?")) {
-      fileInputRef.current?.click();
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRestore = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!window.confirm("This will overwrite current local data. Continue?")) {
+      return;
+    }
 
     try {
       const text = await file.text();
       await indexedDBService.importDatabase(text);
-      toast.success("Database restored successfully");
-      // Optional: Reload to reflect changes
-      setTimeout(() => window.location.reload(), 1500);
+      toast.success("Database Restored. Reloading...");
+      setTimeout(() => window.location.reload(), 1000);
     } catch (e) {
       console.error(e);
-      toast.error("Failed to restore database. Invalid file.");
-    } finally {
-      // Reset input
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      toast.error("Import Failed: Invalid File");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-[fadeIn_0.3s_ease-out]">
-      
-      {/* AI Provider Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-400" /> AI Provider Configuration
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-[fadeIn_0.3s_ease-out]">
+      {/* AI Provider Config */}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 h-full">
+        <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+          <Bot className="w-5 h-5 text-emerald-400" /> AI Provider
         </h3>
         
         <div className="space-y-4">
           <div 
-            onClick={() => { setProvider('gemini'); toast.success('Switched to Gemini'); }}
-            className={`p-4 rounded-lg border cursor-pointer transition-all flex items-start gap-4 ${
+            onClick={() => setProvider('gemini')}
+            className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-4 ${
               provider === 'gemini' 
-              ? 'bg-emerald-900/20 border-emerald-500/50' 
+              ? 'bg-emerald-900/20 border-emerald-500/50 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]' 
               : 'bg-slate-950 border-slate-800 hover:border-slate-700'
             }`}
           >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-              provider === 'gemini' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'
-            }`}>
-              <Sparkles className="w-4 h-4" />
+            <div className={`mt-1 p-2 rounded-lg ${provider === 'gemini' ? 'bg-emerald-500 text-slate-900' : 'bg-slate-800 text-slate-500'}`}>
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-white">Google Gemini (Recommended)</h4>
-              <p className="text-xs text-slate-400 mt-1">
-                Best for: Live Audio, Search Grounding, Deep Thinking Models.
-                <br/>
-                <span className="text-emerald-400">Supports: gemini-3-pro-preview, native-audio-preview</span>
-              </p>
+              <h4 className={`font-bold ${provider === 'gemini' ? 'text-white' : 'text-slate-300'}`}>Google Gemini</h4>
+              <p className="text-xs text-slate-500 mt-1">Recommended. Supports Live Search Grounding, Deep Research, and Veo Video.</p>
             </div>
           </div>
 
           <div 
-            onClick={() => { setProvider('openai'); toast.success('Switched to OpenAI'); }}
-            className={`p-4 rounded-lg border cursor-pointer transition-all flex items-start gap-4 ${
+            onClick={() => setProvider('openai')}
+            className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-4 ${
               provider === 'openai' 
-              ? 'bg-blue-900/20 border-blue-500/50' 
+              ? 'bg-blue-900/20 border-blue-500/50 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)]' 
               : 'bg-slate-950 border-slate-800 hover:border-slate-700'
             }`}
           >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-              provider === 'openai' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-500'
-            }`}>
-              <Bot className="w-4 h-4" />
+            <div className={`mt-1 p-2 rounded-lg ${provider === 'openai' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+              <Bot className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-white">OpenAI</h4>
-              <p className="text-xs text-slate-400 mt-1">
-                Best for: GPT-4o Reasoning, DALL-E 3 Images.
-                <br/>
-                <span className="text-blue-400">Supports: gpt-4o, tts-1, dall-e-3</span>
-              </p>
+              <h4 className={`font-bold ${provider === 'openai' ? 'text-white' : 'text-slate-300'}`}>OpenAI</h4>
+              <p className="text-xs text-slate-500 mt-1">Uses GPT-4o. Good for reasoning. No live search or video generation.</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Data Management Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-           <Database className="w-5 h-5 text-blue-400" /> Data Management
-        </h3>
-        <p className="text-sm text-slate-400 mb-6">
-          Backup your local library, custom prompts, and settings. 
-          Useful for migrating between devices without a cloud account.
-        </p>
-        
-        <div className="grid grid-cols-2 gap-4">
-           <button 
-             onClick={handleBackup}
-             className="flex flex-col items-center justify-center p-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all group"
-           >
-             <Download className="w-6 h-6 text-slate-500 group-hover:text-blue-400 mb-2" />
-             <span className="text-sm font-bold text-slate-300 group-hover:text-white">Backup Data</span>
-             <span className="text-[10px] text-slate-500">Export JSON</span>
-           </button>
+      {/* System Admin */}
+      <div className="space-y-6">
+        {/* Ownership */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-emerald-400" /> Access Control
+          </h3>
+          
+          <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 mb-4">
+            <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Current Admin Owner</p>
+            <p className="text-white font-mono break-all">{ownerEmail}</p>
+          </div>
 
-           <button 
-             onClick={handleImportClick}
-             className="flex flex-col items-center justify-center p-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-xl transition-all group"
-           >
-             <Upload className="w-6 h-6 text-slate-500 group-hover:text-emerald-400 mb-2" />
-             <span className="text-sm font-bold text-slate-300 group-hover:text-white">Restore Data</span>
-             <span className="text-[10px] text-slate-500">Import JSON</span>
-           </button>
-           <input 
-             type="file" 
-             ref={fileInputRef} 
-             className="hidden" 
-             accept=".json" 
-             onChange={handleFileChange} 
-           />
-        </div>
-      </div>
-
-      {/* Admin Access Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-           <ShieldCheck className="w-5 h-5 text-emerald-400" /> Admin Access
-        </h3>
-        <p className="text-sm text-slate-400 mb-6">
-          Current Owner: <span className="font-mono text-white bg-slate-950 px-2 py-1 rounded">{ownerEmail}</span>
-        </p>
-        
-        <div className="bg-red-900/10 border border-red-500/20 p-4 rounded-lg flex items-start gap-3 mb-4">
-           <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
-           <div className="text-xs text-red-400">
-             <span className="font-bold">Danger Zone:</span> Resetting ownership allows any authenticated user to claim Admin rights. 
-             Only do this if you are transferring ownership.
-           </div>
+          <button 
+            onClick={onResetOwnership}
+            className="w-full py-3 border border-red-500/30 text-red-400 hover:bg-red-900/10 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+          >
+            <ShieldAlert className="w-4 h-4" /> Reset Ownership
+          </button>
+          <p className="text-[10px] text-slate-500 mt-2 text-center">
+            <AlertTriangle className="w-3 h-3 inline mr-1" />
+            Warning: This releases the lock. Anyone can claim admin rights.
+          </p>
         </div>
 
-        <button 
-          onClick={onResetOwnership}
-          className="w-full py-3 bg-red-900/20 hover:bg-red-900/30 text-red-400 border border-red-500/30 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
-        >
-          <ShieldAlert className="w-4 h-4" /> Reset Owner
-        </button>
+        {/* Database Management */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <Database className="w-5 h-5 text-blue-400" /> Data Management
+          </h3>
+          
+          <div className="flex gap-3">
+            <button 
+              onClick={handleBackup}
+              className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors border border-slate-700"
+            >
+              <Download className="w-4 h-4" /> Backup
+            </button>
+            
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors border border-slate-700"
+            >
+              <Upload className="w-4 h-4" /> Restore
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleRestore} 
+              accept=".json" 
+              className="hidden" 
+            />
+          </div>
+          <p className="text-[10px] text-slate-500 mt-3 text-center">
+            Backups include local history, prompts, and settings. Cloud data remains on Supabase.
+          </p>
+        </div>
       </div>
     </div>
   );

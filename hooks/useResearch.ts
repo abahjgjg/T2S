@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AppState, Trend, BusinessIdea, Blueprint, Language, AIService, SearchRegion, SearchTimeframe } from '../types';
 import { supabaseService } from '../services/supabaseService';
-import { safeLocalStorage, indexedDBService } from '../utils/storageUtils';
+import { indexedDBService } from '../utils/storageUtils';
 import { useTrendEngine } from './useTrendEngine';
 import { useIdeaEngine } from './useIdeaEngine';
 import { useBlueprintEngine } from './useBlueprintEngine';
@@ -24,21 +24,24 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
   
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Sync Engine Errors to Main UI
+  useEffect(() => {
+    if (ideaEngine.error) setError(ideaEngine.error.message || "Idea generation failed.");
+    if (blueprintEngine.error) setError(blueprintEngine.error.message || "Blueprint generation failed.");
+  }, [ideaEngine.error, blueprintEngine.error]);
+
   // --- Persistence: Load on Mount (Async) ---
   useEffect(() => {
     const hydrate = async () => {
       try {
-        // Try IndexedDB first
         let parsed = await indexedDBService.getItem<any>(STORAGE_KEY);
         
-        // Migration Fallback: Check LocalStorage if DB is empty
+        // Migration Fallback
         if (!parsed) {
           const localData = localStorage.getItem(STORAGE_KEY);
           if (localData) {
             parsed = JSON.parse(localData);
-            // Migrate to DB immediately
             await indexedDBService.setItem(STORAGE_KEY, parsed);
-            // Clean up LS
             localStorage.removeItem(STORAGE_KEY);
           }
         }
@@ -46,8 +49,14 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
         if (parsed && parsed.appState) {
           setAppState(parsed.appState);
           
-          // Hydrate Engines
-          if (parsed.niche) trendEngine.setNiche(parsed.niche);
+          if (parsed.niche) {
+            trendEngine.setSearchContext(
+              parsed.niche, 
+              parsed.region || 'Global', 
+              parsed.timeframe || '30d', 
+              parsed.deepMode || false
+            );
+          }
           if (parsed.trends) trendEngine.setTrends(parsed.trends);
           if (parsed.ideas) ideaEngine.setIdeas(parsed.ideas);
           if (parsed.selectedIdea) blueprintEngine.setSelectedIdea(parsed.selectedIdea);
@@ -65,7 +74,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
 
   // --- Persistence: Save on Change (Async) ---
   useEffect(() => {
-    if (isRestoring) return; // Don't save empty state while loading
+    if (isRestoring) return;
     if (appState === 'IDLE' || appState === 'VIEWING_PUBLIC' || appState === 'DIRECTORY' || appState === 'ADMIN' || appState === 'DASHBOARD') {
       return;
     }
@@ -76,13 +85,15 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       const stateToSave = {
         appState,
         niche: trendEngine.niche,
+        region: trendEngine.region,
+        timeframe: trendEngine.timeframe,
+        deepMode: trendEngine.deepMode,
         trends: trendEngine.trends,
         ideas: ideaEngine.ideas,
         selectedIdea: blueprintEngine.selectedIdea,
         blueprint: blueprintEngine.blueprint
       };
       
-      // Save to IndexedDB (No pruning needed for text/images < 50MB usually)
       await indexedDBService.setItem(STORAGE_KEY, stateToSave);
       
     }, SAVE_DELAY_MS);
@@ -94,6 +105,9 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     isRestoring,
     appState, 
     trendEngine.niche, 
+    trendEngine.region,
+    trendEngine.timeframe,
+    trendEngine.deepMode,
     trendEngine.trends, 
     ideaEngine.ideas, 
     blueprintEngine.selectedIdea, 
@@ -107,7 +121,6 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     setIsFromCache(false);
     setError(null);
     
-    // Clear downstream state
     ideaEngine.clearIdeas();
     blueprintEngine.clearBlueprint();
 
@@ -126,28 +139,19 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       setError("Please select at least one trend.");
       return;
     }
-
     setError(null);
-
-    try {
-      await ideaEngine.generateIdeas(trendEngine.niche, selectedTrends);
-    } catch (e: any) {
-      console.error("Idea generation failed", e);
-      setError(e.message || "Failed to generate business ideas.");
-    }
+    // Error handling is managed by useEffect listener on engine.error
+    await ideaEngine.generateIdeas(trendEngine.niche, selectedTrends);
   };
 
   const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false) => {
     try {
-      // 1. Check Cache (Supabase Public Directory)
-      // Only use cache if region is Global and timeframe is 30d (standard) and NOT Deep Mode
-      // Deep mode implies the user wants fresh, deep reasoning, so we skip cache unless it's a perfect match (unlikely for "deep" intent)
+      // Check Cache
       const isStandardSearch = region === 'Global' && timeframe === '30d' && !deepMode;
       const cachedIdeas = isStandardSearch ? await supabaseService.findBlueprintsByNiche(searchTerm) : [];
 
       if (cachedIdeas.length > 0) {
-        // HIT
-        trendEngine.setNiche(searchTerm);
+        trendEngine.setSearchContext(searchTerm, region, timeframe, deepMode);
         trendEngine.setTrends([{
           title: "Community Data",
           description: `Found ${cachedIdeas.length} existing business blueprints for '${searchTerm}'.`,
@@ -159,7 +163,6 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
         setIsFromCache(true);
         setAppState('ANALYZING');
       } else {
-        // MISS
         await executeFreshAIResearch(searchTerm, region, timeframe, deepMode);
       }
     } catch (e: any) {
@@ -177,8 +180,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       setAppState('VIEWING');
       return publishedId;
     } catch (e: any) {
-      console.error(e);
-      setError(e.message || "Failed to generate blueprint.");
+      // Error is also caught in useEffect, but we handle state transition here
       setAppState('ANALYZING');
       return null;
     }
@@ -205,7 +207,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
   };
 
   const loadProject = (project: { niche: string, idea: BusinessIdea, blueprint: Blueprint }) => {
-    trendEngine.setNiche(project.niche);
+    trendEngine.setSearchContext(project.niche, 'Global', '30d', false);
     trendEngine.setTrends([]);
     ideaEngine.setIdeas([]);
     blueprintEngine.setSelectedIdea(project.idea);
@@ -217,6 +219,9 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     state: {
       appState,
       niche: trendEngine.niche,
+      region: trendEngine.region,
+      timeframe: trendEngine.timeframe,
+      deepMode: trendEngine.deepMode,
       trends: trendEngine.trends,
       ideas: ideaEngine.ideas,
       selectedIdea: blueprintEngine.selectedIdea,
@@ -225,6 +230,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       isFromCache,
       currentBlueprintId: blueprintEngine.currentBlueprintId,
       isGeneratingIdeas: ideaEngine.isGeneratingIdeas,
+      isGeneratingBlueprint: blueprintEngine.isGeneratingBlueprint,
       isRestoring
     },
     setters: {

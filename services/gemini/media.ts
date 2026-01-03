@@ -1,9 +1,11 @@
 
+
 import { Modality } from "@google/genai";
 import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
 import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS } from "../../constants/aiConfig";
+import { promptService } from "../promptService";
 
 export const generateVoiceSummary = async (text: string, lang: Language): Promise<string | null> => {
   return retryOperation(async () => {
@@ -40,13 +42,12 @@ export const generateBrandImage = async (ideaName: string, description: string, 
   return retryOperation(async () => {
     try {
       const ai = getGeminiClient();
-      const prompt = `
-        Create a professional, modern logo concept for a business named "${ideaName}".
-        Business Description: ${description}
-        Visual Style: ${style || "Minimalist, Tech-focused, Clean lines, Vector art style"}.
-        Aspect Ratio: 1:1.
-        Do not include text other than the logo mark itself.
-      `;
+      
+      const prompt = promptService.build('GENERATE_IMAGE_PROMPT', {
+        name: ideaName,
+        description,
+        style: style || "Minimalist, Tech-focused, Clean lines, Vector art style"
+      });
 
       const response = await ai.models.generateContent({
         model: GEMINI_MODELS.IMAGE,
@@ -77,12 +78,10 @@ export const generateMarketingVideo = async (ideaName: string, description: stri
   
   return retryOperation(async () => {
     try {
-      const prompt = `
-        Create a cinematic, futuristic marketing teaser video for a business idea named "${ideaName}".
-        Concept: ${description.slice(0, 150)}.
-        Style: Professional, high-tech, inspiring, fast-paced.
-        Resolution: 720p. Aspect Ratio: 16:9.
-      `;
+      const prompt = promptService.build('GENERATE_VIDEO_PROMPT', {
+        name: ideaName,
+        description: description.slice(0, 150)
+      });
 
       let operation = await ai.models.generateVideos({
         model: GEMINI_MODELS.VIDEO,

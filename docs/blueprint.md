@@ -6,16 +6,19 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
 
 ## Current Architecture
 - **Frontend**: React 18 (Vite), TailwindCSS.
-- **State**: React Context (`AuthContext`) + Modular Engines (`useTrendEngine`, `useIdeaEngine`, `useBlueprintEngine`) coordinated by `useResearch`.
+- **State**: React Context (`AuthContext`, `PreferencesContext`) + Modular Engines (`useTrendEngine`, `useIdeaEngine`, `useBlueprintEngine`) coordinated by `useResearch`.
 - **Hooks (Feature Logic)**: 
   - `useVoiceSummary`: Handles AI text-to-speech audio context and playback.
   - `useBlueprintMedia`: Handles generation of logos and Veo videos.
+  - `usePreferences`: Exposes global language and AI provider settings.
+  - **`useBlueprintEngine`**: Orchestrates the Blueprint generation lifecycle, including calling AI generation and enriching with business logic (Affiliates).
 - **Components**:
   - `BlueprintView` serves as an orchestration container.
   - **Atomic Sub-components**: 
     - `BlueprintCompetitors`, `BlueprintAffiliates`, `BlueprintStrategies`, `BlueprintAgents`.
     - **New**: `CustomerPersonas` (Target Audience Analysis) and `BrandStudio` (Identity Generation).
   - **Research UI**: `TrendSearch` now supports **Region-Aware** searching and displays **Live Date Context** to ensure users know the AI is operating in "Now" time.
+  - **Shared UI**: `components/ui/Modal.tsx` handles all overlay dialogs.
 - **Data Layer**: 
   - **Modular Supabase Service**: Split into `auth`, `projects`, `community`, `admin`, and **`storage`** modules for scalability.
   - **Storage**: Hybrid model.
@@ -23,6 +26,7 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
     - Media Assets: **Supabase Storage** (Public Buckets) with **IndexedDB** Fallback (Offline).
   - **Database Schema**: Defined in `supabase/schema.sql` with strict Row Level Security (RLS) policies.
 - **AI Layer**: Client-side Service Adapter Pattern (`geminiService` / `openaiService`) with **Zod Schema Validation**.
+  - **Purity Principle**: AI services only handle LLM interaction. Business logic injection (like Affiliate Links) is handled by the orchestration layer.
 - **Config**: Dynamic System Prompts via `PromptService` (Admin Override).
 
 ## New Feature: Agent Workflows
@@ -42,7 +46,7 @@ TrendVentures AI is a market intelligence suite generating business blueprints v
 ## Data Flow
 1. **User Input (Niche + Region)** -> **Sanitization** -> `useTrendEngine` (Fetch).
 2. **Analysis** -> `useIdeaEngine` (Generate Options).
-3. **Selection** -> `useBlueprintEngine` (Deep Dive + Publish).
+3. **Selection** -> `useBlueprintEngine` (Generate + Enrich + Publish).
 4. **Validation** -> Zod Schemas ensure AI response integrity before state updates.
 5. **Storage** -> LocalStorage (Debounced) + Supabase (On Save/Publish).
 

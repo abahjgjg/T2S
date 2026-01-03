@@ -2,7 +2,8 @@
 import { CompetitorAnalysis, LocationAnalysis, PlaceInfo, Language } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
-import { getGeminiClient, getLanguageInstruction } from "./shared";
+import { getLanguageInstruction } from "../../utils/promptUtils";
+import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS } from "../../constants/aiConfig";
 
 export const analyzeCompetitor = async (name: string, niche: string, lang: Language): Promise<CompetitorAnalysis> => {

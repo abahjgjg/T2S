@@ -1,22 +1,24 @@
 
 import React from 'react';
 import { TrendingUp, RotateCcw, BookMarked, Compass, User, LogIn, LayoutDashboard, Shield, MoreHorizontal } from 'lucide-react';
-import { Language, UserProfile } from '../types';
+import { usePreferences } from '../contexts/PreferencesContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Props {
-  language: Language;
-  setLanguage: (lang: Language) => void;
   onReset: () => void;
   showReset: boolean;
   onOpenLibrary: () => void;
   onOpenDirectory: () => void;
   onOpenAdmin: () => void;
   onLogin: () => void;
-  user: UserProfile | null;
-  uiText: any;
 }
 
-export const Header: React.FC<Props> = ({ language, setLanguage, onReset, showReset, onOpenLibrary, onOpenDirectory, onOpenAdmin, onLogin, user, uiText }) => {
+export const Header: React.FC<Props> = ({ 
+  onReset, showReset, onOpenLibrary, onOpenDirectory, onOpenAdmin, onLogin 
+}) => {
+  const { language, setLanguage, uiText } = usePreferences();
+  const { user } = useAuth();
+
   return (
     <header className="w-full py-4 px-4 md:px-8 flex flex-col md:flex-row justify-between items-center border-b border-white/5 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 gap-4 md:gap-0 transition-all duration-300">
       

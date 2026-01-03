@@ -1,6 +1,5 @@
 
 
-
 export const DEFAULT_PROMPTS = {
   FETCH_TRENDS: `Act as a senior market analyst and news researcher.
 Current Date: {{currentDate}}
@@ -43,6 +42,37 @@ metric_definitions:
 - sentiment: The overall mood of the news (Positive=Opportunity/Growth, Negative=Crisis/Problem, Neutral=Change/Info).
 - date: The approximate date of the trigger event.`,
 
+  OPENAI_FETCH_TRENDS: `Act as a senior market analyst.
+Current Date: {{currentDate}}
+
+Identify 5 breaking news or emerging trends in the niche: "{{niche}}".
+Focus on the most recent developments you are aware of (Breaking News) in the region: {{region}} within the timeframe: {{timeframe}}.
+For each, identify a specific news headline or recent event that represents this trend.
+Determine the sentiment (Positive/Negative/Neutral).
+
+{{langInstruction}}
+
+Return ONLY a raw JSON array:
+[
+  {
+    "title": "Name",
+    "description": "Why it is trending in {{region}}",
+    "relevanceScore": 85,
+    "growthScore": 90, 
+    "impactScore": 75,
+    "sentiment": "Positive" | "Negative" | "Neutral",
+    "triggerEvent": "Breaking news headline or event",
+    "date": "YYYY-MM-DD"
+  }
+]
+
+metric_definitions:
+- relevanceScore: How closely this matches the "{{niche}}" search (0-100).
+- growthScore: The velocity/hype of this trend right now (0-100).
+- impactScore: The potential market size or financial impact (0-100).
+- sentiment: The overall mood of the news.
+- date: The approximate date of the trigger event.`,
+
   TREND_DEEP_DIVE: `Research the latest news and developments regarding the trend "{{trend}}" in the market "{{niche}}".
 Focus on specific events, announcements, or market shifts from the last 30 days.
 
@@ -69,6 +99,25 @@ Return ONLY a raw JSON object with this structure:
   "keyPlayers": ["Company A", "Person B", "Organization C"]
 }`,
 
+  OPENAI_DEEP_DIVE: `Provide a detailed news analysis of the trend "{{trend}}" in "{{niche}}".
+Use your internal knowledge to estimate the current sentiment, key recent events (approximate dates), and future outlook.
+Identify 3-5 "Key Players" (Companies, Organizations, or Figures) driving this trend.
+
+{{langInstruction}}
+
+Return strictly valid JSON:
+{
+  "summary": "Detailed summary...",
+  "sentiment": "Positive" | "Negative" | "Neutral",
+  "keyEvents": [
+      { "date": "YYYY-MM-DD", "title": "Event description", "url": "" }
+  ],
+  "futureOutlook": "Prediction for next 3-6 months...",
+  "actionableTips": ["Tip 1", "Tip 2", "Tip 3"],
+  "suggestedQuestions": ["Question 1?", "Question 2?"],
+  "keyPlayers": ["Company A", "Person B"]
+}`,
+
   GENERATE_IDEAS: `Context: The user is interested in the "{{niche}}" market.
 Observed Trends & News:
 {{trendsContext}}
@@ -79,6 +128,30 @@ The ideas should be diverse (e.g., one B2B SaaS, one Consumer App, or a speciali
 Also identify 2-3 real-world competitors or similar existing solutions for each idea to help with market analysis.
 
 {{langInstruction}}`,
+
+  OPENAI_GENERATE_IDEAS: `Context: User interested in "{{niche}}".
+Trends:
+{{trendsContext}}
+
+Task: Generate 3 business system ideas.
+Also identify 2-3 real-world competitors for each idea.
+
+{{langInstruction}}
+
+Return strictly valid JSON:
+[
+  {
+    "id": "unique_id",
+    "name": "Name",
+    "type": "SaaS",
+    "description": "Pitch",
+    "monetizationModel": "Model",
+    "difficulty": "Medium",
+    "potentialRevenue": "Revenue",
+    "rationale": "Why",
+    "competitors": ["Comp1", "Comp2"]
+  }
+]`,
 
   GENERATE_BLUEPRINT: `Create a comprehensive, professional execution blueprint for this business idea:
 Name: {{name}}
@@ -92,6 +165,30 @@ Use your thinking capabilities to analyze potential risks, technical challenges,
 ALSO INCLUDE A STRATEGIC SWOT ANALYSIS within the JSON structure.
 
 {{langInstruction}}`,
+
+  OPENAI_GENERATE_BLUEPRINT: `Create a comprehensive execution blueprint for:
+Name: {{name}}
+Type: {{type}}
+Description: {{description}}
+
+{{langInstruction}}
+
+Output strictly valid JSON:
+{
+  "executiveSummary": "Overview",
+  "targetAudience": "Personas",
+  "technicalStack": ["Tech1", "Tech2"],
+  "marketingStrategy": ["Channel1"],
+  "revenueStreams": [ { "name": "Source", "projected": 5000 } ],
+  "roadmap": [ { "phase": "Phase 1", "tasks": ["Task1"] } ],
+  "swot": {
+    "strengths": ["Item 1"],
+    "weaknesses": ["Item 1"],
+    "opportunities": ["Item 1"],
+    "threats": ["Item 1"]
+  },
+  "fullContentMarkdown": "Detailed markdown guide..."
+}`,
 
   GENERATE_AGENTS: `Analyze the following Business Blueprint.
 Executive Summary: {{executiveSummary}}
@@ -161,6 +258,23 @@ YOUR ROLE:
 2. Challenge assumptions about how easy features will be to build.
 3. Use technical terminology but keep it conversational.
 Start by saying: "Hey. I've looked at the specs. Interesting stack choice. Walk me through the technical architecture."`,
+
+  PERSONA_GENERATED: `You are simulating a specific customer persona named {{name}}.
+Bio: {{bio}}
+Age: {{age}}
+Occupation: {{occupation}}
+
+Context: You are listening to a pitch for a product designed to solve your problems.
+Your Pain Points are: {{painPoints}}.
+Your Goals are: {{goals}}.
+
+YOUR ROLE:
+1. Stay in character. Speak with a tone appropriate for your bio and occupation.
+2. Ask questions specifically related to your Pain Points and Goals.
+3. If the pitch addresses your pain points well, express excitement. If not, express skepticism.
+4. Keep responses conversational and natural (speech-to-speech).
+
+Start by introducing yourself briefly and stating your main struggle related to the topic.`,
 
   PITCH_SESSION_MASTER: `{{personaInstruction}}
 
@@ -300,7 +414,126 @@ Return strictly valid JSON:
     "channels": ["LinkedIn", "Twitter"],
     "quote": "A first-person quote about their struggle."
   }
-]`
+]`,
+
+  GENERATE_BMC: `Analyze the business idea "{{name}}" and its blueprint summary: "{{summary}}".
+Generate a strictly structured Business Model Canvas (BMC).
+Populate each of the 9 blocks with 3-5 short, bullet-point style items.
+{{langInstruction}}
+
+Output strictly valid JSON:
+{
+  "keyPartners": ["Item 1", "Item 2"],
+  "keyActivities": ["Item 1", "Item 2"],
+  "keyResources": ["Item 1", "Item 2"],
+  "valuePropositions": ["Item 1", "Item 2"],
+  "customerRelationships": ["Item 1", "Item 2"],
+  "channels": ["Item 1", "Item 2"],
+  "customerSegments": ["Item 1", "Item 2"],
+  "costStructure": ["Item 1", "Item 2"],
+  "revenueStreams": ["Item 1", "Item 2"]
+}`,
+
+  GENERATE_BRAND_IDENTITY: `Act as a professional Brand Strategist and Creative Director.
+Create a comprehensive Brand Identity for:
+Business Name: {{name}}
+Type: {{type}}
+Target Audience: {{audience}}
+Executive Summary: {{summary}}
+
+Task:
+1. Generate 5 creative alternative business names.
+2. Generate 5 catchy slogans/taglines.
+3. Define a cohesive Color Palette (5 colors) with Hex codes and names.
+4. Describe the Brand Tone (e.g., Professional, Playful, Futuristic).
+5. List 3 core Brand Values.
+
+{{langInstruction}}
+
+Output strictly valid JSON:
+{
+  "names": ["Name 1", "Name 2"],
+  "slogans": ["Slogan 1", "Slogan 2"],
+  "colors": [ { "name": "Ocean Blue", "hex": "#0077be" } ],
+  "tone": "Professional",
+  "brandValues": ["Trust", "Innovation"]
+}`,
+
+  ANALYZE_PITCH: `Analyze the transcript of a pitch session between a Founder and a "{{role}}".
+
+Transcript:
+"{{transcript}}"
+
+Current Business Context:
+Name: {{name}}
+Summary: {{summary}}
+
+Task:
+1. Summarize the feedback.
+2. Identify specific criticisms or objections raised by the {{role}}.
+3. Suggest concrete updates (Pivots) for the Business Blueprint to address these criticisms.
+
+{{langInstruction}}
+
+Output strictly valid JSON:
+{
+  "feedbackSummary": "Summary of what happened",
+  "criticisms": ["Criticism 1", "Criticism 2"],
+  "suggestedPivots": [
+    {
+      "section": "executiveSummary" | "marketingStrategy" | "technicalStack" | "revenueStreams",
+      "suggestion": "Update text to...",
+      "reason": "Because VC said X",
+      "proposedValue": "The actual value string or json object"
+    }
+  ]
+}`,
+
+  GENERATE_IMAGE_PROMPT: `Create a professional, modern logo concept for a business named "{{name}}".
+Business Description: {{description}}
+Visual Style: {{style}}.
+Aspect Ratio: 1:1.
+Do not include text other than the logo mark itself.`,
+
+  GENERATE_VIDEO_PROMPT: `Create a cinematic, futuristic marketing teaser video for a business idea named "{{name}}".
+Concept: {{description}}.
+Style: Professional, high-tech, inspiring, fast-paced.
+Resolution: 720p. Aspect Ratio: 16:9.`,
+
+  OPENAI_ANALYZE_COMPETITOR: `Analyze the competitor "{{name}}" in the "{{niche}}" market.
+Estimate their Strengths, Weaknesses, Pricing Strategy, and Market Position based on your knowledge.
+
+{{langInstruction}}
+
+Output strictly valid JSON:
+{
+  "name": "{{name}}",
+  "website": null,
+  "marketPosition": "Brief description",
+  "pricingStrategy": "Brief description",
+  "strengths": ["Strength 1", "Strength 2"],
+  "weaknesses": ["Weakness 1", "Weakness 2"]
+}`,
+
+  OPENAI_SCOUT_LOCATION: `You are a location scout for a business idea.
+The user wants to start a "{{businessType}}" in "{{location}}".
+
+Since you do not have real-time access to Google Maps, use your internal knowledge of the city/area to suggest 5 specific, popular neighborhoods, districts, or streets that are suitable for this business type.
+Explain WHY each location is good (foot traffic, demographics, vibe).
+
+{{langInstruction}}
+
+Output strictly valid JSON:
+{
+  "summary": "A brief analysis of the location strategy for this business type in this city.",
+  "places": [
+      { 
+        "title": "Neighborhood/District Name", 
+        "address": "Brief description of the area", 
+        "uri": "#" 
+      }
+  ]
+}`
 };
 
 export type PromptKey = keyof typeof DEFAULT_PROMPTS;

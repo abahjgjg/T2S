@@ -1,4 +1,6 @@
 
+
+
 import { LiveServerMessage, Modality } from "@google/genai";
 import { Blueprint, BusinessIdea } from "../types";
 import { decodeAudioData, float32ToPcm16Base64 } from "../utils/audioUtils";
@@ -6,6 +8,7 @@ import { GEMINI_MODELS } from "../constants/aiConfig";
 import { promptService } from "./promptService";
 import { PromptKey } from "../constants/systemPrompts";
 import { getGeminiClient } from "./gemini/shared";
+import { interpolate } from "../utils/promptUtils";
 
 export interface LiveSessionCallbacks {
   onConnect: () => void;
@@ -23,6 +26,7 @@ export interface PitchPersona {
   icon: string; // Lucide icon name or emoji
   voiceName: 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Zephyr';
   promptKey: PromptKey;
+  customData?: Record<string, any>; // Support for dynamic attributes from personas
 }
 
 export const PITCH_PERSONAS: PitchPersona[] = [
@@ -93,7 +97,13 @@ export class LivePitchService {
       }
 
       // 3. Prepare System Instruction
-      const personaInstruction = promptService.getTemplate(persona.promptKey);
+      let personaInstruction = promptService.getTemplate(persona.promptKey);
+      
+      // If Custom Data is present (Dynamic Persona), interpolate it first
+      if (persona.customData) {
+        personaInstruction = interpolate(personaInstruction, persona.customData);
+      }
+
       const systemInstruction = promptService.build('PITCH_SESSION_MASTER', {
         personaInstruction,
         name: idea.name,

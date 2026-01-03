@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { promptService } from '../../services/promptService';
 import { PromptKey, DEFAULT_PROMPTS } from '../../constants/systemPrompts';
@@ -56,28 +57,40 @@ export const AdminPrompts: React.FC = () => {
   };
 
   const variablesMap: Record<PromptKey, string[]> = {
-    FETCH_TRENDS: ['niche', 'langInstruction'],
+    FETCH_TRENDS: ['niche', 'langInstruction', 'region', 'timeframe', 'currentDate'],
+    OPENAI_FETCH_TRENDS: ['niche', 'langInstruction', 'region', 'timeframe', 'currentDate'],
     TREND_DEEP_DIVE: ['trend', 'niche', 'langInstruction'],
+    OPENAI_DEEP_DIVE: ['trend', 'niche', 'langInstruction'],
     GENERATE_IDEAS: ['niche', 'trendsContext', 'langInstruction'],
+    OPENAI_GENERATE_IDEAS: ['niche', 'trendsContext', 'langInstruction'],
     GENERATE_BLUEPRINT: ['name', 'type', 'description', 'monetizationModel', 'langInstruction'],
+    OPENAI_GENERATE_BLUEPRINT: ['name', 'type', 'description', 'langInstruction'],
     GENERATE_AGENTS: ['executiveSummary', 'techStack', 'roadmap', 'langInstruction'],
     CHAT_SYSTEM: ['executiveSummary', 'techStack', 'revenueStreams', 'langInstruction'],
     RESEARCH_ANALYST: ['niche', 'trendsContext', 'langInstruction'],
     PERSONA_VC_SKEPTIC: [],
     PERSONA_CUSTOMER_CURIOUS: [],
     PERSONA_TECH_CTO: [],
+    PERSONA_GENERATED: ['name', 'bio', 'age', 'occupation', 'painPoints', 'goals'],
     PITCH_SESSION_MASTER: ['personaInstruction', 'name', 'type', 'summary', 'monetization', 'techStack'],
     GENERATE_LAUNCH_ASSETS: ['name', 'type', 'audience', 'summary', 'langInstruction'],
     VIABILITY_AUDIT: ['name', 'type', 'summary', 'techStack', 'revenue', 'langInstruction'],
     GENERATE_CODE: ['name', 'type', 'headline', 'subheadline', 'cta', 'benefits', 'langInstruction'],
     GENERATE_CONTENT_CALENDAR: ['name', 'audience', 'market', 'langInstruction'],
-    GENERATE_PERSONAS: ['name', 'audience', 'summary', 'langInstruction']
+    GENERATE_PERSONAS: ['name', 'audience', 'summary', 'langInstruction'],
+    GENERATE_BMC: ['name', 'summary', 'langInstruction'],
+    GENERATE_BRAND_IDENTITY: ['name', 'type', 'audience', 'summary', 'langInstruction'],
+    ANALYZE_PITCH: ['transcript', 'name', 'summary', 'role', 'langInstruction'],
+    GENERATE_IMAGE_PROMPT: ['name', 'description', 'style'],
+    GENERATE_VIDEO_PROMPT: ['name', 'description'],
+    OPENAI_ANALYZE_COMPETITOR: ['name', 'niche', 'langInstruction'],
+    OPENAI_SCOUT_LOCATION: ['businessType', 'location', 'langInstruction']
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-[fadeIn_0.3s_ease-out]">
       {/* Sidebar List */}
-      <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 h-fit">
+      <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 h-fit max-h-[600px] overflow-y-auto custom-scrollbar">
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
           <MessageSquareCode className="w-4 h-4" /> Prompts
         </h3>
@@ -90,11 +103,12 @@ export const AdminPrompts: React.FC = () => {
                 setSelectedKey(key as PromptKey);
                 setHasChanges(false);
               }}
-              className={`text-left px-3 py-2 rounded-lg text-xs font-mono transition-colors ${
+              className={`text-left px-3 py-2 rounded-lg text-xs font-mono transition-colors truncate ${
                 selectedKey === key 
                 ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30' 
                 : 'text-slate-400 hover:bg-slate-800'
               }`}
+              title={key}
             >
               {key}
             </button>
@@ -115,7 +129,7 @@ export const AdminPrompts: React.FC = () => {
                   </span>
                 )}
               </div>
-              <div className="flex gap-2 mt-1">
+              <div className="flex gap-2 mt-1 flex-wrap">
                 {variablesMap[selectedKey]?.map(v => (
                    <span key={v} className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">
                      {`{{${v}}}`}

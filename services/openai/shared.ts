@@ -1,14 +1,6 @@
 
-import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
-
-// Removed module-level constant to ensure runtime evaluation of env vars
-export const getLanguageInstruction = (lang: Language) => {
-  return lang === 'id' 
-    ? "Provide all content values in Indonesian language (Bahasa Indonesia). However, KEEP THE JSON KEYS in English."
-    : "Provide all content in English.";
-};
 
 export interface OpenAIToolCall {
   id: string;

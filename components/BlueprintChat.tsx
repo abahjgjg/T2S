@@ -1,27 +1,26 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, User, Bot, Loader2, Minimize2, Maximize2, Zap } from 'lucide-react';
-import { Blueprint, ChatMessage, Language } from '../types';
+import { Blueprint, ChatMessage } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { toast } from './ToastNotifications';
 import { GEMINI_MODELS, OPENAI_MODELS } from '../constants/aiConfig';
 import { SafeMarkdown } from './SafeMarkdown';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
   blueprint: Blueprint;
-  language: Language;
-  uiText: any;
   onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
 }
 
-export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, onUpdateBlueprint }) => {
+export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const provider = (localStorage.getItem('trendventures_provider') as 'gemini' | 'openai') || 'gemini';
+  const { provider, language, uiText } = usePreferences();
   const aiService = getAIService(provider);
 
   useEffect(() => {
@@ -40,7 +39,6 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
     setIsLoading(true);
 
     try {
-      // Pass blueprint context for AI to understand the current state
       const { text, updates } = await aiService.sendBlueprintChat(messages, userMsg.content, blueprint, language);
       
       if (updates) {
@@ -67,7 +65,6 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
 
   return (
     <>
-      {/* Floating Toggle Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className={`fixed z-50 bottom-6 right-6 p-4 rounded-full shadow-lg transition-all transform hover:scale-105 ${
@@ -81,11 +78,8 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
         {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
 
-      {/* Chat Window */}
       {isOpen && (
         <div className="fixed z-40 bottom-24 right-6 w-full max-w-sm md:max-w-md h-[500px] md:h-[600px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out] print:hidden">
-          
-          {/* Header */}
           <div className="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
             <div className="flex items-center gap-2">
                <Bot className="w-5 h-5 text-emerald-400" />
@@ -101,25 +95,14 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
             </button>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/50" ref={scrollRef}>
             {messages.length === 0 && (
               <div className="text-center text-slate-500 mt-10">
                 <Bot className="w-12 h-12 mx-auto mb-3 opacity-20" />
                 <p className="text-sm">Ask me to modify this blueprint.</p>
                 <div className="mt-4 flex flex-col gap-2">
-                   <button 
-                     onClick={() => { setInput("Change revenue model to Subscription"); }}
-                     className="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 transition-colors border border-slate-700"
-                   >
-                     "Change revenue model to Subscription"
-                   </button>
-                   <button 
-                     onClick={() => { setInput("Add SEO to marketing strategy"); }}
-                     className="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 transition-colors border border-slate-700"
-                   >
-                     "Add SEO to marketing strategy"
-                   </button>
+                   <button onClick={() => { setInput("Change revenue model to Subscription"); }} className="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 transition-colors border border-slate-700">"Change revenue model to Subscription"</button>
+                   <button onClick={() => { setInput("Add SEO to marketing strategy"); }} className="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 transition-colors border border-slate-700">"Add SEO to marketing strategy"</button>
                 </div>
               </div>
             )}
@@ -132,18 +115,9 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
                   </div>
                 )}
                 
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
-                    msg.role === 'user' 
-                    ? 'bg-blue-600 text-white rounded-br-none' 
-                    : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'
-                }`}>
+                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}`}>
                   <div className="prose prose-invert prose-xs max-w-none">
-                    <SafeMarkdown 
-                      content={msg.content}
-                      components={{
-                        p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />
-                      }}
-                    />
+                    <SafeMarkdown content={msg.content} components={{ p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} /> }} />
                   </div>
                 </div>
 
@@ -168,7 +142,6 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, language, uiText, on
             )}
           </div>
 
-          {/* Input Area */}
           <form onSubmit={handleSend} className="p-3 bg-slate-800 border-t border-slate-700">
             <div className="relative">
               <input
