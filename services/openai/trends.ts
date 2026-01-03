@@ -6,24 +6,40 @@ import { getLanguageInstruction } from "../../utils/promptUtils";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
 
-export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false): Promise<Trend[]> => {
+export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string): Promise<Trend[]> => {
   // OpenAI Standard API does not have real-time Google Search tools built-in without extensions.
   // We simulate this by asking the model to use its internal knowledge base.
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const langInstruction = getLanguageInstruction(lang);
   
+  const visualContext = image 
+        ? "VISUAL CONTEXT PROVIDED: An image has been attached. Analyze the image contents and identify trends related to the objects, style, or data visible in the image. Combine this visual insight with the search query."
+        : "";
+
   const prompt = promptService.build('OPENAI_FETCH_TRENDS', {
     niche,
     region,
     timeframe,
     currentDate,
-    langInstruction
+    langInstruction,
+    visualContext
   });
 
-  // Use Complex model if Deep Mode is enabled, otherwise Basic (Mini)
-  const model = deepMode ? OPENAI_MODELS.COMPLEX : OPENAI_MODELS.BASIC;
+  // Use Complex model if Deep Mode or Image is enabled (Need Vision), otherwise Basic (Mini)
+  const model = (deepMode || image) ? OPENAI_MODELS.COMPLEX : OPENAI_MODELS.BASIC;
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], model);
+  const contentPayload: any = [{ type: "text", text: prompt }];
+  
+  if (image) {
+    contentPayload.push({
+      type: "image_url",
+      image_url: {
+        url: image // OpenAI accepts full data URI
+      }
+    });
+  }
+
+  const response = await callOpenAI([{ role: "user", content: contentPayload }], model);
   const rawTrends = JSON.parse(cleanJsonOutput(response.content || "[]"));
   
   // Map to new interface, adding empty sources

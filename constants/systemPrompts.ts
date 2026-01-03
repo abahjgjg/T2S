@@ -1,10 +1,11 @@
 
-
 export const DEFAULT_PROMPTS = {
   FETCH_TRENDS: `Act as a senior market analyst and news researcher.
 Current Date: {{currentDate}}
 Target Market Region: {{region}}
 Research Timeframe: {{timeframe}}
+
+{{visualContext}}
 
 USE GOOGLE SEARCH to find 5 emerging trends or breaking news stories in the niche: "{{niche}}".
 
@@ -15,6 +16,7 @@ MANDATORY FOCUS:
 4. Identify specific problems or opportunities people are discussing RIGHT NOW.
 5. Ensure each trend corresponds to a specific event or announcement if possible.
 6. Determine the GENERAL SENTIMENT (Positive, Negative, Neutral) of this news story.
+7. DIVERSIFY: Ensure trends are distinct events. Do not list the same news story twice under different names.
 
 CRITICAL INSTRUCTION:
 {{langInstruction}}
@@ -45,10 +47,13 @@ metric_definitions:
   OPENAI_FETCH_TRENDS: `Act as a senior market analyst.
 Current Date: {{currentDate}}
 
+{{visualContext}}
+
 Identify 5 breaking news or emerging trends in the niche: "{{niche}}".
 Focus on the most recent developments you are aware of (Breaking News) in the region: {{region}} within the timeframe: {{timeframe}}.
 For each, identify a specific news headline or recent event that represents this trend.
 Determine the sentiment (Positive/Negative/Neutral).
+Ensure trends are distinct and avoid duplicates.
 
 {{langInstruction}}
 

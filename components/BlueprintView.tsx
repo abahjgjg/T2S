@@ -1,10 +1,9 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { Blueprint, BusinessIdea, CompetitorAnalysis } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { supabaseService } from '../services/supabaseService';
 import { toast } from './ToastNotifications'; 
-import { ShieldCheck, Loader2 } from 'lucide-react';
+import { ShieldCheck, Loader2, TrendingUp } from 'lucide-react';
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { useBlueprintMedia } from '../hooks/useBlueprintMedia';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -250,6 +249,25 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8 animate-[slideUp_0.4s_ease-out]">
+      
+      {/* Print-Only Cover Page */}
+      <div className="hidden print:flex flex-col items-center justify-center h-screen text-center print:break-after-page">
+         <div className="flex items-center gap-2 mb-8">
+            <TrendingUp className="w-10 h-10 text-emerald-600" />
+            <h1 className="text-3xl font-bold tracking-tighter text-slate-900">
+              Trend<span className="text-emerald-600">Ventures</span> AI
+            </h1>
+         </div>
+         <h1 className="text-6xl font-black text-slate-900 mb-4">{idea.name}</h1>
+         <p className="text-2xl text-slate-600 mb-12">{idea.description}</p>
+         <div className="text-sm text-slate-400 font-mono">
+            Generated on {new Date().toLocaleDateString()}
+         </div>
+         <div className="mt-8 text-xs text-slate-400">
+            Confidential Business Blueprint
+         </div>
+      </div>
+
       {showPitchModal && (
         <LivePitchModal 
           blueprint={blueprint} 
@@ -294,19 +312,21 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         onSaveToSWOT={handleSaveCompetitorInsights}
       />
 
-      <BlueprintHeader 
-        onBack={onBack}
-        onSave={onSaveToLibrary}
-        onExportJSON={handleDownloadJSON}
-        onExportMD={handleDownloadMarkdown}
-        onPrint={handlePrint}
-        onPresent={() => setShowPresentation(true)}
-        publishedUrl={publishedUrl}
-        isSaved={isSaved}
-      />
+      <div className="print:hidden">
+        <BlueprintHeader 
+          onBack={onBack}
+          onSave={onSaveToLibrary}
+          onExportJSON={handleDownloadJSON}
+          onExportMD={handleDownloadMarkdown}
+          onPrint={handlePrint}
+          onPresent={() => setShowPresentation(true)}
+          publishedUrl={publishedUrl}
+          isSaved={isSaved}
+        />
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 print:block print:space-y-8">
+        <div className="lg:col-span-2 print:break-inside-avoid">
           <BlueprintHero 
             idea={idea} 
             blueprint={blueprint} 
@@ -321,7 +341,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
           />
         </div>
 
-        <div className="lg:col-span-1 flex flex-col gap-4">
+        <div className="lg:col-span-1 flex flex-col gap-4 print:break-inside-avoid">
           <BlueprintVisuals 
              blueprint={blueprint}
              ideaName={idea.name}
@@ -333,7 +353,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
           <button 
             onClick={handleRunAudit}
             disabled={isAuditing}
-            className="w-full bg-purple-900/20 border border-purple-500/30 hover:bg-purple-900/30 text-purple-300 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+            className="w-full bg-purple-900/20 border border-purple-500/30 hover:bg-purple-900/30 text-purple-300 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 print:hidden"
           >
             {isAuditing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
             {isAuditing ? "Analyzing..." : "Run Viability Audit"}
@@ -341,77 +361,101 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         </div>
       </div>
 
-      <BlueprintCompetitors 
-        competitors={idea.competitors || []}
-        onAnalyze={handleAnalyzeCompetitor}
-        onScoutLocation={() => setShowLocationModal(true)}
-      />
+      <div className="print:break-inside-avoid">
+        <BlueprintCompetitors 
+          competitors={idea.competitors || []}
+          onAnalyze={handleAnalyzeCompetitor}
+          onScoutLocation={() => setShowLocationModal(true)}
+        />
+      </div>
 
-      <BlueprintAffiliates 
-        products={blueprint.affiliateRecommendations || []}
-        onAffiliateClick={handleAffiliateClick}
-      />
+      <div className="print:hidden">
+        <BlueprintAffiliates 
+          products={blueprint.affiliateRecommendations || []}
+          onAffiliateClick={handleAffiliateClick}
+        />
+      </div>
 
-      <BlueprintStrategies 
-        technicalStack={blueprint.technicalStack} 
-        marketingStrategy={blueprint.marketingStrategy}
-      />
+      <div className="print:break-inside-avoid">
+        <BlueprintStrategies 
+          technicalStack={blueprint.technicalStack} 
+          marketingStrategy={blueprint.marketingStrategy}
+        />
+      </div>
 
-      <BrandStudio 
-        idea={idea} 
-        blueprint={blueprint} 
-        brandIdentity={blueprint.brandIdentity}
-        onUpdateBlueprint={onUpdateBlueprint}
-      />
+      <div className="print:break-inside-avoid">
+        <BrandStudio 
+          idea={idea} 
+          blueprint={blueprint} 
+          brandIdentity={blueprint.brandIdentity}
+          onUpdateBlueprint={onUpdateBlueprint}
+        />
+      </div>
 
-      <CustomerPersonas 
-        idea={idea}
-        blueprint={blueprint}
-        personas={blueprint.personas}
-        onUpdateBlueprint={onUpdateBlueprint}
-      />
+      <div className="print:break-inside-avoid">
+        <CustomerPersonas 
+          idea={idea}
+          blueprint={blueprint}
+          personas={blueprint.personas}
+          onUpdateBlueprint={onUpdateBlueprint}
+        />
+      </div>
 
-      <BlueprintLaunchpad 
-        idea={idea} 
-        blueprint={blueprint} 
-        assets={blueprint.launchAssets}
-        onUpdateBlueprint={onUpdateBlueprint}
-      />
+      <div className="print:break-inside-avoid">
+        <BlueprintLaunchpad 
+          idea={idea} 
+          blueprint={blueprint} 
+          assets={blueprint.launchAssets}
+          onUpdateBlueprint={onUpdateBlueprint}
+        />
+      </div>
 
-      <BusinessModelCanvas 
-        idea={idea} 
-        blueprint={blueprint} 
-        bmc={blueprint.bmc}
-        onUpdateBlueprint={onUpdateBlueprint}
-      />
+      <div className="print:break-inside-avoid">
+        <BusinessModelCanvas 
+          idea={idea} 
+          blueprint={blueprint} 
+          bmc={blueprint.bmc}
+          onUpdateBlueprint={onUpdateBlueprint}
+        />
+      </div>
 
-      <BlueprintAgents 
-        agents={agents}
-        isGenerating={isGeneratingAgents}
-        onGenerate={handleGenerateAgents}
-        onUpdateBlueprint={onUpdateBlueprint}
-      />
+      <div className="print:break-inside-avoid">
+        <BlueprintAgents 
+          agents={agents}
+          isGenerating={isGeneratingAgents}
+          onGenerate={handleGenerateAgents}
+          onUpdateBlueprint={onUpdateBlueprint}
+        />
+      </div>
 
-      <BlueprintRevenue 
-        revenueStreams={blueprint.revenueStreams} 
-        onUpdate={handleUpdateRevenue}
-      />
+      <div className="print:break-inside-avoid">
+        <BlueprintRevenue 
+          revenueStreams={blueprint.revenueStreams} 
+          onUpdate={handleUpdateRevenue}
+        />
+      </div>
 
       {blueprint.swot && (
-         <SwotAnalysis data={blueprint.swot} />
+         <div className="print:break-inside-avoid">
+           <SwotAnalysis data={blueprint.swot} />
+         </div>
       )}
 
-      <BlueprintRoadmap 
-        roadmap={blueprint.roadmap} 
-        progress={blueprint.roadmapProgress}
-        onToggleTask={handleToggleTask}
-      />
+      <div className="print:break-inside-avoid">
+        <BlueprintRoadmap 
+          roadmap={blueprint.roadmap} 
+          progress={blueprint.roadmapProgress}
+          onToggleTask={handleToggleTask}
+        />
+      </div>
 
-      <BlueprintMarkdownViewer 
-        content={blueprint.fullContentMarkdown} 
-        affiliateMap={affiliateMap}
-        onAffiliateClick={handleAffiliateClick}
-      />
+      <div className="print:break-before-page">
+        <BlueprintMarkdownViewer 
+          content={blueprint.fullContentMarkdown} 
+          affiliateMap={affiliateMap}
+          onAffiliateClick={handleAffiliateClick}
+        />
+      </div>
 
       <BlueprintChat 
         blueprint={blueprint} 

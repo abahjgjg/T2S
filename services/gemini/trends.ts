@@ -7,8 +7,9 @@ import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS } from "../../constants/aiConfig";
 import { TrendListSchema, TrendDeepDiveSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
+import { Type } from "@google/genai";
 
-export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false): Promise<Trend[]> => {
+export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string): Promise<Trend[]> => {
   return retryOperation(async () => {
     try {
       const ai = getGeminiClient();
@@ -16,14 +17,19 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
       
       // Reinforce "Latest" context if timeframe is short
       const urgencyInstruction = (timeframe === '24h' || timeframe === '7d')
-        ? "CRITICAL: You are a Real-Time News Scanner. Prioritize BREAKING NEWS, LIVE EVENTS, and DEVELOPING STORIES from the last few hours. IGNORE outdated trends. If no breaking news exists, find the most recent relevant update."
+        ? "CRITICAL PRIORITY: YOU ARE A REAL-TIME NEWS SCANNER. The user wants to know what is happening RIGHT NOW. Prioritize BREAKING NEWS, LIVE EVENTS, and DEVELOPING STORIES from the last 24-48 hours. IGNORE general knowledge or outdated trends. If no breaking news exists for this niche, find the most recent relevant update from this week. Do not hallucinate dates."
         : "Focus on established market shifts and emerging patterns from the last month.";
+
+      const visualContext = image 
+        ? "VISUAL CONTEXT PROVIDED: An image has been attached. Analyze the image contents and identify trends related to the objects, style, or data visible in the image. Combine this visual insight with the search query."
+        : "";
 
       const prompt = promptService.build('FETCH_TRENDS', {
         niche,
         langInstruction: `${langInstruction} ${urgencyInstruction}`,
         region,
         timeframe,
+        visualContext,
         currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       });
 
@@ -32,15 +38,52 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
       // Deep: Pro (Reasoning, Comprehensive)
       const model = deepMode ? GEMINI_MODELS.COMPLEX : GEMINI_MODELS.BASIC;
 
-      const response = await ai.models.generateContent({
+      const contentsPayload: any = {
         model: model,
-        contents: prompt,
+        contents: {
+          parts: [{ text: prompt }]
+        },
         config: {
           tools: [{ googleSearch: {} }],
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                title: { type: Type.STRING, description: "Headline or Trend Name" },
+                description: { type: Type.STRING, description: "Brief explanation of the news/trend and why it matters" },
+                relevanceScore: { type: Type.NUMBER, description: "Match score 0-100" },
+                growthScore: { type: Type.NUMBER, description: "Velocity/Hype 0-100" },
+                impactScore: { type: Type.NUMBER, description: "Market Impact 0-100" },
+                sentiment: { type: Type.STRING, enum: ["Positive", "Negative", "Neutral"] },
+                triggerEvent: { type: Type.STRING, description: "Specific recent news headline or event driving this" },
+                date: { type: Type.STRING, description: "YYYY-MM-DD" },
+              },
+              required: ["title", "description", "relevanceScore", "triggerEvent"]
+            }
+          },
           // If Deep Mode, enable Thinking for better analysis
           ...(deepMode ? { thinkingConfig: { thinkingBudget: 1024 } } : {})
         },
-      });
+      };
+
+      // Add image part if present (Multimodal)
+      if (image) {
+        // Simple MIME type detection from base64 header
+        const mimeMatch = image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const cleanBase64 = image.replace(/^data:image\/\w+;base64,/, "");
+        
+        contentsPayload.contents.parts.unshift({
+          inlineData: {
+            mimeType: mimeType, 
+            data: cleanBase64
+          }
+        });
+      }
+
+      const response = await ai.models.generateContent(contentsPayload);
 
       const text = response.text;
       if (!text) throw new Error("No response from AI");
@@ -98,6 +141,31 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
         config: {
           tools: [{ googleSearch: {} }],
           thinkingConfig: { thinkingBudget: 2048 }, // Enable reasoning for deeper analysis
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: { type: Type.STRING },
+              sentiment: { type: Type.STRING, enum: ["Positive", "Negative", "Neutral"] },
+              keyEvents: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    date: { type: Type.STRING },
+                    title: { type: Type.STRING },
+                    url: { type: Type.STRING }
+                  },
+                  required: ["date", "title"]
+                }
+              },
+              futureOutlook: { type: Type.STRING },
+              actionableTips: { type: Type.ARRAY, items: { type: Type.STRING } },
+              suggestedQuestions: { type: Type.ARRAY, items: { type: Type.STRING } },
+              keyPlayers: { type: Type.ARRAY, items: { type: Type.STRING } }
+            },
+            required: ["summary", "sentiment", "keyEvents", "futureOutlook", "actionableTips"]
+          }
         },
       });
 
@@ -123,6 +191,8 @@ export const extractTopicFromImage = async (base64Image: string, lang: Language)
       const ai = getGeminiClient();
       
       // Remove header if present
+      const mimeMatch = base64Image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+      const mimeType = mimeMatch ? mimeMatch[1] : 'image/png'; 
       const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
       
       const prompt = `
@@ -138,7 +208,7 @@ export const extractTopicFromImage = async (base64Image: string, lang: Language)
         model: GEMINI_MODELS.BASIC, // Flash supports vision
         contents: {
           parts: [
-            { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
+            { inlineData: { mimeType: mimeType, data: cleanBase64 } },
             { text: prompt }
           ]
         }

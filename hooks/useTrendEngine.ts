@@ -10,11 +10,12 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     region: SearchRegion; 
     timeframe: SearchTimeframe;
     deepMode: boolean; 
+    image?: string;
   } | null>(null);
 
   // Use React Query for fetching trends
   const { data: trends = [], refetch, isFetching } = useQuery({
-    queryKey: ['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language],
+    queryKey: ['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, searchParams?.image, language],
     queryFn: async () => {
       if (!searchParams) return [];
       return await aiService.fetchMarketTrends(
@@ -22,7 +23,8 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
         language, 
         searchParams.region, 
         searchParams.timeframe,
-        searchParams.deepMode
+        searchParams.deepMode,
+        searchParams.image
       );
     },
     enabled: false, // Triggered manually via fetchTrends
@@ -30,8 +32,8 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     gcTime: 1000 * 60 * 60, // Keep unused data for 1 hour
   });
 
-  const fetchTrends = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false) => {
-    setSearchParams({ niche: searchTerm, region, timeframe, deepMode });
+  const fetchTrends = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
+    setSearchParams({ niche: searchTerm, region, timeframe, deepMode, image });
     
     // We explicitly trigger the refetch after setting params to ensure the query runs
     setTimeout(() => {
@@ -39,8 +41,8 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     }, 0);
     
     const result = await queryClient.fetchQuery({
-      queryKey: ['marketTrends', searchTerm, region, timeframe, deepMode, language],
-      queryFn: () => aiService.fetchMarketTrends(searchTerm, language, region, timeframe, deepMode),
+      queryKey: ['marketTrends', searchTerm, region, timeframe, deepMode, image, language],
+      queryFn: () => aiService.fetchMarketTrends(searchTerm, language, region, timeframe, deepMode, image),
       staleTime: 1000 * 60 * 15
     });
     
@@ -50,11 +52,11 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
   // Support manual hydration from IDB or Deep Dive updates
   const setTrends = useCallback((newTrends: Trend[] | ((prev: Trend[]) => Trend[])) => {
     if (typeof newTrends === 'function') {
-        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language], (old: Trend[] | undefined) => {
+        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, searchParams?.image, language], (old: Trend[] | undefined) => {
             return newTrends(old || []);
         });
     } else {
-        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language], newTrends);
+        queryClient.setQueryData(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, searchParams?.image, language], newTrends);
     }
   }, [queryClient, searchParams, language]);
 
@@ -70,7 +72,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
 
   const analyzeTrendDeepDive = async (index: number) => {
     // Access current data synchronously from cache or hook
-    const currentTrends = queryClient.getQueryData<Trend[]>(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, language]) || trends;
+    const currentTrends = queryClient.getQueryData<Trend[]>(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, searchParams?.image, language]) || trends;
     const trend = currentTrends[index];
     
     if (!trend) return;
@@ -90,8 +92,8 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     queryClient.removeQueries({ queryKey: ['marketTrends'] });
   };
 
-  const setSearchContext = (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean) => {
-    setSearchParams({ niche, region, timeframe, deepMode });
+  const setSearchContext = (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
+    setSearchParams({ niche, region, timeframe, deepMode, image });
   };
 
   return {
@@ -99,12 +101,14 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     region: searchParams?.region || 'Global',
     timeframe: searchParams?.timeframe || '30d',
     deepMode: searchParams?.deepMode || false,
+    image: searchParams?.image,
     setNiche: (n: string) => setSearchParams(prev => ({ 
       ...prev, 
       niche: n, 
       region: prev?.region || 'Global',
       timeframe: prev?.timeframe || '30d',
-      deepMode: prev?.deepMode || false 
+      deepMode: prev?.deepMode || false,
+      image: prev?.image
     })),
     setSearchContext, // Helper for bulk restoration
     trends,

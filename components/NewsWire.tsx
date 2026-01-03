@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Globe, ExternalLink, Search, Newspaper, Zap, CheckCircle2, AlertTriangle, Radio } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Globe, ExternalLink, Search, Newspaper, Zap, CheckCircle2, AlertTriangle, Radio, BarChart2, ShieldCheck } from 'lucide-react';
 import { AIProvider } from '../types';
 
 interface Props {
@@ -8,37 +8,82 @@ interface Props {
   provider: AIProvider;
 }
 
+const TRUSTED_DOMAINS = [
+  'reuters.com', 'bloomberg.com', 'techcrunch.com', 'forbes.com', 'nytimes.com', 
+  'wsj.com', 'ft.com', 'cnbc.com', 'bbc.com', 'wired.com', 'theverge.com', 
+  'venturebeat.com', 'businessinsider.com', 'economist.com', 'hbr.org',
+  'kompas.com', 'detik.com', 'bisnis.com', 'jakartapost.com', 'dailysocial.id'
+];
+
 export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
   const isGroundingActive = provider === 'gemini';
 
+  // Compute Top Source Domains for "Source Intelligence" visualization
+  const domainStats = useMemo(() => {
+     const counts: Record<string, number> = {};
+     sources.forEach(s => {
+       try {
+         // Extract clean domain (e.g. bloomberg.com)
+         const domain = new URL(s.url).hostname.replace('www.', '');
+         counts[domain] = (counts[domain] || 0) + 1;
+       } catch (e) {}
+     });
+     // Sort by count descending
+     return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  }, [sources]);
+
+  const isTrusted = (url: string) => {
+    try {
+      const domain = new URL(url).hostname;
+      return TRUSTED_DOMAINS.some(td => domain.includes(td));
+    } catch (e) {
+      return false;
+    }
+  };
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden animate-[fadeIn_0.3s_ease-out] flex flex-col h-full">
-       <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex items-center justify-between">
-         <div className="flex items-center gap-2">
-           <Newspaper className="w-5 h-5 text-blue-400" />
-           <h4 className="font-bold text-white">Intelligence Wire</h4>
+       <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col gap-3">
+         <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Newspaper className="w-5 h-5 text-blue-400" />
+              <h4 className="font-bold text-white">Intelligence Wire</h4>
+            </div>
+            
+            {/* Live Status Badge */}
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${
+              isGroundingActive 
+                ? 'bg-emerald-950/50 text-emerald-400 border-emerald-500/30' 
+                : 'bg-blue-900/20 text-blue-400 border-blue-500/20'
+            }`}>
+              {isGroundingActive ? (
+                <>
+                  <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                  </span>
+                  Google Grounding
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-3 h-3" /> OpenAI Knowledge
+                </>
+              )}
+            </div>
          </div>
-         
-         {/* Live Status Badge */}
-         <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${
-           isGroundingActive 
-             ? 'bg-emerald-950/50 text-emerald-400 border-emerald-500/30' 
-             : 'bg-blue-900/20 text-blue-400 border-blue-500/20'
-         }`}>
-           {isGroundingActive ? (
-             <>
-               <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-               </span>
-               Google Grounding
-             </>
-           ) : (
-             <>
-               <CheckCircle2 className="w-3 h-3" /> OpenAI Knowledge
-             </>
-           )}
-         </div>
+
+         {/* Source Intelligence Stats */}
+         {domainStats.length > 0 && (
+           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+              <BarChart2 className="w-3 h-3 text-slate-500 shrink-0" />
+              {domainStats.map(([domain, count], i) => (
+                <div key={i} className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-900 rounded border border-slate-800 text-[10px] text-slate-400 whitespace-nowrap">
+                   <span className="font-bold text-slate-300">{domain}</span>
+                   <span className="bg-slate-800 text-blue-400 px-1 rounded-sm">{count}</span>
+                </div>
+              ))}
+           </div>
+         )}
        </div>
        
        {sources.length > 0 ? (
@@ -52,6 +97,7 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
              // Basic favicon fallback
              const domain = new URL(source.url).hostname;
              const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+             const trusted = isTrusted(source.url);
 
              return (
                <a 
@@ -79,7 +125,12 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
                         <h5 className="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-1">
                           {source.title || domain}
                         </h5>
-                        <ExternalLink className="w-3 h-3 text-slate-600 group-hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        {trusted && (
+                          <div className="text-[10px] bg-blue-900/30 text-blue-300 px-1.5 py-0.5 rounded flex items-center gap-1 border border-blue-500/20" title="Trusted Source">
+                             <ShieldCheck className="w-3 h-3" />
+                          </div>
+                        )}
+                        <ExternalLink className="w-3 h-3 text-slate-600 group-hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
                      </div>
                      <p className="text-xs text-slate-500 truncate font-mono opacity-60 group-hover:opacity-90 transition-opacity">
                        {source.url}
@@ -87,7 +138,7 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
                      
                      <div className="mt-2 flex items-center gap-2">
                         <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 font-medium">News</span>
-                        <span className="text-[10px] px-1.5 py-0.5 bg-emerald-900/20 text-emerald-500/80 rounded font-medium">Relevance: High</span>
+                        <span className="text-[10px] px-1.5 py-0.5 bg-emerald-900/20 text-emerald-500/80 rounded font-medium">High Relevance</span>
                      </div>
                    </div>
                  </div>

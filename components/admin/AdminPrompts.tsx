@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { promptService } from '../../services/promptService';
 import { PromptKey, DEFAULT_PROMPTS } from '../../constants/systemPrompts';
@@ -57,8 +56,8 @@ export const AdminPrompts: React.FC = () => {
   };
 
   const variablesMap: Record<PromptKey, string[]> = {
-    FETCH_TRENDS: ['niche', 'langInstruction', 'region', 'timeframe', 'currentDate'],
-    OPENAI_FETCH_TRENDS: ['niche', 'langInstruction', 'region', 'timeframe', 'currentDate'],
+    FETCH_TRENDS: ['niche', 'langInstruction', 'region', 'timeframe', 'currentDate', 'visualContext'],
+    OPENAI_FETCH_TRENDS: ['niche', 'langInstruction', 'region', 'timeframe', 'currentDate', 'visualContext'],
     TREND_DEEP_DIVE: ['trend', 'niche', 'langInstruction'],
     OPENAI_DEEP_DIVE: ['trend', 'niche', 'langInstruction'],
     GENERATE_IDEAS: ['niche', 'trendsContext', 'langInstruction'],

@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, 
   ScatterChart, Scatter, ZAxis, ReferenceLine, Label, Cell 
 } from 'recharts';
-import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock } from 'lucide-react';
+import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock, Globe, Flame } from 'lucide-react';
 import { TrendDeepDiveModal } from './TrendDeepDiveModal';
 import { usePreferences } from '../contexts/PreferencesContext';
 
@@ -213,31 +213,65 @@ export const TrendAnalysis: React.FC<Props> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {trends.map((trend, idx) => (
-          <div key={idx} className={`bg-slate-900 border rounded-xl p-5 transition-all relative overflow-hidden flex flex-col group cursor-pointer ${selectedTrendIndices.has(idx) ? 'border-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.2)]' : 'border-slate-800 opacity-70 hover:opacity-100'}`} onClick={(e) => ideasLength === 0 && onToggleSelection(e, idx)}>
-            {ideasLength === 0 && (
-              <div className="absolute top-4 right-4 text-emerald-500 z-10 transition-transform hover:scale-110">
-                {selectedTrendIndices.has(idx) ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5 text-slate-600" />}
+        {trends.map((trend, idx) => {
+          const isHot = (trend.growthScore || 0) > 80;
+          const sourceCount = trend.sources?.length || 0;
+          
+          return (
+            <div key={idx} className={`bg-slate-900 border rounded-xl p-5 transition-all relative overflow-hidden flex flex-col group cursor-pointer ${selectedTrendIndices.has(idx) ? 'border-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.2)]' : 'border-slate-800 opacity-70 hover:opacity-100'}`} onClick={(e) => ideasLength === 0 && onToggleSelection(e, idx)}>
+              {ideasLength === 0 && (
+                <div className="absolute top-4 right-4 text-emerald-500 z-10 transition-transform hover:scale-110">
+                  {selectedTrendIndices.has(idx) ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5 text-slate-600" />}
+                </div>
+              )}
+              
+              <div className="mb-4 pr-8">
+                {isHot && (
+                  <div className="inline-flex items-center gap-1 mb-2 px-2 py-0.5 rounded-full bg-orange-950/40 border border-orange-500/30 text-[10px] font-bold text-orange-400 uppercase tracking-wider animate-pulse">
+                    <Flame className="w-3 h-3" /> Trending Now
+                  </div>
+                )}
+                <h4 className="font-bold text-white text-lg leading-tight group-hover:text-emerald-400 transition-colors">{trend.title}</h4>
+                <div className="flex flex-wrap items-center gap-2 mt-2 mb-3">
+                   <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border ${trend.sentiment === 'Positive' ? 'bg-emerald-950/30 text-emerald-400 border-emerald-500/20' : trend.sentiment === 'Negative' ? 'bg-red-950/30 text-red-400 border-red-500/20' : 'bg-blue-950/30 text-blue-400 border-blue-500/20'}`}>
+                      {getSentimentIcon(trend.sentiment)} {trend.sentiment || 'News'} Signal
+                   </div>
+                   {trend.date && (
+                     <div className="px-2 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-950 border border-slate-800 flex items-center gap-1">
+                       <Clock className="w-3 h-3" /> {trend.date}
+                     </div>
+                   )}
+                </div>
+                <div className="bg-slate-950/50 border-l-2 border-slate-700 pl-3 py-1.5 my-3">
+                   <p className="text-sm text-slate-300 font-medium italic leading-snug line-clamp-2">"{trend.triggerEvent}"</p>
+                </div>
               </div>
-            )}
-            <div className="mb-4 pr-8">
-              <h4 className="font-bold text-white text-lg leading-tight group-hover:text-emerald-400 transition-colors">{trend.title}</h4>
-              <div className="flex flex-wrap items-center gap-2 mt-2 mb-3">
-                 <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border ${trend.sentiment === 'Positive' ? 'bg-emerald-950/30 text-emerald-400 border-emerald-500/20' : trend.sentiment === 'Negative' ? 'bg-red-950/30 text-red-400 border-red-500/20' : 'bg-blue-950/30 text-blue-400 border-blue-500/20'}`}>
-                    {getSentimentIcon(trend.sentiment)} {trend.sentiment || 'News'} Signal
-                 </div>
-              </div>
-              <div className="bg-slate-950/50 border-l-2 border-slate-700 pl-3 py-1.5 my-3">
-                 <p className="text-sm text-slate-300 font-medium italic leading-snug line-clamp-2">"{trend.triggerEvent}"</p>
+              
+              <p className="text-sm text-slate-400 mb-4 flex-grow leading-relaxed line-clamp-3">{trend.description}</p>
+              
+              {/* Data Footer */}
+              <div className="mt-auto pt-3 border-t border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono" title="Relevance Score">
+                    <Activity className="w-3.5 h-3.5" /> {trend.relevanceScore}%
+                  </div>
+                  {sourceCount > 0 && (
+                    <div className="flex items-center gap-1 text-[10px] text-slate-500" title="News Sources">
+                      <Globe className="w-3 h-3" /> {sourceCount} Srcs
+                    </div>
+                  )}
+                </div>
+                
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onToggleExpand(trend, idx); }} 
+                  className="text-xs text-slate-300 hover:text-white flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors font-bold border border-slate-700 shadow-sm"
+                >
+                  <Newspaper className="w-3.5 h-3.5" /> {uiText.deepDive}
+                </button>
               </div>
             </div>
-            <p className="text-sm text-slate-400 mb-6 flex-grow leading-relaxed line-clamp-3">{trend.description}</p>
-            <div className="mt-auto flex items-center justify-between pt-3 border-t border-slate-800">
-              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono"><Activity className="w-3.5 h-3.5" /> {trend.relevanceScore}% Match</div>
-              <button onClick={(e) => { e.stopPropagation(); onToggleExpand(trend, idx); }} className="text-xs text-slate-300 hover:text-white flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors font-bold border border-slate-700 shadow-sm"><Newspaper className="w-3.5 h-3.5" /> {uiText.deepDive}</button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

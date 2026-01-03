@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Header } from './components/Header';
 import { TrendSearch } from './components/TrendSearch';
@@ -151,10 +152,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleSearch = async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean) => {
+  const handleSearch = async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
     const newUrl = `/idea?niche=${encodeURIComponent(searchTerm)}`;
     pushState(newUrl);
-    rActions.executeSearchSequence(searchTerm, region, timeframe, deepMode);
+    rActions.executeSearchSequence(searchTerm, region, timeframe, deepMode, image);
   };
 
   const handleIdeaSelectionWrapper = async (idea: any) => {

@@ -54,7 +54,8 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
               parsed.niche, 
               parsed.region || 'Global', 
               parsed.timeframe || '30d', 
-              parsed.deepMode || false
+              parsed.deepMode || false,
+              parsed.image
             );
           }
           if (parsed.trends) trendEngine.setTrends(parsed.trends);
@@ -88,6 +89,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
         region: trendEngine.region,
         timeframe: trendEngine.timeframe,
         deepMode: trendEngine.deepMode,
+        image: trendEngine.image,
         trends: trendEngine.trends,
         ideas: ideaEngine.ideas,
         selectedIdea: blueprintEngine.selectedIdea,
@@ -108,6 +110,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     trendEngine.region,
     trendEngine.timeframe,
     trendEngine.deepMode,
+    trendEngine.image,
     trendEngine.trends, 
     ideaEngine.ideas, 
     blueprintEngine.selectedIdea, 
@@ -116,7 +119,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
 
   // --- Actions ---
 
-  const executeFreshAIResearch = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false) => {
+  const executeFreshAIResearch = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
     setAppState('RESEARCHING');
     setIsFromCache(false);
     setError(null);
@@ -125,7 +128,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     blueprintEngine.clearBlueprint();
 
     try {
-      await trendEngine.fetchTrends(searchTerm, region, timeframe, deepMode);
+      await trendEngine.fetchTrends(searchTerm, region, timeframe, deepMode, image);
       setAppState('ANALYZING');
     } catch (e: any) {
       console.error(e);
@@ -144,14 +147,14 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     await ideaEngine.generateIdeas(trendEngine.niche, selectedTrends);
   };
 
-  const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false) => {
+  const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
     try {
-      // Check Cache
-      const isStandardSearch = region === 'Global' && timeframe === '30d' && !deepMode;
+      // Check Cache (Only if no image, as image search is too specific)
+      const isStandardSearch = region === 'Global' && timeframe === '30d' && !deepMode && !image;
       const cachedIdeas = isStandardSearch ? await supabaseService.findBlueprintsByNiche(searchTerm) : [];
 
       if (cachedIdeas.length > 0) {
-        trendEngine.setSearchContext(searchTerm, region, timeframe, deepMode);
+        trendEngine.setSearchContext(searchTerm, region, timeframe, deepMode, image);
         trendEngine.setTrends([{
           title: "Community Data",
           description: `Found ${cachedIdeas.length} existing business blueprints for '${searchTerm}'.`,
@@ -163,11 +166,11 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
         setIsFromCache(true);
         setAppState('ANALYZING');
       } else {
-        await executeFreshAIResearch(searchTerm, region, timeframe, deepMode);
+        await executeFreshAIResearch(searchTerm, region, timeframe, deepMode, image);
       }
     } catch (e: any) {
       console.error("Cache check failed", e);
-      await executeFreshAIResearch(searchTerm, region, timeframe, deepMode);
+      await executeFreshAIResearch(searchTerm, region, timeframe, deepMode, image);
     }
   }, [language]); 
 
@@ -207,7 +210,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
   };
 
   const loadProject = (project: { niche: string, idea: BusinessIdea, blueprint: Blueprint }) => {
-    trendEngine.setSearchContext(project.niche, 'Global', '30d', false);
+    trendEngine.setSearchContext(project.niche, 'Global', '30d', false, undefined);
     trendEngine.setTrends([]);
     ideaEngine.setIdeas([]);
     blueprintEngine.setSelectedIdea(project.idea);

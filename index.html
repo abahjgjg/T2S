@@ -48,6 +48,9 @@
             animation: {
               shimmer: 'shimmer 2s infinite linear',
               marquee: 'marquee 30s linear infinite',
+            },
+            screens: {
+              'print': {'raw': 'print'},
             }
           },
         },
@@ -73,34 +76,63 @@
       }
 
       @media print {
+        @page {
+          margin: 1.5cm;
+          size: auto;
+        }
+        
         body {
           background-color: white !important;
           color: black !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
-        header {
+
+        /* Force Reset for Dark Mode Containers */
+        [class*='bg-slate-'], [class*='bg-gray-'], [class*='bg-zinc-'] {
+          background-color: white !important;
+          border-color: #e2e8f0 !important; /* slate-200 */
+          color: black !important;
+        }
+        
+        /* Ensure text visibility */
+        [class*='text-slate-'], [class*='text-gray-'], [class*='text-white'] {
+          color: #0f172a !important; /* slate-900 */
+        }
+        
+        /* Keep accent colors but make them printable */
+        [class*='text-emerald-'], [class*='text-blue-'], [class*='text-purple-'] {
+          filter: brightness(0.8);
+        }
+
+        /* Hide UI elements */
+        header, nav, button, .no-print {
           display: none !important;
         }
+
+        /* Typography optimizations */
+        h1, h2, h3, h4, h5, h6 {
+          page-break-after: avoid;
+          color: #000 !important;
+        }
+        
+        p, li {
+          orphans: 3;
+          widows: 3;
+        }
+
+        /* Layout cleanup */
+        .grid {
+          display: block !important;
+        }
+        .grid > * {
+          margin-bottom: 2rem;
+          page-break-inside: avoid;
+        }
+
         /* Hide scrollbars in print */
         ::-webkit-scrollbar {
           display: none;
-        }
-        /* Improve typography for print */
-        .prose-invert {
-          --tw-prose-body: #000 !important;
-          --tw-prose-headings: #000 !important;
-          --tw-prose-links: #000 !important;
-          --tw-prose-bold: #000 !important;
-          --tw-prose-counters: #000 !important;
-          --tw-prose-bullets: #000 !important;
-          --tw-prose-hr: #000 !important;
-          --tw-prose-quotes: #000 !important;
-          --tw-prose-quote-borders: #000 !important;
-          --tw-prose-captions: #000 !important;
-          --tw-prose-code: #000 !important;
-          --tw-prose-pre-code: #000 !important;
-          --tw-prose-pre-bg: #fff !important;
-          --tw-prose-th-borders: #000 !important;
-          --tw-prose-td-borders: #000 !important;
         }
       }
     </style>

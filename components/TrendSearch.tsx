@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit, Sparkles, Image as ImageIcon, ShoppingCart, Leaf, Smartphone, DollarSign, Heart } from 'lucide-react';
+import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit, Sparkles, Image as ImageIcon, ShoppingCart, Leaf, Smartphone, DollarSign, Heart, Trash2, Newspaper } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
 import { toast } from './ToastNotifications';
@@ -9,7 +9,7 @@ import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
-  onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean) => void;
+  onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
   isLoading: boolean;
   initialNiche?: string;
   initialRegion?: SearchRegion;
@@ -30,16 +30,30 @@ const getCategoryIcon = (category: string) => {
   return <Activity className="w-5 h-5 text-slate-400" />;
 };
 
+const detectRegion = (): SearchRegion => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz.includes('Jakarta') || tz.includes('Makassar') || tz.includes('Pontianak') || tz.includes('Jayapura')) return 'Indonesia';
+    if (tz.includes('America')) return 'USA';
+    if (tz.includes('Europe') || tz.includes('London') || tz.includes('Berlin') || tz.includes('Paris')) return 'Europe';
+    if (tz.includes('Asia') || tz.includes('Tokyo') || tz.includes('Seoul') || tz.includes('Singapore')) return 'Asia';
+  } catch (e) {
+    console.warn("Timezone detection failed", e);
+  }
+  return 'Global';
+};
+
 export const TrendSearch: React.FC<Props> = ({ 
   onSearch, 
   isLoading,
   initialNiche = '',
-  initialRegion = 'Global',
-  initialTimeframe = '30d',
+  initialRegion,
+  initialTimeframe = '7d', // Default to 7 days for better news currency
   initialDeepMode = false
 }) => {
   const [input, setInput] = useState(initialNiche);
-  const [region, setRegion] = useState<SearchRegion>(initialRegion);
+  // Auto-detect region if not provided
+  const [region, setRegion] = useState<SearchRegion>(initialRegion || detectRegion());
   const [timeframe, setTimeframe] = useState<SearchTimeframe>(initialTimeframe);
   const [deepMode, setDeepMode] = useState(initialDeepMode);
   
@@ -50,11 +64,12 @@ export const TrendSearch: React.FC<Props> = ({
   
   const [loadingText, setLoadingText] = useState(uiText.scanning);
   const [isListening, setIsListening] = useState(false);
-  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState('');
   const [allTickerTopics, setAllTickerTopics] = useState<string[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   
   // Sync state if props change (e.g. from engine restoration)
   useEffect(() => {
@@ -86,7 +101,12 @@ export const TrendSearch: React.FC<Props> = ({
     // Prioritize recent searches in the ticker to make it feel personalized
     const combinedTopics = [...new Set([...loadedHistory, ...dynamicPool])];
     setAllTickerTopics([...combinedTopics, ...combinedTopics]); // Duplicate for seamless marquee
-  }, [uiText]);
+    
+    // Auto-focus input on mount
+    if (!isLoading && !initialNiche && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [uiText, isLoading, initialNiche]);
 
   // Cycle loading text to show AI reasoning steps
   useEffect(() => {
@@ -119,28 +139,38 @@ export const TrendSearch: React.FC<Props> = ({
     localStorage.removeItem(HISTORY_KEY);
   };
 
-  const handleSearchTrigger = (term: string) => {
-    const validation = validateInput(term);
-    if (!validation.isValid) {
-      setValidationError(validation.error || "Invalid input");
+  const handleSearchTrigger = (term: string, img?: string) => {
+    // Allow empty term ONLY if image is present
+    if (!term.trim() && !img) {
+      setValidationError("Please enter a topic or upload an image.");
       return;
     }
+
+    if (term.trim()) {
+      const validation = validateInput(term);
+      if (!validation.isValid) {
+        setValidationError(validation.error || "Invalid input");
+        return;
+      }
+    }
+    
     setValidationError(null);
 
     const cleanTerm = sanitizeInput(term);
-    addToHistory(cleanTerm);
-    onSearch(cleanTerm, region, timeframe, deepMode);
+    if (cleanTerm) addToHistory(cleanTerm);
+    
+    onSearch(cleanTerm, region, timeframe, deepMode, img);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim()) handleSearchTrigger(input);
+    handleSearchTrigger(input, selectedImage || undefined);
   };
 
   const handleGlobalPulse = () => {
     const topic = uiText.globalPulseQuery || "Latest Breaking Business News";
     setInput(topic);
-    handleSearchTrigger(topic);
+    handleSearchTrigger(topic, undefined);
   };
 
   const startListening = () => {
@@ -167,35 +197,19 @@ export const TrendSearch: React.FC<Props> = ({
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      processImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setSelectedImage(base64);
+        toast.success("Image attached");
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const processImage = async (file: File) => {
-    setIsAnalyzingImage(true);
-    setLoadingText("Analyzing Visual Content...");
-    
-    try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result as string;
-        const aiService = getAIService(provider);
-        
-        try {
-          const topic = await aiService.extractTopicFromImage(base64, language);
-          setInput(topic);
-          toast.success("Image topic extracted!");
-        } catch (err) {
-          toast.error("Failed to analyze image.");
-        } finally {
-          setIsAnalyzingImage(false);
-        }
-      };
-      reader.readAsDataURL(file);
-    } catch (e) {
-      setIsAnalyzingImage(false);
-      toast.error("Error reading file.");
-    }
+  const clearImage = () => {
+    setSelectedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -303,21 +317,37 @@ export const TrendSearch: React.FC<Props> = ({
         <div className={`absolute -inset-0.5 bg-gradient-to-r ${validationError ? 'from-red-500 to-orange-500' : 'from-emerald-500 via-blue-500 to-purple-500'} rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500`}></div>
         <div className={`relative flex items-center bg-slate-950 rounded-2xl border ${validationError ? 'border-red-500/50' : 'border-slate-800'} p-2 shadow-2xl`}>
           <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-400'}`} aria-hidden="true" />
+          
+          {/* Attached Image Preview */}
+          {selectedImage && (
+            <div className="relative ml-2 w-10 h-10 shrink-0 group/img">
+              <img src={selectedImage} alt="Context" className="w-full h-full object-cover rounded-lg border border-slate-700" />
+              <button 
+                type="button"
+                onClick={clearImage}
+                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover/img:opacity-100 transition-opacity"
+              >
+                <X className="w-2 h-2" />
+              </button>
+            </div>
+          )}
+
           <input
+            ref={inputRef}
             type="text"
             className="flex-1 bg-transparent border-none outline-none text-white px-4 py-3 placeholder:text-slate-600 text-base md:text-lg w-full min-w-0"
-            placeholder={isAnalyzingImage ? "Extracting topic from image..." : uiText.placeholder}
+            placeholder={selectedImage ? "Describe what to look for in this image..." : uiText.placeholder}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
               if (validationError) setValidationError(null);
             }}
-            disabled={isLoading || isAnalyzingImage}
+            disabled={isLoading}
             aria-label="Search topics"
           />
           
-          {/* Visual Search (Image) */}
-          {!isLoading && !isAnalyzingImage && (
+          {/* Visual Search (Image Attachment) */}
+          {!isLoading && !selectedImage && (
             <>
               <button
                 type="button"
@@ -339,7 +369,7 @@ export const TrendSearch: React.FC<Props> = ({
           )}
 
           {/* Voice Input */}
-          {!isLoading && !isAnalyzingImage && (
+          {!isLoading && (
             <button
               type="button"
               onClick={startListening}
@@ -353,7 +383,7 @@ export const TrendSearch: React.FC<Props> = ({
 
           <button
             type="submit"
-            disabled={isLoading || isAnalyzingImage || !input.trim()}
+            disabled={isLoading || (!input.trim() && !selectedImage)}
             className={`font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0 whitespace-nowrap shadow-lg ${
               deepMode 
               ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/30'
@@ -361,7 +391,7 @@ export const TrendSearch: React.FC<Props> = ({
             }`}
             aria-label={isLoading ? "Analyzing..." : "Start Analysis"}
           >
-            {isLoading || isAnalyzingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : uiText.analyzeBtn}
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : uiText.analyzeBtn}
           </button>
         </div>
       </form>
@@ -374,7 +404,7 @@ export const TrendSearch: React.FC<Props> = ({
       )}
 
       {/* Discovery Grid Categories (Localized) */}
-      {!isLoading && !isAnalyzingImage && uiText.searchCategories && (
+      {!isLoading && !selectedImage && uiText.searchCategories && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-10 relative z-10 animate-[fadeIn_0.5s_ease-out]">
           {/* Main "Headlines" Card */}
           <button 
@@ -383,7 +413,7 @@ export const TrendSearch: React.FC<Props> = ({
              title="Scan latest global headlines instantly"
           >
              <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Activity className="w-6 h-6 text-blue-400" />
+                <Newspaper className="w-6 h-6 text-blue-400" />
              </div>
              <span className="text-sm font-black text-white uppercase tracking-wider">{uiText.headlines || "Global Headlines"}</span>
              <span className="text-[10px] text-blue-300 mt-1 opacity-70">Real-time Pulse</span>
@@ -396,7 +426,7 @@ export const TrendSearch: React.FC<Props> = ({
                onClick={() => {
                  const query = `Latest trends in ${cat}`;
                  setInput(query);
-                 handleSearchTrigger(query);
+                 handleSearchTrigger(query, undefined);
                }}
                className="flex flex-col items-center justify-center p-4 bg-slate-900/50 border border-slate-800 hover:border-emerald-500/50 rounded-xl transition-all group hover:bg-slate-900 h-32"
              >
@@ -410,7 +440,7 @@ export const TrendSearch: React.FC<Props> = ({
       )}
 
       {/* Recent Searches */}
-      {!isLoading && !isAnalyzingImage && recentSearches.length > 0 && (
+      {!isLoading && !selectedImage && recentSearches.length > 0 && (
         <div className="flex flex-col items-center gap-3 animate-[fadeIn_0.3s_ease-out] border-t border-slate-900 pt-6 max-w-sm mx-auto relative z-10">
           <div className="flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2">
              <span>{uiText.recent}</span>
@@ -424,7 +454,7 @@ export const TrendSearch: React.FC<Props> = ({
                 key={idx}
                 onClick={() => {
                   setInput(term);
-                  handleSearchTrigger(term);
+                  handleSearchTrigger(term, undefined);
                 }}
                 className="flex items-center justify-between px-4 py-2 bg-slate-900/50 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg text-sm font-medium border border-transparent hover:border-slate-700 transition-all group w-full text-left"
               >
@@ -439,7 +469,7 @@ export const TrendSearch: React.FC<Props> = ({
         </div>
       )}
       
-      {(isLoading || isAnalyzingImage) && (
+      {(isLoading) && (
         <div className="mt-8 flex flex-col items-center animate-[fadeIn_0.5s_ease-in] relative z-10" role="status">
           <div className={`text-sm font-bold font-mono mb-3 flex items-center gap-2 px-4 py-1.5 rounded-full border ${
             deepMode 

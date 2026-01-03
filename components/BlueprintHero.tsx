@@ -27,19 +27,19 @@ export const BlueprintHero: React.FC<Props> = ({
   const { uiText } = usePreferences();
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between h-full">
-      <div className="absolute top-0 right-0 p-4 opacity-10">
+    <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between h-full print:bg-none print:border-slate-200 print:text-black print:shadow-none">
+      <div className="absolute top-0 right-0 p-4 opacity-10 print:hidden">
         <Layers className="w-32 h-32 text-emerald-500" />
       </div>
       
       <div className="relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div>
-            <span className="text-emerald-400 font-mono text-sm tracking-wider uppercase mb-2 block">{idea.type}</span>
-            <h1 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight">{idea.name}</h1>
-            <div className="flex flex-wrap gap-2 text-sm text-slate-400">
-              <span className="bg-slate-800/50 px-2 py-1 rounded">{idea.monetizationModel}</span>
-              <span className="bg-slate-800/50 px-2 py-1 rounded">{idea.potentialRevenue}</span>
+            <span className="text-emerald-400 font-mono text-sm tracking-wider uppercase mb-2 block print:text-black print:font-bold">{idea.type}</span>
+            <h1 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight print:text-black">{idea.name}</h1>
+            <div className="flex flex-wrap gap-2 text-sm text-slate-400 print:text-slate-600">
+              <span className="bg-slate-800/50 px-2 py-1 rounded print:bg-slate-100 print:border print:border-slate-300">{idea.monetizationModel}</span>
+              <span className="bg-slate-800/50 px-2 py-1 rounded print:bg-slate-100 print:border print:border-slate-300">{idea.potentialRevenue}</span>
             </div>
           </div>
 
@@ -53,10 +53,10 @@ export const BlueprintHero: React.FC<Props> = ({
             </button>
           </div>
         </div>
-        {audioState.error && <p className="text-red-400 text-xs mt-2 text-right">{audioState.error}</p>}
-        <div className="prose prose-invert max-w-none mt-6">
-          <h3 className="text-slate-200 font-bold mb-2">Executive Summary</h3>
-          <p className="text-slate-300 leading-relaxed text-lg">{blueprint.executiveSummary}</p>
+        {audioState.error && <p className="text-red-400 text-xs mt-2 text-right print:hidden">{audioState.error}</p>}
+        <div className="prose prose-invert max-w-none mt-6 print:prose-black">
+          <h3 className="text-slate-200 font-bold mb-2 print:text-black">Executive Summary</h3>
+          <p className="text-slate-300 leading-relaxed text-lg print:text-slate-800">{blueprint.executiveSummary}</p>
         </div>
       </div>
     </div>
