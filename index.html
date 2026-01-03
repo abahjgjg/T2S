@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Content Security Policy -->
-    <!-- 'unsafe-eval' is required for the Tailwind CSS Play CDN to compile styles in the browser. -->
-    <!-- 'unsafe-inline' is required for React to apply inline styles and scripts. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: blob: 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:;">
+    <!-- 'unsafe-eval' is strictly required for the Tailwind CSS Play CDN to compile styles in the browser. -->
+    <!-- 'connect-src' ensures API calls to Google, OpenAI, and Supabase are allowed. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: blob: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; connect-src 'self' https: data: blob:; media-src 'self' https: data: blob:; worker-src 'self' blob:;">
 
     <!-- Default SEO / Open Graph Tags -->
     <title>TrendVentures AI</title>

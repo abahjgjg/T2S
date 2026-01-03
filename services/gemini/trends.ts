@@ -1,4 +1,3 @@
-
 import { Trend, TrendDeepDive, Language, SearchRegion, SearchTimeframe } from "../../types";
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
@@ -13,9 +12,14 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
       const ai = getGeminiClient();
       const langInstruction = getLanguageInstruction(lang);
       
+      // Reinforce "Latest" context if timeframe is short
+      const urgencyInstruction = (timeframe === '24h' || timeframe === '7d')
+        ? "URGENT: Prioritize BREAKING NEWS and events from the last few hours/days. Do not list old trends."
+        : "Focus on established market shifts from the last month.";
+
       const prompt = promptService.build('FETCH_TRENDS', {
         niche,
-        langInstruction,
+        langInstruction: `${langInstruction} ${urgencyInstruction}`,
         region,
         timeframe,
         currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })

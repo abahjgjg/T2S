@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit } from 'lucide-react';
+import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit, Sparkles } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, AIProvider } from '../types';
 import { toast } from './ToastNotifications';
@@ -307,8 +306,8 @@ export const TrendSearch: React.FC<Props> = ({ onSearch, isLoading, uiText, prov
         <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-3xl mx-auto relative z-10 animate-[fadeIn_0.5s_ease-out]">
           <button 
              onClick={handleGlobalPulse}
-             className="px-4 py-1.5 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-400 text-xs font-bold hover:bg-blue-600/30 transition-all flex items-center gap-1.5 shadow-sm"
-             title="Scan latest global headlines"
+             className="px-4 py-1.5 rounded-full bg-blue-600 border border-blue-500 text-white text-xs font-bold hover:bg-blue-500 transition-all flex items-center gap-1.5 shadow-lg shadow-blue-600/20 animate-pulse"
+             title="Scan latest global headlines instantly"
           >
              <Activity className="w-3 h-3" /> {uiText.headlines || "Global Headlines"}
           </button>
