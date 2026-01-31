@@ -11,9 +11,10 @@ interface Props {
   blueprint: Blueprint;
   brandIdentity?: BrandIdentity;
   onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateIdea: (updates: Partial<BusinessIdea>) => void;
 }
 
-export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, onUpdateBlueprint }) => {
+export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, onUpdateBlueprint, onUpdateIdea }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedName, setSelectedName] = useState<string | null>(null);
   
@@ -37,6 +38,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
   const handleApplyName = (name: string) => {
     if (window.confirm(`Update business name to "${name}"? This will affect the entire blueprint.`)) {
         setSelectedName(name);
+        onUpdateIdea({ name });
         toast.info(`Selected "${name}" as preferred brand.`);
     }
   };

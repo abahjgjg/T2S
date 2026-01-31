@@ -49,7 +49,12 @@ export async function decodeAudioData(
   }
 
   // 2. Manual Raw PCM Decoding (Works for Gemini Int16 PCM)
-  const dataInt16 = new Int16Array(data.buffer);
+  // Ensure buffer is multiple of 2 for Int16
+  const bufferToUse = (data.buffer.byteLength % 2 !== 0)
+    ? data.buffer.slice(0, data.buffer.byteLength - 1)
+    : data.buffer;
+
+  const dataInt16 = new Int16Array(bufferToUse);
   const frameCount = dataInt16.length / numChannels;
   const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
 

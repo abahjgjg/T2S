@@ -335,7 +335,7 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
 
       // Validate with Zod
       const rawData = JSON.parse(cleanJsonOutput(text));
-      return AgentProfileListSchema.parse(rawData);
+      return AgentProfileListSchema.parse(rawData) as AgentProfile[];
 
     } catch (error) {
       console.error("Error generating agents:", error);
@@ -449,7 +449,7 @@ export const conductViabilityAudit = async (idea: BusinessIdea, blueprint: Bluep
       const text = response.text;
       if (!text) throw new Error("No audit generated");
 
-      return ViabilityAuditSchema.parse(JSON.parse(cleanJsonOutput(text)));
+      return ViabilityAuditSchema.parse(JSON.parse(cleanJsonOutput(text))) as ViabilityAudit;
 
     } catch (error) {
       console.error("Error conducting viability audit:", error);

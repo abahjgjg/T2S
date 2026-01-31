@@ -10,3 +10,6 @@
 
 ## Minor
 - **Markdown Parsing**: Occasional styling inconsistencies if AI returns non-standard markdown tables.
+- [x] bug: `index.html` is missing entry point script tag (`index.tsx`).
+- [x] bug: `App.tsx` has incorrect import path for `supabaseService` (`../services/supabaseService` instead of `./services/supabaseService`).
+- [x] bug: Strict TypeScript errors in `SafeMarkdown.tsx` and AI service core files preventing successful production builds.

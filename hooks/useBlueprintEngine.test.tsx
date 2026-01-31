@@ -1,13 +1,17 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useBlueprintEngine } from './useBlueprintEngine';
 import { AIService, BusinessIdea, Blueprint } from '../types';
 import { supabaseService } from '../services/supabaseService';
+import { createWrapper } from './test-utils';
 
 // Mock Dependencies
 vi.mock('../services/supabaseService', () => ({
   supabaseService: {
     publishBlueprint: vi.fn(),
+    getAffiliateProducts: vi.fn().mockResolvedValue([]),
+    incrementAffiliateClick: vi.fn(),
   }
 }));
 
@@ -43,7 +47,7 @@ describe('useBlueprintEngine', () => {
   });
 
   it('should initialize with empty state', () => {
-    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'), { wrapper: createWrapper() });
     
     expect(result.current.selectedIdea).toBeNull();
     expect(result.current.blueprint).toBeNull();
@@ -54,7 +58,7 @@ describe('useBlueprintEngine', () => {
     (mockAIService.generateSystemBlueprint as any).mockResolvedValue(mockBlueprint);
     (supabaseService.publishBlueprint as any).mockResolvedValue('pub-123');
 
-    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en', 'user-1'));
+    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en', 'user-1'), { wrapper: createWrapper() });
 
     await act(async () => {
       await result.current.createBlueprint(mockIdea, 'Test Niche');
@@ -69,7 +73,7 @@ describe('useBlueprintEngine', () => {
 
   it('should use cached blueprint if available', async () => {
     const cachedIdea = { ...mockIdea, cachedBlueprint: mockBlueprint };
-    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'), { wrapper: createWrapper() });
 
     await act(async () => {
       await result.current.createBlueprint(cachedIdea, 'Test Niche');
@@ -82,7 +86,7 @@ describe('useBlueprintEngine', () => {
   });
 
   it('should update blueprint state manually', async () => {
-    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'), { wrapper: createWrapper() });
     
     // Set initial state
     act(() => {
@@ -99,7 +103,7 @@ describe('useBlueprintEngine', () => {
   });
 
   it('should clear blueprint state', async () => {
-    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useBlueprintEngine(mockAIService, 'en'), { wrapper: createWrapper() });
 
     act(() => {
       result.current.setBlueprint(mockBlueprint);

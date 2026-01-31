@@ -52,6 +52,10 @@ export const sanitizeInput = (input: string): string => {
 
   // 5. Prompt Injection Defense: 
   // Neutralize common delimiters that might confuse the LLM prompt structure
+  for (const pattern of INJECTION_PATTERNS) {
+    clean = clean.replace(pattern, "[CLEANED]");
+  }
+
   clean = clean.replace(/```/g, "'''"); // Code blocks
   clean = clean.replace(/\$\{\s*.*\s*\}/g, ""); // Template literal injection attempts
   

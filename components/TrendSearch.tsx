@@ -218,13 +218,19 @@ export const TrendSearch: React.FC<Props> = ({
       {/* Background Market Ticker (Subtle) */}
       {!isLoading && (
         <div className="w-full overflow-hidden opacity-30 hover:opacity-60 transition-opacity mb-8 border-y border-white/5 py-1.5 absolute top-20 left-0 right-0 pointer-events-none select-none">
-           <div className="flex animate-marquee whitespace-nowrap gap-12">
-              {allTickerTopics.map((topic, i) => (
-                 <span key={i} className="text-[10px] font-mono text-slate-400 flex items-center gap-2 uppercase tracking-wider">
-                    <TrendingUp className="w-3 h-3 text-emerald-500/70" /> {topic}
-                 </span>
-              ))}
-           </div>
+           {allTickerTopics.length > 0 ? (
+             <div className="flex animate-marquee whitespace-nowrap gap-12">
+                {allTickerTopics.map((topic, i) => (
+                   <span key={i} className="text-[10px] font-mono text-slate-400 flex items-center gap-2 uppercase tracking-wider">
+                      <TrendingUp className="w-3 h-3 text-emerald-500/70" /> {topic}
+                   </span>
+                ))}
+             </div>
+           ) : (
+             <div className="h-4 w-full bg-slate-900/50 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent animate-shimmer"></div>
+             </div>
+           )}
         </div>
       )}
 

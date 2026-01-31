@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { AppState, Trend, BusinessIdea, Blueprint, Language, AIService, SearchRegion, SearchTimeframe } from '../types';
 import { supabaseService } from '../services/supabaseService';
 import { indexedDBService } from '../utils/storageUtils';
@@ -218,46 +218,64 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     setAppState('VIEWING');
   };
 
-  return {
-    state: {
-      appState,
-      niche: trendEngine.niche,
-      region: trendEngine.region,
-      timeframe: trendEngine.timeframe,
-      deepMode: trendEngine.deepMode,
-      trends: trendEngine.trends,
-      ideas: ideaEngine.ideas,
-      selectedIdea: blueprintEngine.selectedIdea,
-      blueprint: blueprintEngine.blueprint,
-      error,
-      isFromCache,
-      currentBlueprintId: blueprintEngine.currentBlueprintId,
-      isGeneratingIdeas: ideaEngine.isGeneratingIdeas,
-      isGeneratingBlueprint: blueprintEngine.isGeneratingBlueprint,
-      isRestoring
-    },
-    setters: {
-      setAppState,
-      setNiche: trendEngine.setNiche,
-      setTrends: trendEngine.setTrends,
-      setIdeas: ideaEngine.setIdeas,
-      setSelectedIdea: blueprintEngine.setSelectedIdea,
-      setBlueprint: blueprintEngine.setBlueprint,
-      setError,
-      setCurrentBlueprintId: blueprintEngine.setCurrentBlueprintId
-    },
-    actions: {
-      executeSearchSequence,
-      executeFreshAIResearch,
-      generateIdeasFromTrends,
-      handleSelectIdea,
-      updateBlueprint: blueprintEngine.updateBlueprint,
-      handleBackToIdeas,
-      resetResearch,
-      loadProject,
-      dismissError: () => setError(null),
-      updateTrend: trendEngine.updateTrend,
-      analyzeTrendDeepDive: trendEngine.analyzeTrendDeepDive
-    }
-  };
+  const state = useMemo(() => ({
+    appState,
+    niche: trendEngine.niche,
+    region: trendEngine.region,
+    timeframe: trendEngine.timeframe,
+    deepMode: trendEngine.deepMode,
+    trends: trendEngine.trends,
+    ideas: ideaEngine.ideas,
+    selectedIdea: blueprintEngine.selectedIdea,
+    blueprint: blueprintEngine.blueprint,
+    error,
+    isFromCache,
+    currentBlueprintId: blueprintEngine.currentBlueprintId,
+    isGeneratingIdeas: ideaEngine.isGeneratingIdeas,
+    isGeneratingBlueprint: blueprintEngine.isGeneratingBlueprint,
+    isRestoring
+  }), [
+    appState, trendEngine.niche, trendEngine.region, trendEngine.timeframe,
+    trendEngine.deepMode, trendEngine.trends, ideaEngine.ideas,
+    blueprintEngine.selectedIdea, blueprintEngine.blueprint, error,
+    isFromCache, blueprintEngine.currentBlueprintId, ideaEngine.isGeneratingIdeas,
+    blueprintEngine.isGeneratingBlueprint, isRestoring
+  ]);
+
+  const setters = useMemo(() => ({
+    setAppState,
+    setNiche: trendEngine.setNiche,
+    setTrends: trendEngine.setTrends,
+    setIdeas: ideaEngine.setIdeas,
+    setSelectedIdea: blueprintEngine.setSelectedIdea,
+    setBlueprint: blueprintEngine.setBlueprint,
+    setError,
+    setCurrentBlueprintId: blueprintEngine.setCurrentBlueprintId
+  }), [
+    trendEngine.setNiche, trendEngine.setTrends, ideaEngine.setIdeas,
+    blueprintEngine.setSelectedIdea, blueprintEngine.setBlueprint,
+    blueprintEngine.setCurrentBlueprintId
+  ]);
+
+  const actions = useMemo(() => ({
+    executeSearchSequence,
+    executeFreshAIResearch,
+    generateIdeasFromTrends,
+    handleSelectIdea,
+    updateBlueprint: blueprintEngine.updateBlueprint,
+    updateIdea: blueprintEngine.updateIdea,
+    handleBackToIdeas,
+    resetResearch,
+    loadProject,
+    dismissError: () => setError(null),
+    updateTrend: trendEngine.updateTrend,
+    analyzeTrendDeepDive: trendEngine.analyzeTrendDeepDive
+  }), [
+    executeSearchSequence, executeFreshAIResearch, generateIdeasFromTrends,
+    handleSelectIdea, blueprintEngine.updateBlueprint, blueprintEngine.updateIdea,
+    handleBackToIdeas, resetResearch, loadProject, trendEngine.updateTrend,
+    trendEngine.analyzeTrendDeepDive
+  ]);
+
+  return { state, setters, actions };
 };

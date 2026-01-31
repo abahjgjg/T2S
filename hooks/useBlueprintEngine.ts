@@ -67,6 +67,10 @@ export const useBlueprintEngine = (aiService: AIService, language: Language, use
     setBlueprint(prev => prev ? { ...prev, ...updates } : null);
   };
 
+  const updateIdea = (updates: Partial<BusinessIdea>) => {
+    setSelectedIdea(prev => prev ? { ...prev, ...updates } : null);
+  };
+
   const clearBlueprint = () => {
     setSelectedIdea(null);
     setBlueprint(null);
@@ -83,6 +87,7 @@ export const useBlueprintEngine = (aiService: AIService, language: Language, use
     setCurrentBlueprintId,
     createBlueprint,
     updateBlueprint,
+    updateIdea,
     clearBlueprint,
     isGeneratingBlueprint: mutation.isPending,
     error: mutation.error

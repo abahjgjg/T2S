@@ -29,3 +29,5 @@
 - [x] **[PERF] Asset Offloading**: IndexedDB/Storage integration.
 - [x] **[REFACTOR] Strict Typing**: Cleanup of `any` types.
 - [x] **[TEST] Unit Tests**: Comprehensive coverage for utils and hooks.
+- [ ] error: Memory usage issues with large assets (Videos/Images in LocalStorage).
+- [x] error: `useResearch` triggers excessive re-renders in `App.tsx`. (Fixed via useMemo in useResearch.ts)
