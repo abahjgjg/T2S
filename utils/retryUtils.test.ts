@@ -9,6 +9,7 @@ describe('retryUtils', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it('should return result on first successful attempt', async () => {
@@ -40,6 +41,7 @@ describe('retryUtils', () => {
     const mockFn = vi.fn().mockRejectedValue(error);
 
     const promise = retryOperation(mockFn, 3, 100);
+    promise.catch(() => {}); // Prevent unhandled rejection
     
     // Advance timers enough times
     await vi.runAllTimersAsync();
@@ -96,6 +98,7 @@ describe('retryUtils', () => {
     const initialDelay = 100;
     
     const promise = retryOperation(mockFn, 3, initialDelay);
+    promise.catch(() => {}); // Prevent unhandled rejection
     
     // First failure caught, waiting 100ms
     expect(mockFn).toHaveBeenCalledTimes(1);
@@ -108,8 +111,6 @@ describe('retryUtils', () => {
     // Third attempt happens
     expect(mockFn).toHaveBeenCalledTimes(3);
     
-    try {
-      await promise;
-    } catch (e) {}
+    await expect(promise).rejects.toThrow('Fail');
   });
 });
