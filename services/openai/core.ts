@@ -164,7 +164,7 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
   });
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
-  return AgentProfileListSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]")));
+  return AgentProfileListSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]"))) as AgentProfile[];
 };
 
 export const generateLaunchAssets = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<LaunchAssets> => {
@@ -193,7 +193,7 @@ export const conductViabilityAudit = async (idea: BusinessIdea, blueprint: Bluep
   });
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
-  return ViabilityAuditSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}")));
+  return ViabilityAuditSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as ViabilityAudit;
 };
 
 export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BMC> => {
@@ -206,7 +206,7 @@ export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang
   });
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
-  return BMCSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}")));
+  return BMCSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as BMC;
 };
 
 export const generateLandingPageCode = async (idea: BusinessIdea, assets: LaunchAssets, lang: Language): Promise<string> => {
@@ -237,7 +237,7 @@ export const generateContentCalendar = async (idea: BusinessIdea, blueprint: Blu
   });
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
-  return ContentCalendarSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]")));
+  return ContentCalendarSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]"))) as ContentWeek[];
 };
 
 export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<BrandIdentity> => {
@@ -252,7 +252,7 @@ export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Bluep
   });
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
-  return BrandIdentitySchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}")));
+  return BrandIdentitySchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as BrandIdentity;
 };
 
 export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint, lang: Language): Promise<CustomerPersona[]> => {
@@ -265,7 +265,7 @@ export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint,
   });
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
-  return CustomerPersonaListSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]")));
+  return CustomerPersonaListSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]"))) as CustomerPersona[];
 };
 
 export const analyzePitchTranscript = async (transcript: string, idea: BusinessIdea, blueprint: Blueprint, personaRole: string, lang: Language): Promise<PitchAnalysis> => {
@@ -280,5 +280,5 @@ export const analyzePitchTranscript = async (transcript: string, idea: BusinessI
   });
 
   const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
-  return PitchAnalysisSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}")));
+  return PitchAnalysisSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as PitchAnalysis;
 };

@@ -52,8 +52,10 @@ export const SafeMarkdown: React.FC<Props> = ({ content, className, components, 
   };
 
   return (
-    <ReactMarkdown className={className} components={safeComponents}>
-      {content}
-    </ReactMarkdown>
+    <div className={className}>
+      <ReactMarkdown components={safeComponents}>
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 };
