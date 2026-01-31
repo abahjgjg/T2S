@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { SavedProject, UserProfile } from '../types';
 import { supabaseService } from '../services/supabaseService';
-import { Trash2, FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search } from 'lucide-react';
+import { Trash2, FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search, History, Clock } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
@@ -21,7 +21,7 @@ const BUSINESS_TYPES = ['All', 'SaaS', 'Agency', 'Content', 'E-commerce', 'Platf
 
 export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: localProjects, onLoad, onDelete, user, onOpenLogin }) => {
   const { uiText } = usePreferences();
-  const [activeTab, setActiveTab] = useState<'local' | 'cloud'>('local');
+  const [activeTab, setActiveTab] = useState<'local' | 'cloud' | 'recent'>('local');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
   
@@ -67,8 +67,19 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
     deleteMutation.mutate(id);
   };
 
+  const recentSearches = useMemo(() => {
+    if (!isOpen) return [];
+    try {
+      const saved = localStorage.getItem('trendventures_search_history');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  }, [isOpen]);
+
   const filteredProjects = useMemo(() => {
     const source = activeTab === 'local' ? localProjects : cloudProjects;
+    if (activeTab === 'recent') return [];
     return source
       .filter(p => {
         const matchesSearch = p.idea.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -98,6 +109,12 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'cloud' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
         >
           <Cloud className="w-4 h-4" /> Cloud
+        </button>
+        <button
+          onClick={() => setActiveTab('recent')}
+          className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'recent' ? 'border-orange-500 text-orange-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+        >
+          <History className="w-4 h-4" /> Recent
         </button>
       </div>
 
@@ -163,7 +180,38 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
              </div>
           )}
 
-          {((activeTab === 'local' && filteredProjects.length === 0) || (activeTab === 'cloud' && user && !loadingCloud && !cloudError && filteredProjects.length === 0)) && (
+          {activeTab === 'recent' && (
+            <div className="space-y-2">
+               {recentSearches.length === 0 ? (
+                 <div className="text-center py-12 text-slate-500">
+                    <History className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                    <p className="text-lg font-medium">No recent searches.</p>
+                 </div>
+               ) : (
+                 recentSearches.map((term: string, i: number) => (
+                   <div key={i} className="flex items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-xl hover:border-orange-500/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                         <div className="p-2 bg-slate-900 rounded-full">
+                            <Clock className="w-4 h-4 text-slate-500" />
+                         </div>
+                         <span className="text-slate-200 font-medium">{term}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                           onClose();
+                           window.dispatchEvent(new CustomEvent('re-search', { detail: term }));
+                        }}
+                        className="text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1"
+                      >
+                         Re-scan <ArrowRight className="w-3 h-3" />
+                      </button>
+                   </div>
+                 ))
+               )}
+            </div>
+          )}
+
+          {((activeTab === 'local' && filteredProjects.length === 0) || (activeTab === 'cloud' && user && !loadingCloud && !cloudError && filteredProjects.length === 0)) && activeTab !== 'recent' && (
             <div className="text-center py-12 text-slate-500">
               <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium">

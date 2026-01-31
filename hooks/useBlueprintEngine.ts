@@ -54,12 +54,6 @@ export const useBlueprintEngine = (aiService: AIService, language: Language, use
     setCurrentBlueprintId(null);
     const result = await mutation.mutateAsync({ idea, niche });
     
-    // Simulate UI delay for cached items for smoothness if needed, 
-    // or rely on the natural async tick.
-    if (result.isCached) {
-        await new Promise(r => setTimeout(r, 500));
-    }
-    
     return result.publishedId;
   };
 

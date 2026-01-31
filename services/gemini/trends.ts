@@ -8,6 +8,7 @@ import { GEMINI_MODELS } from "../../constants/aiConfig";
 import { TrendListSchema, TrendDeepDiveSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 import { Type } from "@google/genai";
+import { indexedDBService } from "../../utils/storageUtils";
 
 export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string): Promise<Trend[]> => {
   return retryOperation(async () => {
@@ -70,17 +71,39 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
 
       // Add image part if present (Multimodal)
       if (image) {
-        // Simple MIME type detection from base64 header
-        const mimeMatch = image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
-        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-        const cleanBase64 = image.replace(/^data:image\/\w+;base64,/, "");
+        let cleanBase64 = "";
+        let mimeType = "image/jpeg";
+
+        if (image.startsWith('asset://')) {
+           const assetId = image.replace('asset://', '');
+           const blob = await indexedDBService.getAsset(assetId);
+           if (blob) {
+              mimeType = blob.type;
+              cleanBase64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  const base64 = reader.result as string;
+                  resolve(base64.replace(/^data:image\/\w+;base64,/, ""));
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+           }
+        } else {
+           // Simple MIME type detection from base64 header
+           const mimeMatch = image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+           mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+           cleanBase64 = image.replace(/^data:image\/\w+;base64,/, "");
+        }
         
-        contentsPayload.contents.parts.unshift({
-          inlineData: {
-            mimeType: mimeType, 
-            data: cleanBase64
-          }
-        });
+        if (cleanBase64) {
+          contentsPayload.contents.parts.unshift({
+            inlineData: {
+              mimeType: mimeType,
+              data: cleanBase64
+            }
+          });
+        }
       }
 
       const response = await ai.models.generateContent(contentsPayload);
@@ -190,10 +213,30 @@ export const extractTopicFromImage = async (base64Image: string, lang: Language)
     try {
       const ai = getGeminiClient();
       
-      // Remove header if present
-      const mimeMatch = base64Image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
-      const mimeType = mimeMatch ? mimeMatch[1] : 'image/png'; 
-      const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
+      let cleanBase64 = "";
+      let mimeType = "image/png";
+
+      if (base64Image.startsWith('asset://')) {
+         const assetId = base64Image.replace('asset://', '');
+         const blob = await indexedDBService.getAsset(assetId);
+         if (blob) {
+            mimeType = blob.type;
+            cleanBase64 = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const base64 = reader.result as string;
+                resolve(base64.replace(/^data:image\/\w+;base64,/, ""));
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+         }
+      } else {
+         // Remove header if present
+         const mimeMatch = base64Image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+         mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+         cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
+      }
       
       const prompt = `
         Analyze this image. It could be a chart, a product photo, a screenshot of a news article, or a real-world scene.

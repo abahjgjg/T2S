@@ -6,9 +6,7 @@ import { indexedDBService } from '../utils/storageUtils';
 import { useTrendEngine } from './useTrendEngine';
 import { useIdeaEngine } from './useIdeaEngine';
 import { useBlueprintEngine } from './useBlueprintEngine';
-
-const STORAGE_KEY = 'trendventures_state_v1';
-const SAVE_DELAY_MS = 1000;
+import { useResearchPersistence } from './useResearchPersistence';
 
 export const useResearch = (aiService: AIService, language: Language, userId?: string) => {
   // --- Engines ---
@@ -21,90 +19,19 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
   const [error, setError] = useState<string | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
   const [isRestoring, setIsRestoring] = useState(true);
-  
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync Engine Errors to Main UI
-  useEffect(() => {
-    if (ideaEngine.error) setError(ideaEngine.error.message || "Idea generation failed.");
-    if (blueprintEngine.error) setError(blueprintEngine.error.message || "Blueprint generation failed.");
-  }, [ideaEngine.error, blueprintEngine.error]);
-
-  // --- Persistence: Load on Mount (Async) ---
-  useEffect(() => {
-    const hydrate = async () => {
-      try {
-        let parsed = await indexedDBService.getItem<any>(STORAGE_KEY);
-        
-        // Migration Fallback
-        if (!parsed) {
-          const localData = localStorage.getItem(STORAGE_KEY);
-          if (localData) {
-            parsed = JSON.parse(localData);
-            await indexedDBService.setItem(STORAGE_KEY, parsed);
-            localStorage.removeItem(STORAGE_KEY);
-          }
-        }
-
-        if (parsed && parsed.appState) {
-          setAppState(parsed.appState);
-          
-          if (parsed.niche) {
-            trendEngine.setSearchContext(
-              parsed.niche, 
-              parsed.region || 'Global', 
-              parsed.timeframe || '30d', 
-              parsed.deepMode || false,
-              parsed.image
-            );
-          }
-          if (parsed.trends) trendEngine.setTrends(parsed.trends);
-          if (parsed.ideas) ideaEngine.setIdeas(parsed.ideas);
-          if (parsed.selectedIdea) blueprintEngine.setSelectedIdea(parsed.selectedIdea);
-          if (parsed.blueprint) blueprintEngine.setBlueprint(parsed.blueprint);
-        }
-      } catch (e) {
-        console.warn("State restoration failed", e);
-      } finally {
-        setIsRestoring(false);
-      }
-    };
-
-    hydrate();
-  }, []);
-
-  // --- Persistence: Save on Change (Async) ---
-  useEffect(() => {
-    if (isRestoring) return;
-    if (appState === 'IDLE' || appState === 'VIEWING_PUBLIC' || appState === 'DIRECTORY' || appState === 'ADMIN' || appState === 'DASHBOARD') {
-      return;
-    }
-
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-
-    saveTimeoutRef.current = setTimeout(async () => {
-      const stateToSave = {
-        appState,
-        niche: trendEngine.niche,
-        region: trendEngine.region,
-        timeframe: trendEngine.timeframe,
-        deepMode: trendEngine.deepMode,
-        image: trendEngine.image,
-        trends: trendEngine.trends,
-        ideas: ideaEngine.ideas,
-        selectedIdea: blueprintEngine.selectedIdea,
-        blueprint: blueprintEngine.blueprint
-      };
-      
-      await indexedDBService.setItem(STORAGE_KEY, stateToSave);
-      
-    }, SAVE_DELAY_MS);
-
-    return () => {
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    };
-  }, [
-    isRestoring,
+  const persistenceState = useMemo(() => ({
+    appState,
+    niche: trendEngine.niche,
+    region: trendEngine.region,
+    timeframe: trendEngine.timeframe,
+    deepMode: trendEngine.deepMode,
+    image: trendEngine.image,
+    trends: trendEngine.trends,
+    ideas: ideaEngine.ideas,
+    selectedIdea: blueprintEngine.selectedIdea,
+    blueprint: blueprintEngine.blueprint
+  }), [
     appState, 
     trendEngine.niche, 
     trendEngine.region,
@@ -116,6 +43,36 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     blueprintEngine.selectedIdea, 
     blueprintEngine.blueprint
   ]);
+
+  // --- Persistence ---
+  useResearchPersistence(
+    persistenceState,
+    isRestoring,
+    (parsed) => {
+      setAppState(parsed.appState);
+      if (parsed.niche) {
+        trendEngine.setSearchContext(
+          parsed.niche,
+          parsed.region || 'Global',
+          parsed.timeframe || '30d',
+          parsed.deepMode || false,
+          parsed.image
+        );
+      }
+      if (parsed.trends) trendEngine.setTrends(parsed.trends);
+      if (parsed.ideas) ideaEngine.setIdeas(parsed.ideas);
+      if (parsed.selectedIdea) blueprintEngine.setSelectedIdea(parsed.selectedIdea);
+      if (parsed.blueprint) blueprintEngine.setBlueprint(parsed.blueprint);
+    },
+    setIsRestoring
+  );
+
+  // Sync Engine Errors to Main UI
+  useEffect(() => {
+    if (trendEngine.error) setError((trendEngine.error as any).message || "Market research failed.");
+    if (ideaEngine.error) setError((ideaEngine.error as any).message || "Idea generation failed.");
+    if (blueprintEngine.error) setError((blueprintEngine.error as any).message || "Blueprint generation failed.");
+  }, [trendEngine.error, ideaEngine.error, blueprintEngine.error]);
 
   // --- Actions ---
 
@@ -206,7 +163,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     blueprintEngine.clearBlueprint();
     setError(null);
     setIsFromCache(false);
-    indexedDBService.removeItem(STORAGE_KEY);
+    indexedDBService.removeItem('trendventures_state_v1');
   };
 
   const loadProject = (project: { niche: string, idea: BusinessIdea, blueprint: Blueprint }) => {
@@ -224,6 +181,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     region: trendEngine.region,
     timeframe: trendEngine.timeframe,
     deepMode: trendEngine.deepMode,
+    image: trendEngine.image,
     trends: trendEngine.trends,
     ideas: ideaEngine.ideas,
     selectedIdea: blueprintEngine.selectedIdea,
@@ -236,7 +194,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     isRestoring
   }), [
     appState, trendEngine.niche, trendEngine.region, trendEngine.timeframe,
-    trendEngine.deepMode, trendEngine.trends, ideaEngine.ideas,
+    trendEngine.deepMode, trendEngine.image, trendEngine.trends, ideaEngine.ideas,
     blueprintEngine.selectedIdea, blueprintEngine.blueprint, error,
     isFromCache, blueprintEngine.currentBlueprintId, ideaEngine.isGeneratingIdeas,
     blueprintEngine.isGeneratingBlueprint, isRestoring

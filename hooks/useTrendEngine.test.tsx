@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useTrendEngine } from './useTrendEngine';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
@@ -113,7 +113,9 @@ describe('useTrendEngine', () => {
     // Manually set trends to simulate loaded state
     // We need to trigger a fetch context first or the setter might not target the right query key
     // For testing setTrends logic directly:
-    result.current.setTrends(initialTrends);
+    await act(async () => {
+      result.current.setTrends(initialTrends);
+    });
 
     await waitFor(() => expect(result.current.trends).toHaveLength(1));
 
@@ -144,14 +146,20 @@ describe('useTrendEngine', () => {
     const { result } = renderHook(() => useTrendEngine(mockAIService, 'en'), { wrapper: createWrapper() });
     
     // Set niche first so query key is stable
-    result.current.setNiche('Test Niche');
+    await act(async () => {
+      result.current.setNiche('Test Niche');
+    });
     await waitFor(() => expect(result.current.niche).toBe('Test Niche'));
 
-    result.current.setTrends([{ title: 'Test', description: '', relevanceScore: 10, triggerEvent: '', sources: [] }]);
+    await act(async () => {
+      result.current.setTrends([{ title: 'Test', description: '', relevanceScore: 10, triggerEvent: '', sources: [] }]);
+    });
 
     await waitFor(() => expect(result.current.trends).toHaveLength(1));
 
-    result.current.clearTrends();
+    await act(async () => {
+      result.current.clearTrends();
+    });
 
     await waitFor(() => {
       expect(result.current.trends).toEqual([]);
