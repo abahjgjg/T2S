@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -82,10 +83,10 @@ describe('useTrendEngine', () => {
     });
 
     // Check Calls
-    expect(mockAIService.fetchMarketTrends).toHaveBeenCalledWith('Artificial Intelligence', 'en', 'USA', '7d');
+    expect(mockAIService.fetchMarketTrends).toHaveBeenCalledWith('Artificial Intelligence', 'en', 'USA', '7d', false, undefined);
     
     // Check State Update
-    expect(result.current.niche).toBe('Artificial Intelligence');
+    await waitFor(() => expect(result.current.niche).toBe('Artificial Intelligence'));
     // Note: react-query updates are async, result.current tracks the hook state. 
     // fetchResult returns the promise data directly.
     expect(fetchResult).toEqual(mockTrends);
@@ -142,8 +143,11 @@ describe('useTrendEngine', () => {
   it('should clear trends correctly', async () => {
     const { result } = renderHook(() => useTrendEngine(mockAIService, 'en'), { wrapper: createWrapper() });
     
-    result.current.setTrends([{ title: 'Test', description: '', relevanceScore: 10, triggerEvent: '', sources: [] }]);
+    // Set niche first so query key is stable
     result.current.setNiche('Test Niche');
+    await waitFor(() => expect(result.current.niche).toBe('Test Niche'));
+
+    result.current.setTrends([{ title: 'Test', description: '', relevanceScore: 10, triggerEvent: '', sources: [] }]);
 
     await waitFor(() => expect(result.current.trends).toHaveLength(1));
 
@@ -151,7 +155,7 @@ describe('useTrendEngine', () => {
 
     await waitFor(() => {
       expect(result.current.trends).toEqual([]);
-      expect(result.current.niche).toBeNull(); // searchParams becomes null
+      expect(result.current.niche).toBe(''); // searchParams becomes null, returns ''
     });
   });
 });

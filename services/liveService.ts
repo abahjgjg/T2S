@@ -9,6 +9,7 @@ import { promptService } from "./promptService";
 import { PromptKey } from "../constants/systemPrompts";
 import { getGeminiClient } from "./gemini/shared";
 import { interpolate } from "../utils/promptUtils";
+import { PITCH_PERSONAS, LIVE_AUDIO_CONFIG, PitchPersona } from "../constants/liveConfig";
 
 export interface LiveSessionCallbacks {
   onConnect: () => void;
@@ -18,46 +19,7 @@ export interface LiveSessionCallbacks {
   onTranscript?: (text: string, isUser: boolean) => void;
 }
 
-export interface PitchPersona {
-  id: string;
-  name: string;
-  role: string;
-  description: string;
-  icon: string; // Lucide icon name or emoji
-  voiceName: 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Zephyr';
-  promptKey: PromptKey;
-  customData?: Record<string, any>; // Support for dynamic attributes from personas
-}
-
-export const PITCH_PERSONAS: PitchPersona[] = [
-  {
-    id: 'vc_skeptic',
-    name: 'Marcus',
-    role: 'Skeptical VC',
-    description: 'Hard-nosed investor focused on ROI, moats, and revenue.',
-    icon: 'Briefcase',
-    voiceName: 'Fenrir',
-    promptKey: 'PERSONA_VC_SKEPTIC'
-  },
-  {
-    id: 'customer_curious',
-    name: 'Sarah',
-    role: 'Potential Customer',
-    description: 'Curious but budget-conscious buyer looking for value.',
-    icon: 'User',
-    voiceName: 'Kore',
-    promptKey: 'PERSONA_CUSTOMER_CURIOUS'
-  },
-  {
-    id: 'tech_cto',
-    name: 'Alex',
-    role: 'Technical Co-founder',
-    description: 'Senior engineer focused on scalability, stack, and feasibility.',
-    icon: 'Cpu',
-    voiceName: 'Puck', // Deeper, calm voice
-    promptKey: 'PERSONA_TECH_CTO'
-  }
-];
+export { PITCH_PERSONAS, type PitchPersona };
 
 export class LivePitchService {
   private inputContext: AudioContext | null = null;
@@ -79,8 +41,12 @@ export class LivePitchService {
       const ai = getGeminiClient();
 
       // 1. Setup Audio Contexts
-      this.inputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-      this.outputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+      this.inputContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: LIVE_AUDIO_CONFIG.SAMPLE_RATE_INPUT
+      });
+      this.outputContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: LIVE_AUDIO_CONFIG.SAMPLE_RATE_OUTPUT
+      });
       
       // Hardening: Resume contexts if suspended (Browser Autoplay Policy)
       if (this.inputContext.state === 'suspended') await this.inputContext.resume();
@@ -179,7 +145,7 @@ export class LivePitchService {
     if (!this.inputContext || !this.stream) return;
 
     this.source = this.inputContext.createMediaStreamSource(this.stream);
-    this.processor = this.inputContext.createScriptProcessor(4096, 1, 1);
+    this.processor = this.inputContext.createScriptProcessor(LIVE_AUDIO_CONFIG.BUFFER_SIZE, 1, 1);
 
     this.processor.onaudioprocess = (e) => {
       const inputData = e.inputBuffer.getChannelData(0);
@@ -198,7 +164,7 @@ export class LivePitchService {
       sessionPromise.then(session => {
         session.sendRealtimeInput({
           media: {
-            mimeType: 'audio/pcm;rate=16000',
+            mimeType: LIVE_AUDIO_CONFIG.MIME_TYPE,
             data: b64Data
           }
         });
@@ -224,7 +190,7 @@ export class LivePitchService {
       this.nextStartTime = Math.max(this.nextStartTime, this.outputContext.currentTime);
       
       try {
-        const buffer = await decodeAudioData(audioData, this.outputContext, 24000);
+        const buffer = await decodeAudioData(audioData, this.outputContext, LIVE_AUDIO_CONFIG.SAMPLE_RATE_OUTPUT);
         const source = this.outputContext.createBufferSource();
         source.buffer = buffer;
         source.connect(this.outputNode);

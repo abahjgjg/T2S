@@ -6,7 +6,7 @@ import { IdeaSelection } from './components/IdeaSelection';
 import { BlueprintView } from './components/BlueprintView';
 import { ToastNotifications } from './components/ToastNotifications';
 import { getAIService } from './services/aiRegistry';
-import { supabaseService } from '../services/supabaseService';
+import { supabaseService } from './services/supabaseService';
 import { promptService } from './services/promptService';
 import { SavedProject, SearchRegion, SearchTimeframe } from './types';
 import { XCircle, Loader2 } from 'lucide-react';
@@ -387,6 +387,7 @@ const App: React.FC = () => {
             onBack={handleBackToIdeasWrapper} 
             onSaveToLibrary={handleSaveProject}
             onUpdateBlueprint={rActions.updateBlueprint}
+            onUpdateIdea={rActions.updateIdea}
             isSaved={savedProjects.some(p => p.id === rState.selectedIdea!.id)}
             publishedUrl={rState.currentBlueprintId ? `${window.location.origin}/blueprint?id=${rState.currentBlueprintId}` : null}
           />

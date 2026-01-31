@@ -35,11 +35,12 @@ interface Props {
   onBack: () => void;
   onSaveToLibrary: () => void;
   onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateIdea: (updates: Partial<BusinessIdea>) => void;
   isSaved: boolean;
   publishedUrl: string | null;
 }
 
-export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSaveToLibrary, onUpdateBlueprint, isSaved, publishedUrl }) => {
+export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSaveToLibrary, onUpdateBlueprint, onUpdateIdea, isSaved, publishedUrl }) => {
   const [showPitchModal, setShowPitchModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showCompetitorModal, setShowCompetitorModal] = useState(false);
@@ -389,6 +390,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
           blueprint={blueprint} 
           brandIdentity={blueprint.brandIdentity}
           onUpdateBlueprint={onUpdateBlueprint}
+          onUpdateIdea={onUpdateIdea}
         />
       </div>
 

@@ -1,8 +1,10 @@
+// @vitest-environment jsdom
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useIdeaEngine } from './useIdeaEngine';
 import { AIService, BusinessIdea } from '../types';
+import { createWrapper } from './test-utils';
 
 // Mock Data
 const mockIdeas: BusinessIdea[] = [
@@ -32,7 +34,7 @@ describe('useIdeaEngine', () => {
   });
 
   it('should initialize with empty ideas', () => {
-    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'), { wrapper: createWrapper() });
     expect(result.current.ideas).toEqual([]);
     expect(result.current.isGeneratingIdeas).toBe(false);
   });
@@ -40,7 +42,7 @@ describe('useIdeaEngine', () => {
   it('should generate ideas successfully', async () => {
     (mockAIService.generateBusinessIdeas as any).mockResolvedValue(mockIdeas);
 
-    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'), { wrapper: createWrapper() });
 
     let generated;
     await act(async () => {
@@ -57,13 +59,13 @@ describe('useIdeaEngine', () => {
     // Delay resolution to check loading state
     (mockAIService.generateBusinessIdeas as any).mockImplementation(() => new Promise(resolve => setTimeout(() => resolve(mockIdeas), 100)));
 
-    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'), { wrapper: createWrapper() });
 
     act(() => {
       result.current.generateIdeas('Baking', mockTrends);
     });
 
-    expect(result.current.isGeneratingIdeas).toBe(true);
+    await waitFor(() => expect(result.current.isGeneratingIdeas).toBe(true));
 
     await waitFor(() => expect(result.current.isGeneratingIdeas).toBe(false));
     expect(result.current.ideas).toEqual(mockIdeas);
@@ -71,7 +73,7 @@ describe('useIdeaEngine', () => {
 
   it('should clear ideas', async () => {
     (mockAIService.generateBusinessIdeas as any).mockResolvedValue(mockIdeas);
-    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'));
+    const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'), { wrapper: createWrapper() });
 
     await act(async () => {
       await result.current.generateIdeas('Baking', mockTrends);
@@ -88,7 +90,7 @@ describe('useIdeaEngine', () => {
   
   it('should handle errors gracefully', async () => {
      (mockAIService.generateBusinessIdeas as any).mockRejectedValue(new Error('AI Error'));
-     const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'));
+     const { result } = renderHook(() => useIdeaEngine(mockAIService, 'en'), { wrapper: createWrapper() });
      
      try {
        await act(async () => {
