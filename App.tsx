@@ -124,8 +124,17 @@ const App: React.FC = () => {
   useEffect(() => {
     const onPopState = () => handleRouting(false);
     window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, [handleRouting]);
+
+    const onReSearch = (e: any) => {
+      handleSearch(e.detail, 'Global', '30d', false);
+    };
+    window.addEventListener('re-search', onReSearch);
+
+    return () => {
+      window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('re-search', onReSearch);
+    };
+  }, [handleRouting, handleSearch]);
 
   useEffect(() => {
     const saveProjects = async () => {
@@ -323,6 +332,7 @@ const App: React.FC = () => {
             initialRegion={rState.region}
             initialTimeframe={rState.timeframe}
             initialDeepMode={rState.deepMode}
+            initialImage={rState.image}
           />
         )}
         
@@ -345,6 +355,7 @@ const App: React.FC = () => {
              initialRegion={rState.region}
              initialTimeframe={rState.timeframe}
              initialDeepMode={rState.deepMode}
+             initialImage={rState.image}
            />
         )}
 

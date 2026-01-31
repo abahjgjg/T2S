@@ -2,53 +2,54 @@
 import { useState, useEffect } from 'react';
 import { indexedDBService } from '../utils/storageUtils';
 
-export const useAsset = (sourceUrl?: string | null) => {
-  const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const useAsset = (assetUrl: string | null | undefined) => {
+  const [state, setState] = useState<{ url: string | null, isLoading: boolean, error: string | null }>({
+    url: null,
+    isLoading: false,
+    error: null
+  });
 
   useEffect(() => {
-    let isActive = true;
-    let objectUrl: string | null = null;
+    if (!assetUrl) {
+      setState({ url: null, isLoading: false, error: null });
+      return;
+    }
 
-    const resolve = async () => {
-      if (!sourceUrl) {
-        setResolvedUrl(null);
-        return;
-      }
+    if (!assetUrl.startsWith('asset://')) {
+      setState({ url: assetUrl, isLoading: false, error: null });
+      return;
+    }
 
-      // Check if it is a persistent asset protocol
-      if (sourceUrl.startsWith('asset://')) {
-        setIsLoading(true);
-        const assetId = sourceUrl.replace('asset://', '');
-        try {
-          const blob = await indexedDBService.getAsset(assetId);
-          if (blob && isActive) {
-            objectUrl = URL.createObjectURL(blob);
-            setResolvedUrl(objectUrl);
-          } else if (isActive) {
-            setError("Asset not found in local storage.");
-          }
-        } catch (e) {
-          if (isActive) setError("Failed to load asset.");
-        } finally {
-          if (isActive) setIsLoading(false);
+    let currentUrl: string | null = null;
+    let isMounted = true;
+
+    const load = async () => {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      try {
+        const assetId = assetUrl.replace('asset://', '');
+        const blob = await indexedDBService.getAsset(assetId);
+
+        if (!isMounted) return;
+
+        if (blob) {
+          currentUrl = URL.createObjectURL(blob);
+          setState({ url: currentUrl, isLoading: false, error: null });
+        } else {
+          setState({ url: null, isLoading: false, error: "Asset not found" });
         }
-      } else {
-        // Standard URL (http, data:base64, or existing blob:)
-        setResolvedUrl(sourceUrl);
+      } catch (err) {
+        if (!isMounted) return;
+        setState({ url: null, isLoading: false, error: "Failed to load asset" });
       }
     };
 
-    resolve();
+    load();
 
     return () => {
-      isActive = false;
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
+      isMounted = false;
+      if (currentUrl) URL.revokeObjectURL(currentUrl);
     };
-  }, [sourceUrl]);
+  }, [assetUrl]);
 
-  return { url: resolvedUrl, isLoading, error };
+  return state;
 };

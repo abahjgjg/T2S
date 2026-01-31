@@ -7,6 +7,8 @@ import { toast } from './ToastNotifications';
 import { REGIONS, TIMEFRAMES } from '../constants/searchConfig';
 import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { indexedDBService } from '../utils/storageUtils';
+import { useAsset } from '../hooks/useAsset';
 
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
@@ -15,6 +17,7 @@ interface Props {
   initialRegion?: SearchRegion;
   initialTimeframe?: SearchTimeframe;
   initialDeepMode?: boolean;
+  initialImage?: string;
 }
 
 const HISTORY_KEY = 'trendventures_search_history';
@@ -65,6 +68,7 @@ export const TrendSearch: React.FC<Props> = ({
   const [loadingText, setLoadingText] = useState(uiText.scanning);
   const [isListening, setIsListening] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { url: previewUrl } = useAsset(selectedImage);
   const [currentDate, setCurrentDate] = useState('');
   const [allTickerTopics, setAllTickerTopics] = useState<string[]>([]);
   
@@ -77,7 +81,8 @@ export const TrendSearch: React.FC<Props> = ({
     if (initialRegion) setRegion(initialRegion);
     if (initialTimeframe) setTimeframe(initialTimeframe);
     if (initialDeepMode !== undefined) setDeepMode(initialDeepMode);
-  }, [initialNiche, initialRegion, initialTimeframe, initialDeepMode]);
+    if (initialImage) setSelectedImage(initialImage);
+  }, [initialNiche, initialRegion, initialTimeframe, initialDeepMode, initialImage]);
 
   useEffect(() => {
     // Load History
@@ -194,16 +199,28 @@ export const TrendSearch: React.FC<Props> = ({
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setSelectedImage(base64);
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image too large (max 5MB)");
+        return;
+      }
+
+      try {
+        const assetId = `search-${Date.now()}`;
+        await indexedDBService.saveAsset(assetId, file);
+        setSelectedImage(`asset://${assetId}`);
         toast.success("Image attached");
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Failed to save image asset", err);
+        // Fallback to base64 if IDB fails for some reason
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setSelectedImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -325,9 +342,9 @@ export const TrendSearch: React.FC<Props> = ({
           <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-400'}`} aria-hidden="true" />
           
           {/* Attached Image Preview */}
-          {selectedImage && (
+          {previewUrl && (
             <div className="relative ml-2 w-10 h-10 shrink-0 group/img">
-              <img src={selectedImage} alt="Context" className="w-full h-full object-cover rounded-lg border border-slate-700" />
+              <img src={previewUrl} alt="Context" className="w-full h-full object-cover rounded-lg border border-slate-700" />
               <button 
                 type="button"
                 onClick={clearImage}

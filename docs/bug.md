@@ -13,3 +13,5 @@
 - [x] bug: `index.html` is missing entry point script tag (`index.tsx`).
 - [x] bug: `App.tsx` has incorrect import path for `supabaseService` (`../services/supabaseService` instead of `./services/supabaseService`).
 - [x] bug: Strict TypeScript errors in `SafeMarkdown.tsx` and AI service core files preventing successful production builds.
+- [ ] bug: Memory bloat in React state and IndexedDB due to large Base64 search images.
+- [ ] bug: Missing Vitest configuration for React 19 `act` causing console warnings during tests.

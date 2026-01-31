@@ -3,7 +3,7 @@ import { Blueprint, BusinessIdea, CompetitorAnalysis } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { supabaseService } from '../services/supabaseService';
 import { toast } from './ToastNotifications'; 
-import { ShieldCheck, Loader2, TrendingUp } from 'lucide-react';
+import { ShieldCheck, Loader2, TrendingUp, ArrowUp } from 'lucide-react';
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { useBlueprintMedia } from '../hooks/useBlueprintMedia';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -42,6 +42,7 @@ interface Props {
 
 export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSaveToLibrary, onUpdateBlueprint, onUpdateIdea, isSaved, publishedUrl }) => {
   const [showPitchModal, setShowPitchModal] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showCompetitorModal, setShowCompetitorModal] = useState(false);
   const [showAuditModal, setShowAuditModal] = useState(false);
@@ -206,6 +207,18 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
   }, [onUpdateBlueprint]);
 
   const handlePrint = useCallback(() => window.print(), []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleDownloadJSON = useCallback(() => {
     const data = JSON.stringify({ idea, blueprint }, null, 2);
@@ -463,6 +476,17 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         blueprint={blueprint} 
         onUpdateBlueprint={onUpdateBlueprint}
       />
+
+      {/* Back to Top Button */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-8 left-8 p-3 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-full shadow-lg transition-all transform z-[45] backdrop-blur-sm border border-emerald-400/20 group print:hidden ${
+          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+        }`}
+        aria-label="Back to Top"
+      >
+        <ArrowUp className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
+      </button>
     </div>
   );
 };

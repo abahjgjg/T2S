@@ -14,7 +14,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
   } | null>(null);
 
   // Use React Query for fetching trends
-  const { data: trends = [], refetch, isFetching } = useQuery({
+  const { data: trends = [], refetch, isFetching, error } = useQuery({
     queryKey: ['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, searchParams?.image, language],
     queryFn: async () => {
       if (!searchParams) return [];
@@ -117,6 +117,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     updateTrend,
     analyzeTrendDeepDive,
     clearTrends,
-    isLoading: isFetching
+    isLoading: isFetching,
+    error
   };
 };
