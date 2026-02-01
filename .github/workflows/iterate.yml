@@ -12,12 +12,6 @@ permissions:
   actions: write
   id-token: write
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: write
-  id-token: write
-
 concurrency:
   group: iterate
   cancel-in-progress: false
