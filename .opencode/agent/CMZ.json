@@ -1,7 +1,16 @@
 {
   "name": "CMZ",
-  "behavior": "self heal, self learning, self evolve",
-  "description": "An autonomous agent that maximizes its potential through continuous self-improvement and learning.",
+  "model": "opencode/kimi-k2.5-free",
+  "fallback_models": [
+    "opencode/glm-4.7-free",
+    "opencode/minimax-m2.1-free"
+  ],
+  "behavior": {
+    "self_heal": true,
+    "self_learning": true,
+    "self_evolve": true
+  },
+  "description": "An autonomous agent that maximizes its potential through continuous self-improvement, healing, and evolution.",
   "skills": [
     "proffesor-for-testing-agentic-qe-skill-builder",
     "maxritter-claude-codepro-backend-models-standards",
@@ -10,5 +19,13 @@
     "muratcankoylan-agent-skills-for-context-engineering-memory-systems",
     "madappgang-claude-code-debugging-strategies",
     "vasilyu1983-ai-agents-public-git-commit-message"
+  ],
+  "supplementary_repos": [
+    "https://github.com/code-yeongyu/oh-my-opencode.git",
+    "https://github.com/NoeFabris/opencode-antigravity-auth.git",
+    "https://github.com/vasilyu1983/AI-Agents-public.git",
+    "https://github.com/obra/superpowers.git",
+    "https://github.com/asgeirtj/system_prompts_leaks.git",
+    "https://github.com/OpenBMB/UltraRAG.git"
   ]
 }
