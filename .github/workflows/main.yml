@@ -3,13 +3,13 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_run:
-    workflows: ["on push"]
+    workflows: ["iterate"]
     types: [completed]
 permissions:
   contents: write
   pull-requests: write
-  actions: read
-
+  actions: write
+  id-token: write
 concurrency:
   group: global
   cancel-in-progress: false
@@ -17,10 +17,10 @@ concurrency:
 jobs:
   analyze:
     name: on pull
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
@@ -32,14 +32,14 @@ jobs:
           poll-interval-seconds: 30
           same-branch-only: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout Code
         uses: actions/checkout@v4
         continue-on-error: true
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,8 +50,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --global user.name "sulhicmz"
-          git config --global user.email "22936450+sulhicmz@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
 
       - name: Branch Management
         run: |
@@ -337,23 +337,53 @@ jobs:
             --model opencode/kimi-k2.5-free \
             --share false \
 
-      - name: Fallback on Failure
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: iterate1
         run: |
-          echo "⚠️ Analyzer workflow failed. Creating issue for manual review."
-          gh issue create \
-            --title "🤖 Analyzer Failed - $(date +%Y-%m-%d)" \
-            --body "## Analyzer Failure Report
+          opencode run "$(cat <<'PROMPT'
+            ## PHASE 1
+            Act as an automation specialist using OpenCode CLI. You work on current workspace, dont do machine configuration. Your task is:
+            1. Check if agent 'CMZ' is exist, create opencode agent 'CMZ' if no exist. behavior: self heal, self learning, self evolve. maximize its potential.
+                - check .opencode/agent in workspace root
+                - verify if "CMZ" agent is exist, create if not exist.
+                - optimize based 3 last github action logs 'iterate.yml'. skip if not exist or run <3
+            2. Checck and Manage the following repositories as supplements to 'CMZ' agent. Ensure no conflict or redundant. if already implemented, skip it. must be in harmony.:
+                - https://github.com/code-yeongyu/oh-my-opencode.git
+                - https://github.com/NoeFabris/opencode-antigravity-auth.git
+                - https://github.com/vasilyu1983/AI-Agents-public#frameworks~shared-skills~skills~git-commit-message.git
+                - https://github.com/obra/superpowers.git
+                - https://github.com/asgeirtj/system_prompts_leaks.git
+                - https://github.com/OpenBMB/UltraRAG.git
+            3. Check 'oh my opencode' configuration, if already implemented, skip it. create in current workspace if no exist (analyze https://github.com/code-yeongyu/oh-my-opencode.git before creating). 
+                - check if .opencode folder is exist
+                - configure all agents using models: opencode/glm-4.7-free, opencode/kimi-k2.5-free or opencode/minimax-m2.1-free
+            3. Setup agent skill for opencode cli (.opencode/skill on workspace), skip if already implemented. read documentation https://www.skillhub.club/docs/cli:
+                - proffesor-for-testing-agentic-qe-skill-builder
+                - maxritter-claude-codepro-backend-models-standards
+                - obra-superpowers-systematic-debugging
+                - modu-ai-moai-adk-moai-tool-opencode
+                - muratcankoylan-agent-skills-for-context-engineering-memory-systems
+                - curl -sL "https://www.skillhub.club/api/v1/skills/madappgang-claude-code-debugging-strategies/install?agents=gemini,opencode&format=sh" | bash
+                - curl -sL "https://www.skillhub.club/api/v1/skills/vasilyu1983-ai-agents-public-git-commit-message/install?agents=gemini,opencode&format=sh" | bash
+            4. Remove temporary and unused file/folder. Review and self reflection. fix/optimize your work if needed
+            5. Verify if all configuration working, your task fail if not verified
+            ## PHASE 2
+            After all tasks are completed:
+            1.  **Push**:
+            - Commit changes.
+            - Push to `agent`: `git push origin agent`. Create if no exist.
+            2.  **PR**:
+            - Create or update Pull Request from `agent` to `main`.
+            - Wait and monitor check if check fail fix until all check pass
+            3. 	**Merge**
+            - If all check pass, no conflict with 'main', merge or set to automerge
 
-          **Workflow**: on-pull
-          **Run ID**: ${{ github.run_id }}
-          **Time**: $(date)
-
-          ### Action Required
-          Please review the workflow logs and manually address any issues.
-
-          ---
-          *This issue was auto-generated.*" \
-            --label "bug" || echo "Could not create issue"
+            ## Anti-Patterns (NEVER Do)
+            - ❌ Circular dependencies
+            - ❌ God classes
+            - ❌ Mix presentation with business logic
+            - ❌ Break existing functionality
+            - ❌ Over-engineer
+          PROMPT
+          )" \
+            --model opencode/kimi-k2.5-free \
+            --share false \
