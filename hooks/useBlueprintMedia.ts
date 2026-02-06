@@ -5,6 +5,7 @@ import { getAIService } from '../services/aiRegistry';
 import { toast } from '../components/ToastNotifications';
 import { indexedDBService } from '../utils/storageUtils';
 import { supabaseService } from '../services/supabaseService';
+import { MEDIA_CONFIG } from '../constants/aiConfig';
 
 interface UseBlueprintMediaReturn {
   generateLogo: (ideaName: string, description: string, style: string) => Promise<void>;
@@ -43,8 +44,8 @@ export const useBlueprintMedia = (
     setIsGeneratingLogo(true);
     try {
       const aiService = getAIService(provider);
-      // Generate using first 200 chars of summary as context
-      const imageBase64 = await aiService.generateBrandImage(ideaName, description.slice(0, 200), style);
+      // Generate using truncated description as context
+      const imageBase64 = await aiService.generateBrandImage(ideaName, description.slice(0, MEDIA_CONFIG.TEXT_TRUNCATION.BRAND_IMAGE_DESC), style);
       
       if (imageBase64) {
         // Convert Base64 to Blob for efficient storage
@@ -73,7 +74,7 @@ export const useBlueprintMedia = (
     try {
       const aiService = getAIService(provider);
       const prompt = `Create a realistic, professional headshot avatar for a customer persona.
-      Description: ${bio.slice(0, 150)}.
+      Description: ${bio.slice(0, MEDIA_CONFIG.TEXT_TRUNCATION.PERSONA_BIO)}.
       Style: High quality photography portrait, neutral background.`;
       
       const imageBase64 = await aiService.generateBrandImage(name, prompt, "Realistic Portrait");

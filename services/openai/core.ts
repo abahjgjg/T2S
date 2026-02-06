@@ -3,7 +3,7 @@ import { BusinessIdea, Blueprint, Language, ChatMessage, AgentProfile, Trend, La
 import { cleanJsonOutput } from "../../utils/textUtils";
 import { callOpenAI, OpenAIToolDefinition } from "./shared";
 import { getLanguageInstruction } from "../../utils/promptUtils";
-import { OPENAI_MODELS } from "../../constants/aiConfig";
+import { OPENAI_MODELS, QUERY_LIMITS } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
 import { 
   BusinessIdeaListSchema, 
@@ -159,7 +159,7 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
   const prompt = promptService.build('GENERATE_AGENTS', {
     executiveSummary: blueprint.executiveSummary,
     techStack: blueprint.technicalStack.join(', '),
-    roadmap: JSON.stringify(blueprint.roadmap.slice(0, 3)),
+    roadmap: JSON.stringify(blueprint.roadmap.slice(0, QUERY_LIMITS.ROADMAP_PREVIEW_ITEMS)),
     langInstruction
   });
 

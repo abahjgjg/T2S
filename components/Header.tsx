@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { TrendingUp, RotateCcw, BookMarked, Compass, User, LogIn, LayoutDashboard, Shield, MoreHorizontal } from 'lucide-react';
+import React, { useEffect, useCallback } from 'react';
+import { TrendingUp, RotateCcw, BookMarked, Compass, User, LogIn, LayoutDashboard, Shield, MoreHorizontal, Keyboard } from 'lucide-react';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -18,6 +18,19 @@ export const Header: React.FC<Props> = ({
 }) => {
   const { language, setLanguage, uiText } = usePreferences();
   const { user } = useAuth();
+
+  // Keyboard shortcut: Ctrl/Cmd + R for New Research
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'r' && showReset) {
+      e.preventDefault();
+      onReset();
+    }
+  }, [onReset, showReset]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <header className="w-full py-4 px-4 md:px-8 flex flex-col md:flex-row justify-between items-center border-b border-white/5 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 gap-4 md:gap-0 transition-all duration-300">
@@ -68,11 +81,16 @@ export const Header: React.FC<Props> = ({
           {showReset && (
             <button 
               onClick={onReset}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors text-xs font-bold border border-slate-700 shadow-sm"
-              aria-label="Start New Research"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors text-xs font-bold border border-slate-700 shadow-sm group"
+              aria-label="Start New Research (Ctrl+R)"
+              title="New Research (Ctrl+R)"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{uiText.newResearch}</span>
+              <kbd className="hidden md:inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-slate-900 rounded text-slate-500 group-hover:text-slate-400 transition-colors">
+                <span className="text-[8px]">Ctrl</span>+
+                <span>R</span>
+              </kbd>
             </button>
           )}
 
