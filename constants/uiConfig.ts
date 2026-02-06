@@ -26,6 +26,16 @@ export const UI_TIMING = {
   RETRY_BASE_DELAY: 100,
 } as const;
 
+export const CACHE_TIMING = {
+  // React Query cache durations (milliseconds)
+  TRENDS_STALE_TIME: 1000 * 60 * 15, // 15 minutes
+  TRENDS_GC_TIME: 1000 * 60 * 60, // 1 hour
+  
+  // Default cache times
+  DEFAULT_STALE_TIME: 1000 * 60 * 5, // 5 minutes
+  DEFAULT_GC_TIME: 1000 * 60 * 30, // 30 minutes
+} as const;
+
 export const ANIMATION_TIMING = {
   // Fade animations (seconds)
   FADE_FAST: 0.2,

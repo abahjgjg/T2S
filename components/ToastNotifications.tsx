@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 
@@ -29,17 +29,23 @@ const dispatchToast = (message: string, type: ToastType) => {
 
 export const ToastNotifications: React.FC = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const pausedToastsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const handleToast = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      const id = Math.random().toString(36).substring(7);
+      const id = crypto.randomUUID();
       setToasts((prev) => [...prev, { id, ...detail }]);
 
-      // Auto dismiss
-      setTimeout(() => {
-        removeToast(id);
+      // Auto dismiss with pause support
+      const dismissTimeout = setTimeout(() => {
+        if (!pausedToastsRef.current.has(id)) {
+          removeToast(id);
+        }
       }, UI_TIMING.TOAST_DURATION);
+
+      // Store timeout ID for cleanup
+      (id as any)._timeoutId = dismissTimeout;
     };
 
     window.addEventListener(TOAST_EVENT, handleToast);
@@ -56,13 +62,29 @@ export const ToastNotifications: React.FC = () => {
     }, UI_TIMING.TOAST_ANIMATION);
   };
 
+  const handleMouseEnter = (id: string) => {
+    pausedToastsRef.current.add(id);
+  };
+
+  const handleMouseLeave = (id: string) => {
+    pausedToastsRef.current.delete(id);
+    // Resume dismissal after a short delay
+    setTimeout(() => {
+      if (!pausedToastsRef.current.has(id)) {
+        removeToast(id);
+      }
+    }, UI_TIMING.TOAST_DURATION / 2);
+  };
+
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-md px-4 pointer-events-none">
       {toasts.map((t) => (
         <div
           key={t.id}
+          onMouseEnter={() => handleMouseEnter(t.id)}
+          onMouseLeave={() => handleMouseLeave(t.id)}
           className={`
-            pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md
+            pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md transition-all hover:scale-[1.02]
             ${t.exiting ? `animate-[slideDown_${ANIMATION_TIMING.SLIDE_DOWN}s_${ANIMATION_EASING.EXIT}_forwards]` : `animate-[slideUp_${ANIMATION_TIMING.SLIDE_UP}s_${ANIMATION_EASING.DEFAULT}]`}
             ${t.type === 'success' ? 'bg-emerald-900/90 border-emerald-500/50 text-emerald-100' : ''}
             ${t.type === 'error' ? 'bg-red-900/90 border-red-500/50 text-red-100' : ''}

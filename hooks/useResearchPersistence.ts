@@ -106,11 +106,11 @@ export const useResearchPersistence = (
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         // Handle image asset separately to avoid Base64 bloat in state
-        const stateToSave: any = JSON.parse(JSON.stringify(state)); // Deep clone
+        const stateToSave: any = structuredClone(state); // Deep clone (modern, faster than JSON.parse/stringify)
         
         // 1. Handle Main Search Image
         if (state.image && state.image.startsWith('data:')) {
-          const assetKey = `${ASSET_KEY_PREFIX}search_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+          const assetKey = `${ASSET_KEY_PREFIX}search_${crypto.randomUUID()}`;
           await indexedDBService.saveAsset(assetKey, base64ToBlob(state.image));
           stateToSave.imageAssetKey = assetKey;
           delete stateToSave.image;
@@ -118,7 +118,7 @@ export const useResearchPersistence = (
 
         // 2. Handle Blueprint Brand Image
         if (stateToSave.blueprint?.brandImageUrl?.startsWith('data:')) {
-          const assetKey = `${ASSET_KEY_PREFIX}brand_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+          const assetKey = `${ASSET_KEY_PREFIX}brand_${crypto.randomUUID()}`;
           await indexedDBService.saveAsset(assetKey, base64ToBlob(stateToSave.blueprint.brandImageUrl));
           stateToSave.blueprint.brandImageUrl = `asset://${assetKey}`;
         }
@@ -127,7 +127,7 @@ export const useResearchPersistence = (
         if (stateToSave.blueprint?.personas) {
           for (const persona of stateToSave.blueprint.personas) {
             if (persona.avatarUrl?.startsWith('data:')) {
-              const assetKey = `${ASSET_KEY_PREFIX}persona_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+              const assetKey = `${ASSET_KEY_PREFIX}persona_${crypto.randomUUID()}`;
               await indexedDBService.saveAsset(assetKey, base64ToBlob(persona.avatarUrl));
               persona.avatarUrl = `asset://${assetKey}`;
             }

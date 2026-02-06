@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trend, Language, AIService, SearchRegion, SearchTimeframe } from '../types';
+import { CACHE_TIMING } from '../constants/uiConfig';
 
 export const useTrendEngine = (aiService: AIService, language: Language) => {
   const queryClient = useQueryClient();
@@ -28,8 +29,8 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
       );
     },
     enabled: false, // Triggered manually via fetchTrends
-    staleTime: 1000 * 60 * 15, // 15 minutes cache
-    gcTime: 1000 * 60 * 60, // Keep unused data for 1 hour
+    staleTime: CACHE_TIMING.TRENDS_STALE_TIME,
+    gcTime: CACHE_TIMING.TRENDS_GC_TIME,
   });
 
   const fetchTrends = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
@@ -43,7 +44,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     const result = await queryClient.fetchQuery({
       queryKey: ['marketTrends', searchTerm, region, timeframe, deepMode, image, language],
       queryFn: () => aiService.fetchMarketTrends(searchTerm, language, region, timeframe, deepMode, image),
-      staleTime: 1000 * 60 * 15
+      staleTime: CACHE_TIMING.TRENDS_STALE_TIME
     });
     
     return result;
