@@ -1,5 +1,6 @@
 
 import { safeLocalStorage } from '../utils/storageUtils';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
 export interface SystemLog {
   id: string;
@@ -10,7 +11,7 @@ export interface SystemLog {
   context?: string; // e.g., 'TrendEngine', 'GeminiAPI'
 }
 
-const LOG_STORAGE_KEY = 'trendventures_sys_logs_v1';
+const LOG_STORAGE_KEY = STORAGE_KEYS.TELEMETRY_LOGS;
 const MAX_LOGS = 50;
 
 export const telemetryService = {
