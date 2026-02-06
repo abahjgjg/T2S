@@ -146,7 +146,9 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
          if (valueToUpdate.startsWith('[') || valueToUpdate.startsWith('{')) {
             valueToUpdate = JSON.parse(valueToUpdate);
          }
-       } catch (e) { }
+        } catch (e) { 
+          // Silent fail - value is not JSON, keep as string
+        }
     }
 
     onUpdateBlueprint({ [pivot.section]: valueToUpdate });

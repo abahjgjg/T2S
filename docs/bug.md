@@ -2,11 +2,13 @@
 # Known Issues & Bugs
 
 ## Critical (Security)
-- **API Key Exposure**: `process.env.API_KEY` is currently used in client-side code (`services/gemini/shared.ts`, etc.). In a production build, this key is exposed to users. **Fix Required**: Migrate AI interactions to a backend proxy (e.g., Supabase Edge Functions).
+- [/] **API Key Exposure**: `process.env.API_KEY` is currently used in client-side code (`services/gemini/shared.ts`, etc.). In a production build, this key is exposed to users. **Fix Required**: Migrate AI interactions to a backend proxy (e.g., Supabase Edge Functions). **STATUS**: BLOCKED - Environment Limitation.
+  - Affected files: `services/gemini/shared.ts:5`, `services/gemini/media.ts:104`, `services/openai/shared.ts:49`, `services/openai/media.ts:7,42`
+- [ ] **API Key in URL**: `services/gemini/media.ts:104` appends API key directly to video download URL, exposing it in request logs.
 
 ## Performance
-- **Memory Usage**: Large generated assets (Veo Videos, Base64 Images) are stored in React State/LocalStorage, causing UI lag and potential crashes on low-memory devices.
-- **Render Cycles**: The `useResearch` hook triggers re-renders on the main `App` component frequently.
+- [x] **Memory Usage**: Large generated assets (Veo Videos, Base64 Images) are stored in React State/LocalStorage, causing UI lag and potential crashes on low-memory devices. **STATUS**: Mitigated - Assets now stored in IndexedDB, Base64 conversion minimized.
+- [x] **Render Cycles**: The `useResearch` hook triggers re-renders on the main `App` component frequently. **STATUS**: Fixed via useMemo in useResearch.ts
 
 ## Minor
 - **Markdown Parsing**: Occasional styling inconsistencies if AI returns non-standard markdown tables.
