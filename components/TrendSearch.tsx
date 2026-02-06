@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit, Sparkles, Image as ImageIcon, ShoppingCart, Leaf, Smartphone, DollarSign, Heart, Trash2, Newspaper } from 'lucide-react';
+import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit, Sparkles, Image as ImageIcon, ShoppingCart, Leaf, Smartphone, DollarSign, Heart, Trash2, Newspaper, AlertCircle } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
 import { toast } from './ToastNotifications';
@@ -425,7 +425,7 @@ export const TrendSearch: React.FC<Props> = ({
 
       {validationError && (
         <div className="flex items-center justify-center gap-2 text-red-400 text-sm mb-6 animate-[fadeIn_0.3s_ease-out]" role="alert">
-          <Zap className="w-4 h-4" />
+          <AlertCircle className="w-4 h-4" aria-hidden="true" />
           <span>{validationError}</span>
         </div>
       )}

@@ -4,17 +4,16 @@ import { Modality } from "@google/genai";
 import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
 import { getGeminiClient } from "./shared";
-import { GEMINI_MODELS } from "../../constants/aiConfig";
+import { GEMINI_MODELS, MEDIA_CONFIG } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
 
 export const generateVoiceSummary = async (text: string, lang: Language): Promise<string | null> => {
   return retryOperation(async () => {
     try {
       const ai = getGeminiClient();
-      // Increased limit to 3000 chars to allow for detailed market briefings
       const response = await ai.models.generateContent({
         model: GEMINI_MODELS.TTS,
-        contents: { parts: [{ text: text.slice(0, 3000) }] },
+        contents: { parts: [{ text: text.slice(0, MEDIA_CONFIG.TTS_MAX_CHARS) }] },
         config: {
           responseModalities: [Modality.AUDIO], 
           speechConfig: {
@@ -35,7 +34,7 @@ export const generateVoiceSummary = async (text: string, lang: Language): Promis
        console.error("Error generating voice summary:", error);
        throw error;
     }
-  }, 2, 500);
+  }, MEDIA_CONFIG.RETRY.DEFAULT_MAX_RETRIES - 1, MEDIA_CONFIG.RETRY.DEFAULT_DELAY_MS);
 };
 
 export const generateBrandImage = async (ideaName: string, description: string, style: string): Promise<string | null> => {
@@ -80,7 +79,7 @@ export const generateMarketingVideo = async (ideaName: string, description: stri
     try {
       const prompt = promptService.build('GENERATE_VIDEO_PROMPT', {
         name: ideaName,
-        description: description.slice(0, 150)
+        description: description.slice(0, MEDIA_CONFIG.VIDEO_DESC_MAX_CHARS)
       });
 
       let operation = await ai.models.generateVideos({
@@ -94,13 +93,15 @@ export const generateMarketingVideo = async (ideaName: string, description: stri
       });
 
       while (!operation.done) {
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, MEDIA_CONFIG.VIDEO_POLL_INTERVAL_MS));
         operation = await ai.operations.getVideosOperation({ operation: operation });
       }
 
       const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
       if (!downloadLink) throw new Error("No video URI generated");
 
+      // SECURITY WARNING: API key in URL is exposed in browser logs.
+      // This is a temporary measure until Secure API Proxy is implemented (BLOCKED).
       const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
       if (!response.ok) throw new Error(`Failed to download video: ${response.statusText}`);
 

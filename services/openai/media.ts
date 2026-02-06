@@ -1,7 +1,7 @@
 
 import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
-import { OPENAI_MODELS } from "../../constants/aiConfig";
+import { OPENAI_MODELS, MEDIA_CONFIG } from "../../constants/aiConfig";
 
 export const generateVoiceSummary = async (text: string, lang: Language): Promise<string | null> => {
   const apiKey = process.env.API_KEY;
@@ -16,7 +16,7 @@ export const generateVoiceSummary = async (text: string, lang: Language): Promis
       },
       body: JSON.stringify({
         model: OPENAI_MODELS.TTS,
-        input: text.slice(0, 3000), // Increased limit for briefings
+        input: text.slice(0, MEDIA_CONFIG.TTS_MAX_CHARS),
         voice: "alloy"
       })
     });

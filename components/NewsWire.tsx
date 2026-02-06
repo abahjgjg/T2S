@@ -26,7 +26,9 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
          // Extract clean domain (e.g. bloomberg.com)
          const domain = new URL(s.url).hostname.replace('www.', '');
          counts[domain] = (counts[domain] || 0) + 1;
-       } catch (e) {}
+        } catch (e) {
+          // Silent fail - invalid URL, skip this source
+        }
      });
      // Sort by count descending
      return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
