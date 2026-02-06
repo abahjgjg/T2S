@@ -106,7 +106,7 @@ export const useResearchPersistence = (
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         // Handle image asset separately to avoid Base64 bloat in state
-        const stateToSave: any = structuredClone(state); // Deep clone (modern, faster than JSON.parse/stringify)
+        const stateToSave: any = structuredClone(state); // Efficient deep clone
         
         // 1. Handle Main Search Image
         if (state.image && state.image.startsWith('data:')) {
