@@ -7,6 +7,7 @@ import { toast } from './ToastNotifications';
 import { useBlueprintMedia } from '../hooks/useBlueprintMedia';
 import { useAsset } from '../hooks/useAsset';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { EmptyState } from './ui/EmptyState';
 
 interface Props {
   idea: BusinessIdea;
@@ -120,11 +121,12 @@ export const CustomerPersonas: React.FC<Props> = ({ idea, blueprint, personas, o
 
   if (isGenerating) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[300px] mb-8 animate-[fadeIn_0.3s_ease-out]">
-        <Loader2 className="w-12 h-12 text-blue-400 animate-spin mb-4" />
-        <h3 className="text-xl font-bold text-white mb-2">Analyzing Audience...</h3>
-        <p className="text-slate-400 max-w-sm text-sm">Identifying key demographics, psychographics, and pain points for your ideal customers.</p>
-      </div>
+      <EmptyState
+        icon={<Loader2 className="w-12 h-12 text-blue-400 animate-spin" />}
+        title="Analyzing Audience..."
+        description="Identifying key demographics, psychographics, and pain points for your ideal customers."
+        className="mb-8"
+      />
     );
   }
 

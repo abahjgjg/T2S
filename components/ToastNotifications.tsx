@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
-import { UI_TIMING } from '../constants/uiConfig';
+import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -63,7 +63,7 @@ export const ToastNotifications: React.FC = () => {
           key={t.id}
           className={`
             pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md
-            ${t.exiting ? 'animate-[slideDown_0.3s_ease-in_forwards]' : 'animate-[slideUp_0.3s_ease-out]'}
+            ${t.exiting ? `animate-[slideDown_${ANIMATION_TIMING.SLIDE_DOWN}s_${ANIMATION_EASING.EXIT}_forwards]` : `animate-[slideUp_${ANIMATION_TIMING.SLIDE_UP}s_${ANIMATION_EASING.DEFAULT}]`}
             ${t.type === 'success' ? 'bg-emerald-900/90 border-emerald-500/50 text-emerald-100' : ''}
             ${t.type === 'error' ? 'bg-red-900/90 border-red-500/50 text-red-100' : ''}
             ${t.type === 'info' ? 'bg-slate-800/90 border-slate-600/50 text-slate-100' : ''}
