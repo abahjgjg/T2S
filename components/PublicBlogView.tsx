@@ -3,9 +3,10 @@ import { PublishedBlueprint, BusinessIdea, Comment } from '../types';
 import { ArrowLeft, Calendar, Share2, TrendingUp, Layers, DollarSign, ArrowRight, Heart, Mail, CheckCircle, Copy, Check, MessageSquare, Send, User, Swords, Loader2 } from 'lucide-react';
 import { supabaseService } from '../services/supabaseService';
 import { useMetaTags } from '../hooks/useMetaTags';
-import { toast } from './ToastNotifications'; 
+import { toast } from './ToastNotifications';
 import { SafeMarkdown } from './SafeMarkdown';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { UI_TIMING } from '../constants/uiConfig';
 
 interface Props {
   id?: string | null;
@@ -157,7 +158,7 @@ export const PublicBlogView: React.FC<Props> = ({ id, data: initialData, onHome 
     navigator.clipboard.writeText(url);
     setLinkCopied(true);
     toast.info(uiText?.copied || "Link copied!");
-    setTimeout(() => setLinkCopied(false), 2000);
+    setTimeout(() => setLinkCopied(false), UI_TIMING.COPY_FEEDBACK_DURATION);
   };
 
   const handlePostComment = async (e: React.FormEvent) => {

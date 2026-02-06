@@ -4,6 +4,7 @@ import { Check, Copy } from 'lucide-react';
 import { SafeMarkdown } from '../SafeMarkdown';
 import { usePreferences } from '../../contexts/PreferencesContext';
 import { toast } from '../ToastNotifications';
+import { UI_TIMING } from '../../constants/uiConfig';
 
 interface Props {
   content: string;
@@ -19,7 +20,7 @@ export const BlueprintMarkdownViewer: React.FC<Props> = React.memo(({ content, a
     navigator.clipboard.writeText(content);
     setCopied(true);
     toast.info("Full guide copied to clipboard");
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), UI_TIMING.COPY_FEEDBACK_DURATION);
   }, [content]);
 
   const handleLinkClick = useCallback((href: string) => {

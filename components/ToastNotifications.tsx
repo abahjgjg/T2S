@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { UI_TIMING } from '../constants/uiConfig';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -8,6 +9,7 @@ export interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  exiting?: boolean;
 }
 
 // Event Bus for Toasts
@@ -37,7 +39,7 @@ export const ToastNotifications: React.FC = () => {
       // Auto dismiss
       setTimeout(() => {
         removeToast(id);
-      }, 4000);
+      }, UI_TIMING.TOAST_DURATION);
     };
 
     window.addEventListener(TOAST_EVENT, handleToast);
@@ -45,7 +47,13 @@ export const ToastNotifications: React.FC = () => {
   }, []);
 
   const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, exiting: true } : t))
+    );
+    // Actually remove after animation completes
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, UI_TIMING.TOAST_ANIMATION);
   };
 
   return (
@@ -54,7 +62,8 @@ export const ToastNotifications: React.FC = () => {
         <div
           key={t.id}
           className={`
-            pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md animate-[slideUp_0.3s_ease-out]
+            pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md
+            ${t.exiting ? 'animate-[slideDown_0.3s_ease-in_forwards]' : 'animate-[slideUp_0.3s_ease-out]'}
             ${t.type === 'success' ? 'bg-emerald-900/90 border-emerald-500/50 text-emerald-100' : ''}
             ${t.type === 'error' ? 'bg-red-900/90 border-red-500/50 text-red-100' : ''}
             ${t.type === 'info' ? 'bg-slate-800/90 border-slate-600/50 text-slate-100' : ''}

@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Bot, Cpu, Copy, Check, MessageSquare, PlayCircle, Plus, Trash2, Edit2, Save } from 'lucide-react';
+import { Bot, Copy, Edit2, Trash2, Plus, X, Check, Sparkles, MessageSquare } from 'lucide-react';
 import { AgentProfile, Blueprint } from '../types';
 import { toast } from './ToastNotifications';
-import { AgentChatModal } from './AgentChatModal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { UI_TIMING } from '../constants/uiConfig';
 
 interface Props {
   agents: AgentProfile[];
@@ -26,7 +26,7 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
     navigator.clipboard.writeText(prompt);
     setCopiedAgentIndex(index);
     toast.info(uiText.copied || "Copied to clipboard");
-    setTimeout(() => setCopiedAgentIndex(null), 2000);
+    setTimeout(() => setCopiedAgentIndex(null), UI_TIMING.COPY_FEEDBACK_DURATION);
   };
 
   const handleDeleteAgent = (index: number) => {
