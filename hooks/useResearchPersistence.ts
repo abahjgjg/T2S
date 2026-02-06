@@ -110,7 +110,7 @@ export const useResearchPersistence = (
         
         // 1. Handle Main Search Image
         if (state.image && state.image.startsWith('data:')) {
-          const assetKey = `${ASSET_KEY_PREFIX}search_${Date.now()}`;
+          const assetKey = `${ASSET_KEY_PREFIX}search_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
           await indexedDBService.saveAsset(assetKey, base64ToBlob(state.image));
           stateToSave.imageAssetKey = assetKey;
           delete stateToSave.image;
@@ -118,7 +118,7 @@ export const useResearchPersistence = (
 
         // 2. Handle Blueprint Brand Image
         if (stateToSave.blueprint?.brandImageUrl?.startsWith('data:')) {
-          const assetKey = `${ASSET_KEY_PREFIX}brand_${Date.now()}`;
+          const assetKey = `${ASSET_KEY_PREFIX}brand_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
           await indexedDBService.saveAsset(assetKey, base64ToBlob(stateToSave.blueprint.brandImageUrl));
           stateToSave.blueprint.brandImageUrl = `asset://${assetKey}`;
         }
