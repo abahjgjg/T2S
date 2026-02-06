@@ -32,3 +32,5 @@
 - [x] error: Memory usage issues with large assets (Videos/Images in LocalStorage). **STATUS**: Mitigated - Assets now stored in IndexedDB, Base64 conversion minimized.
 - [x] error: `useResearch` saves state too frequently (currently 3s), should be increased to 5s for better performance.
 - [x] error: `useResearch` triggers excessive re-renders in `App.tsx`. (Fixed via useMemo in useResearch.ts)
+- [ ] error: Missing environment variables in Vite `define` config for Supabase.
+- [ ] error: Potential memory leak/performance issue in `useResearchPersistence` due to `JSON.parse(JSON.stringify(state))`.

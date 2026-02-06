@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { promptService } from './promptService';
 import { safeLocalStorage } from '../utils/storageUtils';
 import { DEFAULT_PROMPTS } from '../constants/systemPrompts';
@@ -9,10 +9,12 @@ describe('promptService', () => {
   // Mock LocalStorage for isolation
   beforeEach(() => {
     safeLocalStorage.removeItem('trendventures_prompts_v1');
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
     safeLocalStorage.removeItem('trendventures_prompts_v1');
+    vi.restoreAllMocks();
   });
 
   describe('getTemplate', () => {

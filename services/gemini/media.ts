@@ -18,7 +18,7 @@ export const generateVoiceSummary = async (text: string, lang: Language): Promis
           responseModalities: [Modality.AUDIO], 
           speechConfig: {
               voiceConfig: {
-                prebuiltVoiceConfig: { voiceName: 'Kore' },
+                prebuiltVoiceConfig: { voiceName: MEDIA_CONFIG.DEFAULT_VOICE },
               },
           },
         },

@@ -1,9 +1,17 @@
 // @vitest-environment jsdom
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { sanitizeInput, validateInput, MAX_SEARCH_LENGTH } from './securityUtils';
 
 describe('securityUtils', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('sanitizeInput', () => {
     it('should trim whitespace', () => {
       expect(sanitizeInput('  hello world  ')).toBe('hello world');
