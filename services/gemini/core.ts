@@ -5,7 +5,7 @@ import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { getGeminiClient } from "./shared";
-import { GEMINI_MODELS } from "../../constants/aiConfig";
+import { GEMINI_MODELS, MEDIA_CONFIG } from "../../constants/aiConfig";
 import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 
@@ -180,7 +180,7 @@ export const generateSystemBlueprint = async (idea: BusinessIdea, lang: Language
       console.error("Error inside generateSystemBlueprint attempt:", error);
       throw error;
     }
-  }, 3, 2000); 
+  }, MEDIA_CONFIG.RETRY.DEFAULT_MAX_RETRIES, MEDIA_CONFIG.RETRY.LONG_DELAY_MS); 
 };
 
 export const sendBlueprintChat = async (history: ChatMessage[], newMessage: string, context: Blueprint, lang: Language): Promise<{ text: string; updates?: Partial<Blueprint> }> => {
