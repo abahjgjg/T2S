@@ -211,7 +211,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
             </div>
           )}
 
-          {((activeTab === 'local' && filteredProjects.length === 0) || (activeTab === 'cloud' && user && !loadingCloud && !cloudError && filteredProjects.length === 0)) && activeTab !== 'recent' && (
+          {((activeTab === 'local' && filteredProjects.length === 0) || (activeTab === 'cloud' && user && !loadingCloud && !cloudError && filteredProjects.length === 0)) && (
             <div className="text-center py-12 text-slate-500">
               <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium">

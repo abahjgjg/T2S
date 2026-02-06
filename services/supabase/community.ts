@@ -1,6 +1,7 @@
 
 import { BusinessIdea, Blueprint, PublishedBlueprint, Comment } from '../../types';
 import { supabase } from './client';
+import { QUERY_LIMITS } from '../../constants/aiConfig';
 
 const VOTES_STORAGE_KEY = 'trendventures_votes_v1';
 
@@ -100,7 +101,7 @@ export const findBlueprintsByNiche = async (niche: string): Promise<BusinessIdea
     .select('*')
     .ilike('niche', `%${niche}%`) 
     .order('votes', { ascending: false }) // Prioritize popular ones
-    .limit(6);
+    .limit(QUERY_LIMITS.FEATURED_ITEMS);
 
   if (error || !data) return [];
 
@@ -118,10 +119,10 @@ export const findBlueprintsByNiche = async (niche: string): Promise<BusinessIdea
 };
 
 export const searchPublicBlueprints = async (
-  searchTerm: string, 
-  sortBy: 'newest' | 'popular', 
-  page: number = 0, 
-  limit: number = 20
+  searchTerm: string,
+  sortBy: 'newest' | 'popular',
+  page: number = 0,
+  limit: number = QUERY_LIMITS.DEFAULT_PAGE_SIZE
 ): Promise<PublishedBlueprint[]> => {
   if (!supabase) return [];
 

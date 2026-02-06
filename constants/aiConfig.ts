@@ -49,5 +49,23 @@ export const MEDIA_CONFIG = {
     DEFAULT_DELAY_MS: 500,
     LONG_DELAY_MS: 2000,
     DEFAULT_MAX_RETRIES: 3,
+  },
+
+  // Text truncation limits
+  TEXT_TRUNCATION: {
+    // Description for brand image generation
+    BRAND_IMAGE_DESC: 200,
+    // Bio text for persona avatar generation
+    PERSONA_BIO: 150,
   }
+} as const;
+
+// Database query limits
+export const QUERY_LIMITS = {
+  // Default page size for paginated results
+  DEFAULT_PAGE_SIZE: 20,
+  // Number of items in featured sections
+  FEATURED_ITEMS: 6,
+  // Number of roadmap items to store in metadata
+  ROADMAP_PREVIEW_ITEMS: 3,
 } as const;

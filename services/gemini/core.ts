@@ -5,7 +5,7 @@ import { cleanJsonOutput } from "../../utils/textUtils";
 import { retryOperation } from "../../utils/retryUtils";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { getGeminiClient } from "./shared";
-import { GEMINI_MODELS, MEDIA_CONFIG } from "../../constants/aiConfig";
+import { GEMINI_MODELS, MEDIA_CONFIG, QUERY_LIMITS } from "../../constants/aiConfig";
 import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 
@@ -300,7 +300,7 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
       const prompt = promptService.build('GENERATE_AGENTS', {
         executiveSummary: blueprint.executiveSummary,
         techStack: blueprint.technicalStack.join(', '),
-        roadmap: JSON.stringify(blueprint.roadmap.slice(0, 3)),
+        roadmap: JSON.stringify(blueprint.roadmap.slice(0, QUERY_LIMITS.ROADMAP_PREVIEW_ITEMS)),
         langInstruction
       });
 
