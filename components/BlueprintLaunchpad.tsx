@@ -6,6 +6,7 @@ import { Rocket, Copy, Check, RefreshCcw, Loader2, Layout, Twitter, Mail, Megaph
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
+import { UI_TIMING } from '../constants/uiConfig';
 
 interface Props {
   idea: BusinessIdea;
@@ -78,7 +79,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
     setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
+    setTimeout(() => setCopiedField(null), UI_TIMING.COPY_FEEDBACK_DURATION);
   };
 
   if (isGenerating) {

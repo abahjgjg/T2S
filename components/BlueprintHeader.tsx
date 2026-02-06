@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Check, Link as LinkIcon, CheckCircle2, BookmarkPlus, FileJson, FileText, Printer, Presentation } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { UI_TIMING } from '../constants/uiConfig';
 
 interface Props {
   onBack: () => void;
@@ -32,7 +33,7 @@ export const BlueprintHeader: React.FC<Props> = ({
       navigator.clipboard.writeText(publishedUrl);
       setLinkCopied(true);
       toast.success("Public link copied!");
-      setTimeout(() => setLinkCopied(false), 2000);
+      setTimeout(() => setLinkCopied(false), UI_TIMING.COPY_FEEDBACK_DURATION);
     }
   };
 
