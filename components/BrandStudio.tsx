@@ -5,6 +5,7 @@ import { getAIService } from '../services/aiRegistry';
 import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check, Copy } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { EmptyState } from './ui/EmptyState';
 
 interface Props {
   idea: BusinessIdea;
@@ -50,13 +51,12 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
 
   if (isGenerating) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[300px] mb-8 animate-[fadeIn_0.3s_ease-out]">
-        <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
-        <h3 className="text-xl font-bold text-white mb-2">Crafting Brand Identity...</h3>
-        <p className="text-slate-400 max-w-sm text-sm">
-          Brainstorming creative names, slogans, and color palettes that resonate with your target audience.
-        </p>
-      </div>
+      <EmptyState
+        icon={<Loader2 className="w-12 h-12 text-pink-400 animate-spin" />}
+        title="Crafting Brand Identity..."
+        description="Brainstorming creative names, slogans, and color palettes that resonate with your target audience."
+        className="mb-8"
+      />
     );
   }
 

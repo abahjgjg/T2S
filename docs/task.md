@@ -7,6 +7,9 @@
 ## Optimization & Refinement (Active)
 - [x] **[UX] Dynamic Market Ticker**: `TrendSearch` ticker now reflects recent user search history for personalization.
 - [x] **[AI] Real-Time Prompting**: Strengthened `fetchMarketTrends` system instruction to aggressively prioritize breaking news when using short timeframes.
+- [x] **[UX] Modal Focus Trap**: Added focus management to Modal component for accessibility - traps keyboard navigation, restores focus on close, focuses first element on open.
+- [x] **[ARCH] Animation Config**: Centralized animation timing constants (`ANIMATION_TIMING`, `ANIMATION_EASING`) in `uiConfig.ts` to eliminate hardcoded values in components (Modal, ToastNotifications).
+- [x] **[CONSOLIDATE] Empty State Component**: Created reusable `EmptyState` component to replace duplicate loading state patterns across BrandStudio, BlueprintLaunchpad, and CustomerPersonas.
 
 ## Completed
 - [x] **[DOCS] User & Developer Guides**: Created comprehensive documentation (`docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`).

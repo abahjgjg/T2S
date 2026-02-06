@@ -7,6 +7,7 @@ import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
 import { UI_TIMING } from '../constants/uiConfig';
+import { EmptyState } from './ui/EmptyState';
 
 interface Props {
   idea: BusinessIdea;
@@ -84,16 +85,17 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
 
   if (isGenerating) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[300px] mb-8 animate-[fadeIn_0.3s_ease-out]">
-        <div className="w-16 h-16 bg-emerald-900/20 rounded-full flex items-center justify-center mb-6 relative">
-          <div className="absolute inset-0 border-4 border-emerald-500/30 rounded-full animate-ping"></div>
-          <Rocket className="w-8 h-8 text-emerald-400" />
-        </div>
-        <h3 className="text-xl font-bold text-white mb-2">Preparing Launch Pad...</h3>
-        <p className="text-slate-400 max-w-sm">
-          Writing high-converting copy for your landing page, social media, and cold outreach.
-        </p>
-      </div>
+      <EmptyState
+        icon={
+          <div className="w-16 h-16 bg-emerald-900/20 rounded-full flex items-center justify-center relative">
+            <div className="absolute inset-0 border-4 border-emerald-500/30 rounded-full animate-ping"></div>
+            <Rocket className="w-8 h-8 text-emerald-400" />
+          </div>
+        }
+        title="Preparing Launch Pad..."
+        description="Writing high-converting copy for your landing page, social media, and cold outreach."
+        className="mb-8"
+      />
     );
   }
 
