@@ -137,7 +137,8 @@ export const TRANSLATIONS = {
       '7d': '7 Hari',
       '30d': '30 Hari',
       '90d': '90 Hari'
-    }
+    },
+    resetConfirmation: "Mulai riset baru? Data saat ini akan dihapus."
   },
   en: {
     heroTitle: <>Research News & Trends <br /><span className="text-emerald-400">in Real-Time</span></>,
@@ -274,6 +275,7 @@ export const TRANSLATIONS = {
       '7d': '7 Days',
       '30d': '30 Days',
       '90d': '90 Days'
-    }
+    },
+    resetConfirmation: "Start new research? Current data will be cleared."
   }
 };
