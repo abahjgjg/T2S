@@ -9,13 +9,14 @@ import { getAIService } from './services/aiRegistry';
 import { supabaseService } from './services/supabaseService';
 import { promptService } from './services/promptService';
 import { SavedProject, SearchRegion, SearchTimeframe } from './types';
-import { XCircle, Loader2 } from 'lucide-react';
+import { XCircle, Loader2, ArrowUp } from 'lucide-react';
 import { useMetaTags } from './hooks/useMetaTags';
 import { useResearch } from './hooks/useResearch';
 import { indexedDBService } from './utils/storageUtils';
 import { useAuth } from './contexts/AuthContext';
 import { usePreferences } from './contexts/PreferencesContext';
 import { useRouter } from './hooks/useRouter';
+import { STORAGE_KEYS } from './constants/storageConfig';
 
 // Lazy Load Heavy Route Components
 const PublicBlogView = React.lazy(() => import('./components/PublicBlogView').then(module => ({ default: module.PublicBlogView })));
@@ -24,7 +25,7 @@ const AdminPanel = React.lazy(() => import('./components/AdminPanel').then(modul
 const UserDashboard = React.lazy(() => import('./components/UserDashboard').then(module => ({ default: module.UserDashboard })));
 const ProjectLibrary = React.lazy(() => import('./components/ProjectLibrary').then(module => ({ default: module.ProjectLibrary })));
 
-const LIBRARY_KEY = 'trendventures_library_v1';
+const LIBRARY_KEY = STORAGE_KEYS.PROJECT_LIBRARY;
 
 const FullScreenLoader = () => (
   <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
@@ -43,8 +44,50 @@ const App: React.FC = () => {
 
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
   
+  const handleReset = useCallback(() => {
+    const confirmMsg = uiText.resetConfirmation;
+
+    if (window.confirm(confirmMsg)) {
+      rActions.resetResearch();
+      pushState('/');
+    }
+  }, [language, rActions, pushState]);
+
+  const handleSearch = useCallback(async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
+    const newUrl = `/idea?niche=${encodeURIComponent(searchTerm)}`;
+    pushState(newUrl);
+    rActions.executeSearchSequence(searchTerm, region, timeframe, deepMode, image);
+  }, [pushState, rActions]);
+
+  const handleIdeaSelectionWrapper = useCallback(async (idea: any) => {
+    const publishedId = await rActions.handleSelectIdea(idea);
+    if (publishedId) {
+      pushState(`/blueprint?id=${publishedId}`);
+    }
+  }, [pushState, rActions]);
+
+  const handleBackToIdeasWrapper = useCallback(() => {
+    rActions.handleBackToIdeas();
+    pushState(`/idea?niche=${encodeURIComponent(rState.niche)}`);
+  }, [pushState, rActions, rState.niche]);
+
   const handleRouting = useCallback(async (isInitialLoad = false) => {
+    if (rState.isRestoring) return; // Wait for hydration
+
     const params = getParams();
     const path = getPath();
 
@@ -90,7 +133,7 @@ const App: React.FC = () => {
       }
       return;
     }
-  }, [rState.appState, rState.currentBlueprintId, rState.ideas.length, rState.niche, rActions, rSetters, getParams, getPath]);
+  }, [rState.isRestoring, rState.appState, rState.currentBlueprintId, rState.ideas.length, rState.niche, rActions, rSetters, getParams, getPath]);
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -111,8 +154,13 @@ const App: React.FC = () => {
     };
     loadProjects();
     promptService.syncWithCloud();
-    handleRouting(true);
   }, []); 
+
+  useEffect(() => {
+    if (!rState.isRestoring) {
+      handleRouting(true);
+    }
+  }, [rState.isRestoring, handleRouting]);
 
   useEffect(() => {
     if (!user && window.location.pathname.includes('/dashboard')) {
@@ -149,35 +197,6 @@ const App: React.FC = () => {
     "https://placehold.co/1200x630/0f172a/10b981?text=TrendVentures+AI&font=roboto",
     window.location.href
   );
-
-  const handleReset = () => {
-    const confirmMsg = language === 'id' 
-      ? 'Mulai riset baru? Data saat ini akan dihapus.' 
-      : 'Start new research? Current data will be cleared.';
-      
-    if (window.confirm(confirmMsg)) {
-      rActions.resetResearch();
-      pushState('/');
-    }
-  };
-
-  const handleSearch = async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
-    const newUrl = `/idea?niche=${encodeURIComponent(searchTerm)}`;
-    pushState(newUrl);
-    rActions.executeSearchSequence(searchTerm, region, timeframe, deepMode, image);
-  };
-
-  const handleIdeaSelectionWrapper = async (idea: any) => {
-    const publishedId = await rActions.handleSelectIdea(idea);
-    if (publishedId) {
-      pushState(`/blueprint?id=${publishedId}`);
-    }
-  };
-
-  const handleBackToIdeasWrapper = () => {
-    rActions.handleBackToIdeas();
-    pushState(`/idea?niche=${encodeURIComponent(rState.niche)}`);
-  };
 
   const handleSaveProject = async () => {
     if (!rState.selectedIdea || !rState.blueprint) return;
@@ -333,6 +352,7 @@ const App: React.FC = () => {
             initialTimeframe={rState.timeframe}
             initialDeepMode={rState.deepMode}
             initialImage={rState.image}
+            savedNiches={savedProjects.map(p => p.niche)}
           />
         )}
         
@@ -356,6 +376,7 @@ const App: React.FC = () => {
              initialTimeframe={rState.timeframe}
              initialDeepMode={rState.deepMode}
              initialImage={rState.image}
+             savedNiches={savedProjects.map(p => p.niche)}
            />
         )}
 
@@ -425,6 +446,18 @@ const App: React.FC = () => {
           />
         )}
       </Suspense>
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 p-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-2xl transition-all animate-[fadeIn_0.3s_ease-out] z-50 group hover:scale-110 active:scale-95 border border-emerald-400/20"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-6 h-6" />
+          <div className="absolute -top-10 right-0 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+            Scroll Top
+          </div>
+        </button>
+      )}
       <ToastNotifications />
     </div>
   );

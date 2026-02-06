@@ -9,6 +9,7 @@ import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { indexedDBService } from '../utils/storageUtils';
 import { useAsset } from '../hooks/useAsset';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
@@ -18,9 +19,10 @@ interface Props {
   initialTimeframe?: SearchTimeframe;
   initialDeepMode?: boolean;
   initialImage?: string;
+  savedNiches?: string[];
 }
 
-const HISTORY_KEY = 'trendventures_search_history';
+const HISTORY_KEY = STORAGE_KEYS.SEARCH_HISTORY;
 
 const getCategoryIcon = (category: string) => {
   const lower = category.toLowerCase();
@@ -52,7 +54,9 @@ export const TrendSearch: React.FC<Props> = ({
   initialNiche = '',
   initialRegion,
   initialTimeframe = '7d', // Default to 7 days for better news currency
-  initialDeepMode = false
+  initialDeepMode = false,
+  initialImage,
+  savedNiches = []
 }) => {
   const [input, setInput] = useState(initialNiche);
   // Auto-detect region if not provided
@@ -101,10 +105,10 @@ export const TrendSearch: React.FC<Props> = ({
     const now = new Date();
     setCurrentDate(now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }));
 
-    // Initialize Ticker (Default Topics + Recent History)
+    // Initialize Ticker (Default Topics + Recent History + Saved Niches)
     const dynamicPool = uiText.tickerTopics || ["AI Trends", "Market Shifts"];
-    // Prioritize recent searches in the ticker to make it feel personalized
-    const combinedTopics = [...new Set([...loadedHistory, ...dynamicPool])];
+    // Prioritize recent searches and saved projects in the ticker to make it feel personalized
+    const combinedTopics = [...new Set([...loadedHistory, ...savedNiches, ...dynamicPool])];
     setAllTickerTopics([...combinedTopics, ...combinedTopics]); // Duplicate for seamless marquee
     
     // Auto-focus input on mount

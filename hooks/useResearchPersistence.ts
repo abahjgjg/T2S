@@ -2,10 +2,11 @@
 import { useEffect, useRef } from 'react';
 import { AppState, Trend, BusinessIdea, Blueprint, SearchRegion, SearchTimeframe } from '../types';
 import { indexedDBService } from '../utils/storageUtils';
+import { STORAGE_KEYS, ASSET_CONFIG, PERSISTENCE_CONFIG } from '../constants/storageConfig';
 
-const STORAGE_KEY = 'trendventures_state_v1';
-const ASSET_KEY_PREFIX = 'search_image_';
-const SAVE_DELAY_MS = 3000;
+const STORAGE_KEY = STORAGE_KEYS.RESEARCH_STATE;
+const ASSET_KEY_PREFIX = ASSET_CONFIG.KEY_PREFIX;
+const SAVE_DELAY_MS = PERSISTENCE_CONFIG.SAVE_DELAY_MS;
 
 interface PersistenceState {
   appState: AppState;
@@ -105,17 +106,32 @@ export const useResearchPersistence = (
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         // Handle image asset separately to avoid Base64 bloat in state
-        const stateToSave: any = { ...state };
+        const stateToSave: any = JSON.parse(JSON.stringify(state)); // Deep clone
         
+        // 1. Handle Main Search Image
         if (state.image && state.image.startsWith('data:')) {
-          // Convert Base64 to Blob and save to asset store
-          const assetKey = `${ASSET_KEY_PREFIX}${Date.now()}`;
-          const imageBlob = base64ToBlob(state.image);
-          await indexedDBService.saveAsset(assetKey, imageBlob);
-          
-          // Replace image with asset key reference
+          const assetKey = `${ASSET_KEY_PREFIX}search_${Date.now()}`;
+          await indexedDBService.saveAsset(assetKey, base64ToBlob(state.image));
           stateToSave.imageAssetKey = assetKey;
           delete stateToSave.image;
+        }
+
+        // 2. Handle Blueprint Brand Image
+        if (stateToSave.blueprint?.brandImageUrl?.startsWith('data:')) {
+          const assetKey = `${ASSET_KEY_PREFIX}brand_${Date.now()}`;
+          await indexedDBService.saveAsset(assetKey, base64ToBlob(stateToSave.blueprint.brandImageUrl));
+          stateToSave.blueprint.brandImageUrl = `asset://${assetKey}`;
+        }
+
+        // 3. Handle Persona Avatars
+        if (stateToSave.blueprint?.personas) {
+          for (const persona of stateToSave.blueprint.personas) {
+            if (persona.avatarUrl?.startsWith('data:')) {
+              const assetKey = `${ASSET_KEY_PREFIX}persona_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+              await indexedDBService.saveAsset(assetKey, base64ToBlob(persona.avatarUrl));
+              persona.avatarUrl = `asset://${assetKey}`;
+            }
+          }
         }
         
         await indexedDBService.setItem(STORAGE_KEY, stateToSave);

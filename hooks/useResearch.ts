@@ -7,6 +7,7 @@ import { useTrendEngine } from './useTrendEngine';
 import { useIdeaEngine } from './useIdeaEngine';
 import { useBlueprintEngine } from './useBlueprintEngine';
 import { useResearchPersistence } from './useResearchPersistence';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
 export const useResearch = (aiService: AIService, language: Language, userId?: string) => {
   // --- Engines ---
@@ -163,7 +164,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     blueprintEngine.clearBlueprint();
     setError(null);
     setIsFromCache(false);
-    indexedDBService.removeItem('trendventures_state_v1');
+    indexedDBService.removeItem(STORAGE_KEYS.RESEARCH_STATE);
   };
 
   const loadProject = (project: { niche: string, idea: BusinessIdea, blueprint: Blueprint }) => {
