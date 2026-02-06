@@ -233,6 +233,7 @@ export const generateContentCalendar = async (idea: BusinessIdea, blueprint: Blu
     name: idea.name,
     audience: blueprint.targetAudience,
     market: idea.type,
+    brandTone: blueprint.brandIdentity?.tone || "Professional and engaging",
     langInstruction
   });
 

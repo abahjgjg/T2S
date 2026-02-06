@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { Bot, Copy, Edit2, Trash2, Plus, X, Check, Sparkles, MessageSquare } from 'lucide-react';
+import { Bot, Copy, Edit2, Trash2, Plus, X, Check, Sparkles, MessageSquare, Save, Cpu, PlayCircle } from 'lucide-react';
 import { AgentProfile, Blueprint } from '../types';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { UI_TIMING } from '../constants/uiConfig';
+import { AgentChatModal } from './AgentChatModal';
 
 interface Props {
   agents: AgentProfile[];

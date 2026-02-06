@@ -35,6 +35,9 @@ export const OPENAI_MODELS = {
 
 // Media Generation Configuration
 export const MEDIA_CONFIG = {
+  // Default Voice for TTS
+  DEFAULT_VOICE: 'Kore',
+
   // TTS text length limit (characters)
   TTS_MAX_CHARS: 3000,
 

@@ -366,6 +366,7 @@ Create a 4-week Content Marketing Calendar for:
 Business: {{name}}
 Audience: {{audience}}
 Target Market: {{market}}
+Brand Tone: {{brandTone}}
 
 Strategy:
 Week 1: Awareness & Problem Agitation

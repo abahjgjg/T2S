@@ -4,9 +4,13 @@
 ## Critical (Security)
 - [/] **API Key Exposure**: `process.env.API_KEY` is currently used in client-side code (`services/gemini/shared.ts`, etc.). In a production build, this key is exposed to users. **Fix Required**: Migrate AI interactions to a backend proxy (e.g., Supabase Edge Functions). **STATUS**: BLOCKED - Environment Limitation.
   - Affected files: `services/gemini/shared.ts:5`, `services/gemini/media.ts:104`, `services/openai/shared.ts:49`, `services/openai/media.ts:7,42`
+<<<<<<< HEAD
 - [/] **API Key in URL**: `services/gemini/media.ts:105` appends API key directly to video download URL via `fetch(${downloadLink}&key=${process.env.API_KEY})`, exposing it in browser network logs, server logs, and request history. **Fix Required**: Route video downloads through Supabase Edge Function proxy to hide API key. **STATUS**: BLOCKED - Depends on Secure API Proxy implementation.
 
 ## Performance
+- [ ] bug: `useResearch` hook - `executeFreshAIResearch` and `executeSearchSequence` are not wrapped in `useCallback`, causing excessive re-renders.
+- [ ] bug: `useResearchPersistence.ts` - `Date.now()` used for asset keys can lead to collisions.
+- [ ] bug: `vite.config.ts` is missing `SUPABASE_URL` and `SUPABASE_KEY` in the `define` object, breaking Supabase integration.
 - [x] **Memory Usage**: Large generated assets (Veo Videos, Base64 Images) are stored in React State/LocalStorage, causing UI lag and potential crashes on low-memory devices. **STATUS**: Mitigated - Assets now stored in IndexedDB, Base64 conversion minimized.
 - [x] **Render Cycles**: The `useResearch` hook triggers re-renders on the main `App` component frequently. **STATUS**: Fixed via useMemo in useResearch.ts
 

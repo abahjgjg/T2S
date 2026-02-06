@@ -77,7 +77,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
 
   // --- Actions ---
 
-  const executeFreshAIResearch = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
+  const executeFreshAIResearch = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
     setAppState('RESEARCHING');
     setIsFromCache(false);
     setError(null);
@@ -93,7 +93,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       setError(e.message || "An unexpected error occurred during research.");
       setAppState('IDLE');
     }
-  };
+  }, [trendEngine, ideaEngine, blueprintEngine]);
 
   const generateIdeasFromTrends = async (selectedTrends: Trend[]) => {
     if (selectedTrends.length === 0) {
@@ -130,7 +130,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       console.error("Cache check failed", e);
       await executeFreshAIResearch(searchTerm, region, timeframe, deepMode, image);
     }
-  }, [language]); 
+  }, [executeFreshAIResearch, trendEngine, ideaEngine]);
 
   const handleSelectIdea = async (idea: BusinessIdea) => {
     setError(null);

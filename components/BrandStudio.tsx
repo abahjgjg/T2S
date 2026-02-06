@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { BrandIdentity, Blueprint, BusinessIdea } from '../types';
 import { getAIService } from '../services/aiRegistry';
-import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check } from 'lucide-react';
+import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check, Copy } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { EmptyState } from './ui/EmptyState';
@@ -42,6 +42,11 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
         onUpdateIdea({ name });
         toast.info(`Selected "${name}" as preferred brand.`);
     }
+  };
+
+  const handleCopyHex = (hex: string) => {
+    navigator.clipboard.writeText(hex);
+    toast.success(`Hex code ${hex} copied!`);
   };
 
   if (isGenerating) {
@@ -124,12 +129,21 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
               </h4>
               <div className="flex flex-col gap-3">
                  {brandIdentity.colors.map((color, i) => (
-                   <div key={i} className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg shadow-sm border border-white/10 shrink-0" style={{ backgroundColor: color.hex }}></div>
-                      <div>
-                         <p className="text-slate-200 font-bold text-sm">{color.name}</p>
-                         <p className="text-slate-500 text-xs font-mono uppercase">{color.hex}</p>
+                   <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg group transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg shadow-sm border border-white/10 shrink-0" style={{ backgroundColor: color.hex }}></div>
+                        <div>
+                           <p className="text-slate-200 font-bold text-sm">{color.name}</p>
+                           <p className="text-slate-500 text-xs font-mono uppercase">{color.hex}</p>
+                        </div>
                       </div>
+                      <button
+                        onClick={() => handleCopyHex(color.hex)}
+                        className="p-2 opacity-0 group-hover:opacity-100 hover:text-emerald-400 transition-all"
+                        title="Copy Hex Code"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
                    </div>
                  ))}
               </div>
