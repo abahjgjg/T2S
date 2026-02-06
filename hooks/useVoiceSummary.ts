@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { AIProvider, Language } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { decodeAudioData } from '../utils/audioUtils';
+import { MEDIA_CONFIG } from '../constants/aiConfig';
 
 interface UseVoiceSummaryReturn {
   play: (text: string, errorMessage?: string) => Promise<void>;
@@ -48,7 +49,7 @@ export const useVoiceSummary = (
   const getAudioContext = () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ 
-        sampleRate: 24000 
+        sampleRate: MEDIA_CONFIG.AUDIO.SAMPLE_RATE
       });
     }
     if (audioContextRef.current.state === 'suspended') {

@@ -60,6 +60,14 @@ export const MEDIA_CONFIG = {
     BRAND_IMAGE_DESC: 200,
     // Bio text for persona avatar generation
     PERSONA_BIO: 150,
+  },
+
+  // Audio configuration
+  AUDIO: {
+    // Sample rate for TTS audio context (Hz)
+    SAMPLE_RATE: 24000,
+    // Buffer size for audio processing
+    BUFFER_SIZE: 2048,
   }
 } as const;
 
