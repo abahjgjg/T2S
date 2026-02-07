@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Props {
   content: string;
@@ -53,7 +54,10 @@ export const SafeMarkdown: React.FC<Props> = ({ content, className, components, 
 
   return (
     <div className={className}>
-      <ReactMarkdown components={safeComponents}>
+      <ReactMarkdown
+        components={safeComponents}
+        remarkPlugins={[remarkGfm]}
+      >
         {content}
       </ReactMarkdown>
     </div>

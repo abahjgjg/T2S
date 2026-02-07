@@ -23,3 +23,6 @@
 - [x] bug: ReferenceError: Cannot access 'handleSearch' before initialization in `App.tsx`.
 - [x] bug: `handleRouting` in `App.tsx` does not wait for `isRestoring` to be false, potentially causing routing based on unhydrated state.
 - [x] bug: ReferenceError: `initialImage` is not defined in `TrendSearch.tsx`.
+- [x] bug: `SafeMarkdown` fails to render tables (missing `remark-gfm`).
+- [x] bug: Unstable return objects/actions in `useResearch`, `useTrendEngine`, `useIdeaEngine`, and `useBlueprintEngine` causing excessive re-renders.
+- [x] bug: Duplicate "Scroll to Top" buttons in `App.tsx` and `BlueprintView.tsx`.

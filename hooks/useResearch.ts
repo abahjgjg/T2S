@@ -95,7 +95,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     }
   }, [trendEngine, ideaEngine, blueprintEngine]);
 
-  const generateIdeasFromTrends = async (selectedTrends: Trend[]) => {
+  const generateIdeasFromTrends = useCallback(async (selectedTrends: Trend[]) => {
     if (selectedTrends.length === 0) {
       setError("Please select at least one trend.");
       return;
@@ -103,7 +103,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     setError(null);
     // Error handling is managed by useEffect listener on engine.error
     await ideaEngine.generateIdeas(trendEngine.niche, selectedTrends);
-  };
+  }, [ideaEngine, trendEngine.niche]);
 
   const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
     try {
@@ -132,7 +132,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     }
   }, [executeFreshAIResearch, trendEngine, ideaEngine]);
 
-  const handleSelectIdea = async (idea: BusinessIdea) => {
+  const handleSelectIdea = useCallback(async (idea: BusinessIdea) => {
     setError(null);
     setAppState('BLUEPRINTING');
 
@@ -145,9 +145,9 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       setAppState('ANALYZING');
       return null;
     }
-  };
+  }, [blueprintEngine, trendEngine.niche]);
 
-  const handleBackToIdeas = () => {
+  const handleBackToIdeas = useCallback(() => {
     blueprintEngine.clearBlueprint();
     setError(null);
     if (ideaEngine.ideas.length > 0) {
@@ -155,9 +155,9 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     } else {
       setAppState('IDLE');
     }
-  };
+  }, [blueprintEngine, ideaEngine.ideas.length]);
 
-  const resetResearch = () => {
+  const resetResearch = useCallback(() => {
     setAppState('IDLE');
     trendEngine.clearTrends();
     ideaEngine.clearIdeas();
@@ -165,16 +165,16 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     setError(null);
     setIsFromCache(false);
     indexedDBService.removeItem(STORAGE_KEYS.RESEARCH_STATE);
-  };
+  }, [trendEngine, ideaEngine, blueprintEngine]);
 
-  const loadProject = (project: { niche: string, idea: BusinessIdea, blueprint: Blueprint }) => {
+  const loadProject = useCallback((project: { niche: string, idea: BusinessIdea, blueprint: Blueprint }) => {
     trendEngine.setSearchContext(project.niche, 'Global', '30d', false, undefined);
     trendEngine.setTrends([]);
     ideaEngine.setIdeas([]);
     blueprintEngine.setSelectedIdea(project.idea);
     blueprintEngine.setBlueprint(project.blueprint);
     setAppState('VIEWING');
-  };
+  }, [trendEngine, ideaEngine, blueprintEngine]);
 
   const state = useMemo(() => ({
     appState,
@@ -236,5 +236,5 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     trendEngine.analyzeTrendDeepDive
   ]);
 
-  return { state, setters, actions };
+  return useMemo(() => ({ state, setters, actions }), [state, setters, actions]);
 };
