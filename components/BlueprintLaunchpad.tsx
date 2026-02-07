@@ -6,8 +6,8 @@ import { Rocket, Copy, Check, RefreshCcw, Loader2, Layout, Twitter, Mail, Megaph
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
-import { UI_TIMING } from '../constants/uiConfig';
 import { EmptyState } from './ui/EmptyState';
+import { copyWithFeedback } from '../utils/clipboardUtils';
 
 interface Props {
   idea: BusinessIdea;
@@ -24,7 +24,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
   const [activeTab, setActiveTab] = useState<'landing' | 'social' | 'email' | 'code' | 'calendar'>('landing');
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  const { provider, language } = usePreferences();
+  const { provider, language, uiText } = usePreferences();
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -78,9 +78,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
   };
 
   const handleCopy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), UI_TIMING.COPY_FEEDBACK_DURATION);
+    copyWithFeedback(text, (val) => setCopiedField(val ? field : null));
   };
 
   if (isGenerating) {
@@ -92,8 +90,8 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
             <Rocket className="w-8 h-8 text-emerald-400" />
           </div>
         }
-        title="Preparing Launch Pad..."
-        description="Writing high-converting copy for your landing page, social media, and cold outreach."
+        title={(uiText as any).launchpad.preparing}
+        description={(uiText as any).launchpad.preparingDesc}
         className="mb-8"
       />
     );
@@ -105,15 +103,15 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
           <Megaphone className="w-8 h-8 text-indigo-400" />
         </div>
-        <h3 className="text-2xl font-bold text-white mb-2">Marketing Launchpad</h3>
+        <h3 className="text-2xl font-bold text-white mb-2">{(uiText as any).launchpad.title}</h3>
         <p className="text-slate-400 max-w-md mx-auto mb-6">
-          Ready to go to market? Generate instant copy for your landing page, social launch, and email outreach.
+          {(uiText as any).launchpad.desc}
         </p>
         <button 
           onClick={handleGenerate}
           className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-indigo-900/20"
         >
-          <Rocket className="w-5 h-5" /> Generate Assets
+          <Rocket className="w-5 h-5" /> {(uiText as any).launchpad.generateBtn}
         </button>
       </div>
     );
@@ -123,13 +121,13 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid animate-[fadeIn_0.3s_ease-out]">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <Rocket className="w-5 h-5 text-indigo-400" /> Marketing Launchpad
+          <Rocket className="w-5 h-5 text-indigo-400" /> {(uiText as any).launchpad.title}
         </h3>
         <button 
           onClick={handleGenerate}
           className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-800"
         >
-          <RefreshCcw className="w-3 h-3" /> Regenerate
+          <RefreshCcw className="w-3 h-3" /> {(uiText as any).launchpad.regenerate}
         </button>
       </div>
 
@@ -140,7 +138,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
             activeTab === 'landing' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Layout className="w-4 h-4" /> Landing Page
+          <Layout className="w-4 h-4" /> {(uiText as any).launchpad.tabs.landing}
         </button>
         <button
           onClick={() => setActiveTab('social')}
@@ -148,7 +146,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
             activeTab === 'social' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Twitter className="w-4 h-4" /> Social Launch
+          <Twitter className="w-4 h-4" /> {(uiText as any).launchpad.tabs.social}
         </button>
         <button
           onClick={() => setActiveTab('email')}
@@ -156,7 +154,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
             activeTab === 'email' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Mail className="w-4 h-4" /> Cold Email
+          <Mail className="w-4 h-4" /> {(uiText as any).launchpad.tabs.email}
         </button>
         <button
           onClick={() => setActiveTab('code')}
@@ -164,7 +162,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
             activeTab === 'code' ? 'border-orange-500 text-orange-400' : 'border-transparent text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Code className="w-4 h-4" /> React Code
+          <Code className="w-4 h-4" /> {(uiText as any).launchpad.tabs.code}
         </button>
         <button
           onClick={() => setActiveTab('calendar')}
@@ -172,7 +170,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
             activeTab === 'calendar' ? 'border-purple-500 text-purple-400' : 'border-transparent text-slate-500 hover:text-slate-300'
           }`}
         >
-          <Calendar className="w-4 h-4" /> Content Plan
+          <Calendar className="w-4 h-4" /> {(uiText as any).launchpad.tabs.calendar}
         </button>
       </div>
 
@@ -278,14 +276,14 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
              {!assets.landingPageCode ? (
                 <div className="text-center py-12 border border-slate-800 border-dashed rounded-xl">
                    <Code className="w-8 h-8 text-orange-400 mx-auto mb-3" />
-                   <p className="text-slate-400 text-sm mb-4">Convert your launch assets into a styled React Component.</p>
+                   <p className="text-slate-400 text-sm mb-4">{(uiText as any).launchpad.codeDesc}</p>
                    <button 
                      onClick={handleGenerateCode}
                      disabled={isGeneratingCode}
                      className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 mx-auto"
                    >
                      {isGeneratingCode ? <Loader2 className="w-3 h-3 animate-spin" /> : <Code className="w-3 h-3" />}
-                     Generate Component
+                     {(uiText as any).launchpad.generateCode}
                    </button>
                 </div>
              ) : (
@@ -320,14 +318,14 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
              {!assets.contentCalendar ? (
                 <div className="text-center py-12 border border-slate-800 border-dashed rounded-xl">
                    <Calendar className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                   <p className="text-slate-400 text-sm mb-4">Create a 30-day content marketing plan.</p>
+                   <p className="text-slate-400 text-sm mb-4">{(uiText as any).launchpad.calendarDesc}</p>
                    <button 
                      onClick={handleGenerateCalendar}
                      disabled={isGeneratingCalendar}
                      className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 mx-auto"
                    >
                      {isGeneratingCalendar ? <Loader2 className="w-3 h-3 animate-spin" /> : <Calendar className="w-3 h-3" />}
-                     Generate 30-Day Plan
+                     {(uiText as any).launchpad.generateCalendar}
                    </button>
                 </div>
              ) : (

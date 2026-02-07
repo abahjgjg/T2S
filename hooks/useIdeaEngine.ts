@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { BusinessIdea, Trend, Language, AIService } from '../types';
 
@@ -15,21 +15,21 @@ export const useIdeaEngine = (aiService: AIService, language: Language) => {
     }
   });
 
-  const generateIdeas = async (niche: string, selectedTrends: Trend[]) => {
+  const generateIdeas = useCallback(async (niche: string, selectedTrends: Trend[]) => {
     return await mutation.mutateAsync({ niche, selectedTrends });
-  };
+  }, [mutation]);
 
-  const clearIdeas = () => {
+  const clearIdeas = useCallback(() => {
     setIdeas([]);
     mutation.reset();
-  };
+  }, [mutation]);
 
-  return {
+  return useMemo(() => ({
     ideas,
     setIdeas,
     isGeneratingIdeas: mutation.isPending,
     generateIdeas,
     clearIdeas,
     error: mutation.error
-  };
+  }), [ideas, mutation.isPending, generateIdeas, clearIdeas, mutation.error]);
 };

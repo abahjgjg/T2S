@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { BusinessIdea, Blueprint, Language, AIService } from '../types';
 import { supabaseService } from '../services/supabaseService';
@@ -49,30 +49,30 @@ export const useBlueprintEngine = (aiService: AIService, language: Language, use
     }
   });
 
-  const createBlueprint = async (idea: BusinessIdea, niche: string) => {
+  const createBlueprint = useCallback(async (idea: BusinessIdea, niche: string) => {
     setSelectedIdea(idea);
     setCurrentBlueprintId(null);
     const result = await mutation.mutateAsync({ idea, niche });
     
     return result.publishedId;
-  };
+  }, [mutation]);
 
-  const updateBlueprint = (updates: Partial<Blueprint>) => {
+  const updateBlueprint = useCallback((updates: Partial<Blueprint>) => {
     setBlueprint(prev => prev ? { ...prev, ...updates } : null);
-  };
+  }, []);
 
-  const updateIdea = (updates: Partial<BusinessIdea>) => {
+  const updateIdea = useCallback((updates: Partial<BusinessIdea>) => {
     setSelectedIdea(prev => prev ? { ...prev, ...updates } : null);
-  };
+  }, []);
 
-  const clearBlueprint = () => {
+  const clearBlueprint = useCallback(() => {
     setSelectedIdea(null);
     setBlueprint(null);
     setCurrentBlueprintId(null);
     mutation.reset();
-  };
+  }, [mutation]);
 
-  return {
+  return useMemo(() => ({
     selectedIdea,
     setSelectedIdea,
     blueprint,
@@ -85,5 +85,15 @@ export const useBlueprintEngine = (aiService: AIService, language: Language, use
     clearBlueprint,
     isGeneratingBlueprint: mutation.isPending,
     error: mutation.error
-  };
+  }), [
+    selectedIdea,
+    blueprint,
+    currentBlueprintId,
+    createBlueprint,
+    updateBlueprint,
+    updateIdea,
+    clearBlueprint,
+    mutation.isPending,
+    mutation.error
+  ]);
 };

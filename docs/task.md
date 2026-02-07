@@ -37,3 +37,4 @@
 - [x] error: `useResearch` triggers excessive re-renders in `App.tsx`. (Fixed via useMemo in useResearch.ts)
 - [x] error: Missing environment variables in Vite `define` config for Supabase. **FIXED**: Already present in vite.config.ts:16-17
 - [x] error: Potential memory leak/performance issue in `useResearchPersistence` due to `JSON.parse(JSON.stringify(state))`. **FIXED**: Replaced with structuredClone() for better performance
+- [x] error: Excessive re-renders in `App.tsx` due to unstable hook return objects.
