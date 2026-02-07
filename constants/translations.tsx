@@ -138,7 +138,43 @@ export const TRANSLATIONS = {
       '30d': '30 Hari',
       '90d': '90 Hari'
     },
-    resetConfirmation: "Mulai riset baru? Data saat ini akan dihapus."
+    resetConfirmation: "Mulai riset baru? Data saat ini akan dihapus.",
+    analyzing: "Menganalisis...",
+    runAudit: "Jalankan Audit Kelayakan",
+    auditCompleted: "Audit Kelayakan Selesai",
+    auditFailed: "Audit gagal. Coba lagi.",
+    pivotFailed: "Eksekusi pivot gagal. Silakan coba lagi.",
+    agentsGenerated: "AI Agent Berhasil Dibuat",
+    agentsFailed: "Gagal membuat agent. Silakan coba lagi.",
+    taskCompleted: "Tugas selesai!",
+    revenueUpdated: "Proyeksi pendapatan diperbarui",
+    jsonExported: "JSON Diekspor",
+    mdExported: "Markdown Diekspor",
+    generatedOn: "Dibuat pada",
+    confidential: "Blueprint Bisnis Rahasia",
+    backToTop: "Kembali ke Atas",
+    copyLink: "Salin Tautan",
+    publicLinkCopied: "Tautan publik tersalin!",
+    presentDeck: "Presentasi Deck",
+    launchpad: {
+      title: "Marketing Launchpad",
+      desc: "Siap dipasarkan? Buat salinan instan untuk landing page, peluncuran media sosial, dan penjangkauan email.",
+      preparing: "Menyiapkan Launch Pad...",
+      preparingDesc: "Menulis salinan konversi tinggi untuk landing page, media sosial, dan penjangkauan dingin Anda.",
+      generateBtn: "Generate Aset",
+      regenerate: "Regenerate",
+      tabs: {
+        landing: "Landing Page",
+        social: "Social Launch",
+        email: "Cold Email",
+        code: "React Code",
+        calendar: "Content Plan"
+      },
+      generateCode: "Generate Komponen",
+      generateCalendar: "Generate Rencana 30 Hari",
+      codeDesc: "Ubah aset peluncuran Anda menjadi Komponen React yang bergaya.",
+      calendarDesc: "Buat rencana pemasaran konten 30 hari."
+    }
   },
   en: {
     heroTitle: <>Research News & Trends <br /><span className="text-emerald-400">in Real-Time</span></>,
@@ -276,6 +312,42 @@ export const TRANSLATIONS = {
       '30d': '30 Days',
       '90d': '90 Days'
     },
-    resetConfirmation: "Start new research? Current data will be cleared."
+    resetConfirmation: "Start new research? Current data will be cleared.",
+    analyzing: "Analyzing...",
+    runAudit: "Run Viability Audit",
+    auditCompleted: "Viability Audit Completed",
+    auditFailed: "Audit failed. Try again.",
+    pivotFailed: "Pivot execution failed. Please try again.",
+    agentsGenerated: "AI Agents Generated Successfully",
+    agentsFailed: "Failed to generate agents. Please try again.",
+    taskCompleted: "Task completed!",
+    revenueUpdated: "Revenue projections updated",
+    jsonExported: "JSON Exported",
+    mdExported: "Markdown Exported",
+    generatedOn: "Generated on",
+    confidential: "Confidential Business Blueprint",
+    backToTop: "Back to Top",
+    copyLink: "Copy Link",
+    publicLinkCopied: "Public link copied!",
+    presentDeck: "Present Deck",
+    launchpad: {
+      title: "Marketing Launchpad",
+      desc: "Ready to go to market? Generate instant copy for your landing page, social launch, and email outreach.",
+      preparing: "Preparing Launch Pad...",
+      preparingDesc: "Writing high-converting copy for your landing page, social media, and cold outreach.",
+      generateBtn: "Generate Assets",
+      regenerate: "Regenerate",
+      tabs: {
+        landing: "Landing Page",
+        social: "Social Launch",
+        email: "Cold Email",
+        code: "React Code",
+        calendar: "Content Plan"
+      },
+      generateCode: "Generate Component",
+      generateCalendar: "Generate 30-Day Plan",
+      codeDesc: "Convert your launch assets into a styled React Component.",
+      calendarDesc: "Create a 30-day content marketing plan."
+    }
   }
 };

@@ -42,7 +42,6 @@ interface Props {
 
 export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSaveToLibrary, onUpdateBlueprint, onUpdateIdea, isSaved, publishedUrl }) => {
   const [showPitchModal, setShowPitchModal] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showCompetitorModal, setShowCompetitorModal] = useState(false);
   const [showAuditModal, setShowAuditModal] = useState(false);
@@ -93,10 +92,10 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
       const auditResult = await aiService.conductViabilityAudit(idea, blueprint, language);
       onUpdateBlueprint({ viabilityAudit: auditResult });
       setShowAuditModal(true);
-      toast.success("Viability Audit Completed");
+      toast.success(uiText.auditCompleted);
     } catch (e) {
       console.error(e);
-      toast.error("Audit failed. Try again.");
+      toast.error(uiText.auditFailed);
     } finally {
       setIsAuditing(false);
     }
@@ -133,10 +132,10 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
       const aiService = getAIService(provider);
       const generatedAgents = await aiService.generateTeamOfAgents(blueprint, language);
       onUpdateBlueprint({ agents: generatedAgents });
-      toast.success("AI Agents Generated Successfully");
+      toast.success(uiText.agentsGenerated);
     } catch (e) {
       console.error("Failed to generate agents", e);
-      toast.error("Failed to generate agents. Please try again.");
+      toast.error(uiText.agentsFailed);
     } finally {
       setIsGeneratingAgents(false);
     }
@@ -173,9 +172,9 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
     });
 
     if (newStatus) {
-      toast.success("Task completed!");
+      toast.success(uiText.taskCompleted);
     }
-  }, [blueprint.roadmapProgress, onUpdateBlueprint]);
+  }, [blueprint.roadmapProgress, onUpdateBlueprint, uiText.taskCompleted]);
 
   const handleSaveLocationStrategy = useCallback((strategy: string) => {
     const currentStrategies = blueprint.marketingStrategy || [];
@@ -203,22 +202,10 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
 
   const handleUpdateRevenue = useCallback((newStreams: Blueprint['revenueStreams']) => {
     onUpdateBlueprint({ revenueStreams: newStreams });
-    toast.success("Revenue projections updated");
-  }, [onUpdateBlueprint]);
+    toast.success(uiText.revenueUpdated);
+  }, [onUpdateBlueprint, uiText.revenueUpdated]);
 
   const handlePrint = useCallback(() => window.print(), []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handleDownloadJSON = useCallback(() => {
     const data = JSON.stringify({ idea, blueprint }, null, 2);
@@ -231,8 +218,8 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success("JSON Exported");
-  }, [idea, blueprint]);
+    toast.success(uiText.jsonExported);
+  }, [idea, blueprint, uiText.jsonExported]);
 
   const handleDownloadMarkdown = useCallback(() => {
     const blob = new Blob([blueprint.fullContentMarkdown], { type: 'text/markdown' });
@@ -244,8 +231,8 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success("Markdown Exported");
-  }, [blueprint.fullContentMarkdown, idea.name]);
+    toast.success(uiText.mdExported);
+  }, [blueprint.fullContentMarkdown, idea.name, uiText.mdExported]);
 
   const handleAffiliateClick = useCallback((id: string) => {
     supabaseService.incrementAffiliateClick(id);
@@ -275,10 +262,10 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
          <h1 className="text-6xl font-black text-slate-900 mb-4">{idea.name}</h1>
          <p className="text-2xl text-slate-600 mb-12">{idea.description}</p>
          <div className="text-sm text-slate-400 font-mono">
-            Generated on {new Date().toLocaleDateString()}
+            {uiText.generatedOn} {new Date().toLocaleDateString()}
          </div>
          <div className="mt-8 text-xs text-slate-400">
-            Confidential Business Blueprint
+            {uiText.confidential}
          </div>
       </div>
 
@@ -370,7 +357,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
             className="w-full bg-purple-900/20 border border-purple-500/30 hover:bg-purple-900/30 text-purple-300 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 print:hidden"
           >
             {isAuditing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-            {isAuditing ? "Analyzing..." : "Run Viability Audit"}
+            {isAuditing ? uiText.analyzing : uiText.runAudit}
           </button>
         </div>
       </div>
@@ -476,17 +463,6 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         blueprint={blueprint} 
         onUpdateBlueprint={onUpdateBlueprint}
       />
-
-      {/* Back to Top Button */}
-      <button
-        onClick={scrollToTop}
-        className={`fixed bottom-8 left-8 p-3 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-full shadow-lg transition-all transform z-[45] backdrop-blur-sm border border-emerald-400/20 group print:hidden ${
-          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
-        }`}
-        aria-label="Back to Top"
-      >
-        <ArrowUp className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
-      </button>
     </div>
   );
 };

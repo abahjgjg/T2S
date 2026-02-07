@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trend, Language, AIService, SearchRegion, SearchTimeframe } from '../types';
 import { CACHE_TIMING } from '../constants/uiConfig';
@@ -33,13 +33,8 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     gcTime: CACHE_TIMING.TRENDS_GC_TIME,
   });
 
-  const fetchTrends = async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
+  const fetchTrends = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
     setSearchParams({ niche: searchTerm, region, timeframe, deepMode, image });
-    
-    // We explicitly trigger the refetch after setting params to ensure the query runs
-    setTimeout(() => {
-        // Small tick to allow state to propagate if needed
-    }, 0);
     
     const result = await queryClient.fetchQuery({
       queryKey: ['marketTrends', searchTerm, region, timeframe, deepMode, image, language],
@@ -48,7 +43,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     });
     
     return result;
-  };
+  }, [aiService, language, queryClient]);
 
   // Support manual hydration from IDB or Deep Dive updates
   const setTrends = useCallback((newTrends: Trend[] | ((prev: Trend[]) => Trend[])) => {
@@ -61,7 +56,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     }
   }, [queryClient, searchParams, language]);
 
-  const updateTrend = (index: number, updates: Partial<Trend>) => {
+  const updateTrend = useCallback((index: number, updates: Partial<Trend>) => {
     setTrends(prev => {
       const newTrends = [...prev];
       if (newTrends[index]) {
@@ -69,9 +64,9 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
       }
       return newTrends;
     });
-  };
+  }, [setTrends]);
 
-  const analyzeTrendDeepDive = async (index: number) => {
+  const analyzeTrendDeepDive = useCallback(async (index: number) => {
     // Access current data synchronously from cache or hook
     const currentTrends = queryClient.getQueryData<Trend[]>(['marketTrends', searchParams?.niche, searchParams?.region, searchParams?.timeframe, searchParams?.deepMode, searchParams?.image, language]) || trends;
     const trend = currentTrends[index];
@@ -86,18 +81,18 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
       console.error("Deep dive analysis failed:", error);
       throw error;
     }
-  };
+  }, [aiService, language, queryClient, searchParams, trends, updateTrend]);
 
-  const clearTrends = () => {
+  const clearTrends = useCallback(() => {
     setSearchParams(null);
     queryClient.removeQueries({ queryKey: ['marketTrends'] });
-  };
+  }, [queryClient]);
 
-  const setSearchContext = (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
+  const setSearchContext = useCallback((niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
     setSearchParams({ niche, region, timeframe, deepMode, image });
-  };
+  }, []);
 
-  return {
+  return useMemo(() => ({
     niche: searchParams?.niche || '',
     region: searchParams?.region || 'Global',
     timeframe: searchParams?.timeframe || '30d',
@@ -120,5 +115,16 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     clearTrends,
     isLoading: isFetching,
     error
-  };
+  }), [
+    searchParams,
+    setSearchContext,
+    trends,
+    setTrends,
+    fetchTrends,
+    updateTrend,
+    analyzeTrendDeepDive,
+    clearTrends,
+    isFetching,
+    error
+  ]);
 };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Check, Link as LinkIcon, CheckCircle2, BookmarkPlus, FileJson, FileText, Printer, Presentation } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
-import { UI_TIMING } from '../constants/uiConfig';
+import { copyWithFeedback } from '../utils/clipboardUtils';
 
 interface Props {
   onBack: () => void;
@@ -30,10 +30,8 @@ export const BlueprintHeader: React.FC<Props> = ({
 
   const handleCopyLink = () => {
     if (publishedUrl) {
-      navigator.clipboard.writeText(publishedUrl);
-      setLinkCopied(true);
-      toast.success("Public link copied!");
-      setTimeout(() => setLinkCopied(false), UI_TIMING.COPY_FEEDBACK_DURATION);
+      copyWithFeedback(publishedUrl, setLinkCopied);
+      toast.success(uiText.publicLinkCopied);
     }
   };
 
@@ -60,7 +58,7 @@ export const BlueprintHeader: React.FC<Props> = ({
             title="Copy Public Link"
           >
             {linkCopied ? <Check className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
-            {linkCopied ? uiText.copied : 'Copy Link'}
+            {linkCopied ? uiText.copied : uiText.copyLink}
           </button>
         )}
 
@@ -69,7 +67,7 @@ export const BlueprintHeader: React.FC<Props> = ({
           className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm font-bold border border-slate-700"
         >
           <Presentation className="w-4 h-4 text-emerald-400" />
-          Present Deck
+          {uiText.presentDeck}
         </button>
 
         <button 
