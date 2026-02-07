@@ -30,6 +30,7 @@ const dispatchToast = (message: string, type: ToastType) => {
 export const ToastNotifications: React.FC = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const pausedToastsRef = useRef<Set<string>>(new Set());
+  const timeoutMapRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
     const handleToast = (e: Event) => {
@@ -44,8 +45,8 @@ export const ToastNotifications: React.FC = () => {
         }
       }, UI_TIMING.TOAST_DURATION);
 
-      // Store timeout ID for cleanup
-      (id as any)._timeoutId = dismissTimeout;
+      // Store timeout ID for cleanup using Map (not on the string itself)
+      timeoutMapRef.current.set(id, dismissTimeout);
     };
 
     window.addEventListener(TOAST_EVENT, handleToast);
@@ -53,6 +54,13 @@ export const ToastNotifications: React.FC = () => {
   }, []);
 
   const removeToast = (id: string) => {
+    // Clear the timeout for this toast
+    const timeoutId = timeoutMapRef.current.get(id);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutMapRef.current.delete(id);
+    }
+    
     setToasts((prev) =>
       prev.map((t) => (t.id === id ? { ...t, exiting: true } : t))
     );
@@ -107,6 +115,7 @@ export const ToastNotifications: React.FC = () => {
           <button 
             onClick={() => removeToast(t.id)}
             className="p-1 hover:bg-white/10 rounded-full transition-colors"
+            aria-label="Dismiss notification"
           >
             <X className="w-4 h-4 opacity-70" />
           </button>
