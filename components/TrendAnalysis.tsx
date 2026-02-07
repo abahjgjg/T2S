@@ -8,6 +8,7 @@ import {
 import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock, Globe, Flame } from 'lucide-react';
 import { TrendDeepDiveModal } from './TrendDeepDiveModal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { COLORS } from '../constants/theme';
 
 interface Props {
   trends: Trend[];
@@ -22,9 +23,9 @@ interface Props {
 
 const getSentimentColor = (sentiment?: string) => {
   switch(sentiment) {
-    case 'Positive': return '#10b981';
-    case 'Negative': return '#ef4444';
-    default: return '#3b82f6';
+    case 'Positive': return COLORS.sentiment.positive;
+    case 'Negative': return COLORS.sentiment.negative;
+    default: return COLORS.sentiment.neutral;
   }
 };
 
@@ -159,35 +160,35 @@ export const TrendAnalysis: React.FC<Props> = ({
             </div>
          </div>
          
-         <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 h-[300px] relative overflow-hidden">
-            {viewMode === 'list' && (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={true} vertical={false} />
-                  <XAxis type="number" domain={[0, 100]} stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis dataKey="name" type="category" width={120} stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }} />
-                  <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={20}>
-                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColor(entry.sentiment)} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-            
-            {viewMode === 'matrix' && (
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis type="number" dataKey="x" name="Relevance" unit="%" stroke="#64748b" domain={[0, 100]}><Label value="Relevance" offset={-10} position="insideBottom" fill="#64748b" fontSize={10} /></XAxis>
-                  <YAxis type="number" dataKey="y" name="Growth" unit="%" stroke="#64748b" domain={[0, 100]}><Label value="Growth/Hype" angle={-90} position="insideLeft" fill="#64748b" fontSize={10} /></YAxis>
-                  <ZAxis type="number" dataKey="z" range={[50, 400]} name="Impact" />
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }} />
-                  <Scatter name="Trends" data={scatterData} fill="#10b981">
-                    {scatterData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColor(entry.sentiment)} />)}
-                  </Scatter>
-                </ScatterChart>
-              </ResponsiveContainer>
-            )}
+          <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 h-[300px] relative overflow-hidden">
+             {viewMode === 'list' && (
+               <ResponsiveContainer width="100%" height="100%">
+                 <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                   <CartesianGrid strokeDasharray="3 3" stroke={COLORS.chart.grid} horizontal={true} vertical={false} />
+                   <XAxis type="number" domain={[0, 100]} stroke={COLORS.chart.axis} fontSize={12} tickLine={false} axisLine={false} />
+                   <YAxis dataKey="name" type="category" width={120} stroke={COLORS.slate[400]} fontSize={12} tickLine={false} axisLine={false} />
+                   <Tooltip contentStyle={{ backgroundColor: COLORS.chart.tooltipBg, borderColor: COLORS.chart.tooltipBorder, color: COLORS.chart.tooltipText }} />
+                   <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={20}>
+                     {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColor(entry.sentiment)} />)}
+                   </Bar>
+                 </BarChart>
+               </ResponsiveContainer>
+             )}
+             
+             {viewMode === 'matrix' && (
+               <ResponsiveContainer width="100%" height="100%">
+                 <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                   <CartesianGrid strokeDasharray="3 3" stroke={COLORS.chart.grid} />
+                   <XAxis type="number" dataKey="x" name="Relevance" unit="%" stroke={COLORS.chart.axis} domain={[0, 100]}><Label value="Relevance" offset={-10} position="insideBottom" fill={COLORS.chart.axisLabel} fontSize={10} /></XAxis>
+                   <YAxis type="number" dataKey="y" name="Growth" unit="%" stroke={COLORS.chart.axis} domain={[0, 100]}><Label value="Growth/Hype" angle={-90} position="insideLeft" fill={COLORS.chart.axisLabel} fontSize={10} /></YAxis>
+                   <ZAxis type="number" dataKey="z" range={[50, 400]} name="Impact" />
+                   <Tooltip contentStyle={{ backgroundColor: COLORS.chart.tooltipBg, borderColor: COLORS.chart.tooltipBorder, color: COLORS.chart.tooltipText }} />
+                   <Scatter name="Trends" data={scatterData} fill={COLORS.sentiment.positive}>
+                     {scatterData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColor(entry.sentiment)} />)}
+                   </Scatter>
+                 </ScatterChart>
+               </ResponsiveContainer>
+             )}
 
             {viewMode === 'timeline' && (
               <div className="absolute inset-0 overflow-y-auto custom-scrollbar p-2">
