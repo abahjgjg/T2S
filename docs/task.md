@@ -10,6 +10,8 @@
 - [x] **[UX] Modal Focus Trap**: Added focus management to Modal component for accessibility - traps keyboard navigation, restores focus on close, focuses first element on open.
 - [x] **[ARCH] Animation Config**: Centralized animation timing constants (`ANIMATION_TIMING`, `ANIMATION_EASING`) in `uiConfig.ts` to eliminate hardcoded values in components (Modal, ToastNotifications).
 - [x] **[CONSOLIDATE] Empty State Component**: Created reusable `EmptyState` component to replace duplicate loading state patterns across BrandStudio, BlueprintLaunchpad, and CustomerPersonas.
+- [x] **[UX] Skip to Content**: Added accessibility "Skip to Content" link for keyboard navigation in App.tsx.
+- [x] **[ARCH] Border Radius Config**: Centralized border radius constants (`BORDER_RADIUS`) in `uiConfig.ts` for design system consistency.
 
 ## Completed
 - [x] **[DOCS] User & Developer Guides**: Created comprehensive documentation (`docs/USER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`).

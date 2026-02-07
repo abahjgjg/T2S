@@ -4,7 +4,6 @@
 ## Critical (Security)
 - [/] **API Key Exposure**: `process.env.API_KEY` is currently used in client-side code (`services/gemini/shared.ts`, etc.). In a production build, this key is exposed to users. **Fix Required**: Migrate AI interactions to a backend proxy (e.g., Supabase Edge Functions). **STATUS**: BLOCKED - Environment Limitation.
   - Affected files: `services/gemini/shared.ts:5`, `services/gemini/media.ts:104`, `services/openai/shared.ts:49`, `services/openai/media.ts:7,42`
-<<<<<<< HEAD
 - [/] **API Key in URL**: `services/gemini/media.ts:105` appends API key directly to video download URL via `fetch(${downloadLink}&key=${process.env.API_KEY})`, exposing it in browser network logs, server logs, and request history. **Fix Required**: Route video downloads through Supabase Edge Function proxy to hide API key. **STATUS**: BLOCKED - Depends on Secure API Proxy implementation.
 
 ## Performance

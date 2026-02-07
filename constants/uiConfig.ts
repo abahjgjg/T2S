@@ -60,4 +60,21 @@ export const ANIMATION_EASING = {
   SMOOTH: 'ease-in-out',
 } as const;
 
+/**
+ * Border Radius Constants
+ * Centralized border radius values for consistent component styling
+ */
+export const BORDER_RADIUS = {
+  NONE: 'rounded-none',
+  SM: 'rounded-sm',
+  DEFAULT: 'rounded',
+  MD: 'rounded-md',
+  LG: 'rounded-lg',
+  XL: 'rounded-xl',
+  XL2: 'rounded-2xl',
+  XL3: 'rounded-3xl',
+  FULL: 'rounded-full',
+} as const;
+
 export type UITiming = typeof UI_TIMING;
+export type BorderRadius = typeof BORDER_RADIUS;
