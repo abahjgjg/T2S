@@ -10,7 +10,8 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { indexedDBService } from '../utils/storageUtils';
 import { useAsset } from '../hooks/useAsset';
 import { STORAGE_KEYS } from '../constants/storageConfig';
-import { UI_TIMING } from '../constants/uiConfig';
+import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
+import { Z_INDEX } from '../constants/zIndex';
 import { SPEECH_CONFIG } from '../constants/apiConfig';
 import { STORAGE_CONFIG, ASSET_ID_PREFIX } from '../constants/appConfig';
 import { DATE_FORMATS, formatDate } from '../constants/dateTimeConfig';
@@ -240,7 +241,7 @@ export const TrendSearch: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto text-center mt-8 md:mt-12 px-4 animate-[fadeIn_0.5s_ease-out]">
+    <div className={`w-full max-w-5xl mx-auto text-center mt-8 md:mt-12 px-4 animate-[fadeIn_${ANIMATION_TIMING.FADE_SLOW}s_${ANIMATION_EASING.DEFAULT}]`}>
       
       {/* Background Market Ticker (Subtle) */}
       {!isLoading && (
@@ -262,7 +263,7 @@ export const TrendSearch: React.FC<Props> = ({
       )}
 
       {/* Live Data Badge */}
-      <div className="inline-flex flex-wrap justify-center items-center gap-2 mb-6 animate-[fadeIn_1s_ease-out] relative z-10">
+       <div className={`inline-flex flex-wrap justify-center items-center gap-2 mb-6 animate-[fadeIn_${ANIMATION_TIMING.TREND_FADE}_${ANIMATION_EASING.DEFAULT}] relative ${Z_INDEX.CONTENT}`}>
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)] backdrop-blur-sm">
            <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -290,9 +291,9 @@ export const TrendSearch: React.FC<Props> = ({
       </p>
       
       {/* Search Configuration */}
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-6 relative z-10">
+      <div className={`flex flex-col sm:flex-row justify-center items-center gap-3 mb-6 relative ${Z_INDEX.CONTENT}`}>
          {/* Region Selector */}
-         <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative z-10 shrink-0" role="group" aria-label="Select Region">
+         <div className={`bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative ${Z_INDEX.CONTENT} shrink-0`} role="group" aria-label="Select Region">
             {REGIONS.map(r => (
               <button
                 key={r}
@@ -312,7 +313,7 @@ export const TrendSearch: React.FC<Props> = ({
          </div>
 
          {/* Timeframe Selector */}
-         <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative z-10 shrink-0" role="group" aria-label="Select Timeframe">
+         <div className={`bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative ${Z_INDEX.CONTENT} shrink-0`} role="group" aria-label="Select Timeframe">
             {TIMEFRAMES.map(t => (
               <button
                 key={t.value}
@@ -346,7 +347,7 @@ export const TrendSearch: React.FC<Props> = ({
          </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="relative group mb-12 max-w-2xl mx-auto z-10">
+      <form onSubmit={handleSubmit} className={`relative group mb-12 max-w-2xl mx-auto ${Z_INDEX.CONTENT}`}>
         <div className={`absolute -inset-0.5 bg-gradient-to-r ${validationError ? 'from-red-500 to-orange-500' : 'from-emerald-500 via-blue-500 to-purple-500'} rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500`}></div>
         <div className={`relative flex items-center bg-slate-950 rounded-2xl border ${validationError ? 'border-red-500/50' : 'border-slate-800'} p-2 shadow-2xl`}>
           <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-400'}`} aria-hidden="true" />
@@ -430,7 +431,7 @@ export const TrendSearch: React.FC<Props> = ({
       </form>
 
       {validationError && (
-        <div className="flex items-center justify-center gap-2 text-red-400 text-sm mb-6 animate-[fadeIn_0.3s_ease-out]" role="alert">
+        <div className={`flex items-center justify-center gap-2 text-red-400 text-sm mb-6 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}]`} role="alert">
           <AlertCircle className="w-4 h-4" aria-hidden="true" />
           <span>{validationError}</span>
         </div>
@@ -438,7 +439,7 @@ export const TrendSearch: React.FC<Props> = ({
 
       {/* Discovery Grid Categories (Localized) */}
       {!isLoading && !selectedImage && uiText.searchCategories && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-10 relative z-10 animate-[fadeIn_0.5s_ease-out]">
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-10 relative ${Z_INDEX.CONTENT} animate-[fadeIn_${ANIMATION_TIMING.FADE_SLOW}s_${ANIMATION_EASING.DEFAULT}]`}>
           {/* Main "Headlines" Card */}
           <button 
              onClick={handleGlobalPulse}
@@ -474,7 +475,7 @@ export const TrendSearch: React.FC<Props> = ({
 
       {/* Recent Searches */}
       {!isLoading && !selectedImage && recentSearches.length > 0 && (
-        <div className="flex flex-col items-center gap-3 animate-[fadeIn_0.3s_ease-out] border-t border-slate-900 pt-6 max-w-sm mx-auto relative z-10">
+        <div className={`flex flex-col items-center gap-3 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}] border-t border-slate-900 pt-6 max-w-sm mx-auto relative ${Z_INDEX.CONTENT}`}>
           <div className="flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2">
              <span>{uiText.recent}</span>
              <button onClick={clearHistory} className="hover:text-red-400 transition-colors flex items-center gap-1" title={uiText.clearHistory} aria-label="Clear history">
@@ -503,7 +504,7 @@ export const TrendSearch: React.FC<Props> = ({
       )}
       
       {(isLoading) && (
-        <div className="mt-8 flex flex-col items-center animate-[fadeIn_0.5s_ease-in] relative z-10" role="status">
+        <div className={`mt-8 flex flex-col items-center animate-[fadeIn_${ANIMATION_TIMING.FADE_SLOW}s_${ANIMATION_EASING.EXIT}] relative ${Z_INDEX.CONTENT}`} role="status">
           <div className={`text-sm font-bold font-mono mb-3 flex items-center gap-2 px-4 py-1.5 rounded-full border ${
             deepMode 
             ? 'text-indigo-400 bg-indigo-950/30 border-indigo-500/20' 
