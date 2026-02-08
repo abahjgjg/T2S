@@ -20,7 +20,9 @@ export const STORAGE_KEYS = {
   RESEARCH_STATE: getEnv('VITE_STORAGE_KEY_RESEARCH_STATE', 'trendventures_state_v1'),
   PROJECT_LIBRARY: getEnv('VITE_STORAGE_KEY_PROJECT_LIBRARY', 'trendventures_library_v1'),
   SEARCH_HISTORY: getEnv('VITE_STORAGE_KEY_SEARCH_HISTORY', 'trendventures_search_history'),
-  TELEMETRY_LOGS: getEnv('VITE_STORAGE_KEY_TELEMETRY_LOGS', 'trendventures_sys_logs_v1')
+  TELEMETRY_LOGS: getEnv('VITE_STORAGE_KEY_TELEMETRY_LOGS', 'trendventures_sys_logs_v1'),
+  VOTES: getEnv('VITE_STORAGE_KEY_VOTES', 'trendventures_votes_v1'),
+  PROMPTS: getEnv('VITE_STORAGE_KEY_PROMPTS', 'trendventures_prompts_v1'),
 } as const;
 
 export const ASSET_CONFIG = {

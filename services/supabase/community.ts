@@ -2,8 +2,10 @@
 import { BusinessIdea, Blueprint, PublishedBlueprint, Comment } from '../../types';
 import { supabase } from './client';
 import { QUERY_LIMITS } from '../../constants/aiConfig';
+import { DATABASE_TABLES } from '../../constants/databaseTables';
+import { STORAGE_KEYS } from '../../constants/storageConfig';
 
-const VOTES_STORAGE_KEY = 'trendventures_votes_v1';
+const VOTES_STORAGE_KEY = STORAGE_KEYS.VOTES;
 
 // --- DB Row Definition ---
 interface DBBlueprintRow {
@@ -39,7 +41,7 @@ export const publishBlueprint = async (niche: string, idea: BusinessIdea, bluepr
 
   // Check if duplicate exists to prevent spamming DB with same generations
   const { data: existing } = await supabase
-    .from('published_blueprints')
+    .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('id')
     .eq('niche', niche)
     .eq('title', idea.name)
@@ -62,7 +64,7 @@ export const publishBlueprint = async (niche: string, idea: BusinessIdea, bluepr
   }
 
   const { data, error } = await supabase
-    .from('published_blueprints')
+    .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .insert([payload])
     .select('id')
     .single();
@@ -79,7 +81,7 @@ export const fetchBlueprint = async (id: string): Promise<PublishedBlueprint | n
   if (!supabase) return null;
 
   const { data, error } = await supabase
-    .from('published_blueprints')
+    .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .eq('id', id)
     .single();
@@ -97,7 +99,7 @@ export const findBlueprintsByNiche = async (niche: string): Promise<BusinessIdea
 
   // Simple text search on niche column
   const { data, error } = await supabase
-    .from('published_blueprints')
+    .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .ilike('niche', `%${niche}%`) 
     .order('votes', { ascending: false }) // Prioritize popular ones
@@ -130,7 +132,7 @@ export const searchPublicBlueprints = async (
   const to = from + limit - 1;
 
   let query = supabase
-    .from('published_blueprints')
+    .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .range(from, to);
 
@@ -160,7 +162,7 @@ export const getUserPublishedBlueprints = async (userId: string): Promise<Publis
   if (!supabase) return [];
 
   const { data, error } = await supabase
-    .from('published_blueprints')
+    .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
@@ -177,7 +179,7 @@ export const deletePublishedBlueprint = async (id: string, userId: string): Prom
   if (!supabase) return false;
 
   const { error } = await supabase
-    .from('published_blueprints')
+    .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .delete()
     .eq('id', id)
     .eq('user_id', userId);
@@ -203,7 +205,7 @@ export const voteBlueprint = async (id: string): Promise<number | null> => {
   try {
     // 1. Fetch current
     const { data } = await supabase
-      .from('published_blueprints')
+      .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
       .select('votes')
       .eq('id', id)
       .single();
@@ -213,7 +215,7 @@ export const voteBlueprint = async (id: string): Promise<number | null> => {
       
       // 2. Update
       const { error } = await supabase
-        .from('published_blueprints')
+        .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
         .update({ votes: newCount })
         .eq('id', id);
 
@@ -240,7 +242,7 @@ export const fetchComments = async (blueprintId: string): Promise<Comment[]> => 
   // We try to fetch. If table doesn't exist, it will return error, we catch it.
   try {
     const { data, error } = await supabase
-      .from('comments')
+      .from(DATABASE_TABLES.COMMENTS)
       .select('*')
       .eq('blueprint_id', blueprintId)
       .order('created_at', { ascending: false });
@@ -260,7 +262,7 @@ export const postComment = async (blueprintId: string, authorName: string, conte
 
   try {
     const { data, error } = await supabase
-      .from('comments')
+      .from(DATABASE_TABLES.COMMENTS)
       .insert([{
         blueprint_id: blueprintId,
         author_name: authorName,

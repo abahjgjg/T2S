@@ -109,6 +109,10 @@ export interface AppConfig {
     readonly USER: string;
     readonly TEMP: string;
   };
+  readonly SCROLL: {
+    readonly THRESHOLD: number;
+    readonly TOP_POSITION: number;
+  };
 }
 
 // Helper to safely get env var with fallback
@@ -239,6 +243,10 @@ export const APP_CONFIG: AppConfig = {
     USER: getEnv('VITE_ASSET_PREFIX_USER', 'user-'),
     TEMP: getEnv('VITE_ASSET_PREFIX_TEMP', 'temp-'),
   },
+  SCROLL: {
+    THRESHOLD: getEnvNumber('VITE_SCROLL_THRESHOLD', 400),
+    TOP_POSITION: getEnvNumber('VITE_SCROLL_TOP_POSITION', 0),
+  },
 };
 
 // Export legacy constants for backward compatibility (deprecated)
@@ -261,6 +269,7 @@ export const CACHE_CONFIG = APP_CONFIG.CACHE;
 export const VALIDATION_CONFIG = APP_CONFIG.VALIDATION;
 export const DEV_CONFIG = APP_CONFIG.DEV;
 export const ASSET_ID_PREFIX = APP_CONFIG.ASSET_PREFIX;
+export const SCROLL_CONFIG = APP_CONFIG.SCROLL;
 
 // Utility function to get OG Image URL
 export const getOgImageUrl = (text: string = 'TrendVentures+AI'): string => {

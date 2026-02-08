@@ -18,6 +18,7 @@ import {
   VALIDATION_CONFIG,
   DEV_CONFIG,
   ASSET_ID_PREFIX,
+  SCROLL_CONFIG,
   getOgImageUrl,
   PLACEHOLDER_CONFIG,
 } from '../config';
@@ -34,6 +35,7 @@ export {
   VALIDATION_CONFIG,
   DEV_CONFIG,
   ASSET_ID_PREFIX,
+  SCROLL_CONFIG,
   getOgImageUrl,
   APP_CONFIG,
 };
