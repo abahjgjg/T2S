@@ -15,6 +15,11 @@
 
 ## Minor
 - **Markdown Parsing**: Occasional styling inconsistencies if AI returns non-standard markdown tables.
+- [x] **Bug: Toast timeout storage fails**: In `ToastNotifications.tsx:48`, attempting to store timeout ID on string ID `(id as any)._timeoutId = dismissTimeout` fails because strings are immutable. This prevents proper cleanup of toast timeouts. **FIXED**: Replaced with Map-based storage in ToastNotifications.tsx:35,55-61
+- [x] **Bug: Missing dependency in useCallback**: `App.tsx:68` uses `uiText` inside `handleReset` callback but only includes `language` in dependency array. If `uiText` updates without `language` changing, callback uses stale closure. **FIXED**: Updated dependency array in App.tsx:68
+- [x] **Bug: Error state race condition**: `useResearch.ts:73-75` sets errors from three engines without checking if other errors exist, causing them to overwrite each other. **FIXED**: Improved error collection logic in useResearch.ts:72-82
+- [/] **Accessibility: Missing aria-labels**: Added aria-labels to key icon-only buttons (Modal close, ToastNotifications dismiss, AgentChatModal send, ResearchChat send). More buttons may need attention. **FIXED**: Added labels to critical buttons in Modal.tsx:99, ToastNotifications.tsx:111, AgentChatModal.tsx:90, ResearchChat.tsx:152
+- [ ] **Accessibility: Icon-only buttons**: Several icon-only buttons throughout codebase still lack `aria-label` attributes for screen readers.
 - [x] bug: `index.html` is missing entry point script tag (`index.tsx`).
 - [x] bug: `App.tsx` has incorrect import path for `supabaseService` (`../services/supabaseService` instead of `./services/supabaseService`).
 - [x] bug: Strict TypeScript errors in `SafeMarkdown.tsx` and AI service core files preventing successful production builds.

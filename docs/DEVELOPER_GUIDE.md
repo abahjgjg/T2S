@@ -6,7 +6,7 @@
 TrendVentures AI is a **Client-Side Heavy** React application that leverages modern browser capabilities and direct API integrations.
 
 ### Tech Stack
--   **Frontend**: React 18, TypeScript, Vite.
+-   **Frontend**: React 19, TypeScript, Vite.
 -   **Styling**: Tailwind CSS.
 -   **State Management**: React Query (TanStack Query) + React Context.
 -   **Database/Auth**: Supabase (PostgreSQL, GoTrue, Storage).
@@ -16,14 +16,14 @@ TrendVentures AI is a **Client-Side Heavy** React application that leverages mod
     -   OpenAI (via REST API).
 
 ### Key Directories
--   `src/components`: UI components (Atomic design principles).
--   `src/services`: API adapters and business logic.
+-   `components/`: UI components (Atomic design principles).
+-   `services/`: API adapters and business logic.
     -   `gemini/`: Gemini-specific implementation.
     -   `openai/`: OpenAI-specific implementation.
     -   `supabase/`: Modularized Supabase interactions.
--   `src/hooks`: Custom React hooks (`useTrendEngine`, `useBlueprintEngine`).
--   `src/utils`: Helpers for security, formatting, and storage.
--   `src/constants`: Configuration and System Prompts.
+-   `hooks/`: Custom React hooks (`useTrendEngine`, `useBlueprintEngine`).
+-   `utils/`: Helpers for security, formatting, and storage.
+-   `constants/`: Configuration and System Prompts.
 
 ---
 
