@@ -155,6 +155,7 @@ export const TrendSearch: React.FC<Props> = ({
     // Allow empty term ONLY if image is present
     if (!term.trim() && !img) {
       setValidationError("Please enter a topic or upload an image.");
+      inputRef.current?.focus();
       return;
     }
 
@@ -162,6 +163,7 @@ export const TrendSearch: React.FC<Props> = ({
       const validation = validateInput(term);
       if (!validation.isValid) {
         setValidationError(validation.error || "Invalid input");
+        inputRef.current?.focus();
         return;
       }
     }
