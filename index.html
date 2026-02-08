@@ -27,6 +27,33 @@
     <!-- Favicon to prevent 404 errors -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E" />
 
+    <style>
+      /* Button press feedback optimization for micro-UX */
+      button, [role="button"] {
+        will-change: transform;
+        transform: translateZ(0);
+      }
+      
+      button:active:not(:disabled), [role="button"]:active:not([aria-disabled="true"]) {
+        transform: scale(0.97);
+      }
+      
+      /* Custom scrollbar for dark theme */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569; 
+      }
+    </style>
 
 </head>
   <body class="bg-slate-950">
