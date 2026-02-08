@@ -277,7 +277,7 @@ export const TrendSearch: React.FC<Props> = ({
            </span>
         </div>
         
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-300 text-[10px] font-bold uppercase tracking-wider">
            <Cpu className="w-3 h-3" />
            {uiText.modelDisplay?.[provider] || (provider === 'gemini' ? 'Gemini 3' : 'OpenAI GPT-4o')}
         </div>
@@ -286,7 +286,7 @@ export const TrendSearch: React.FC<Props> = ({
       <h2 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 mb-6 leading-tight tracking-tight relative z-10">
         {uiText.heroTitle}
       </h2>
-      <p className="text-slate-400 text-base md:text-lg mb-10 max-w-lg mx-auto leading-relaxed relative z-10">
+      <p className="text-slate-300 text-base md:text-lg mb-10 max-w-lg mx-auto leading-relaxed relative z-10">
         {uiText.heroDesc}
       </p>
       
@@ -303,7 +303,7 @@ export const TrendSearch: React.FC<Props> = ({
                 className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
                   region === r 
                   ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' 
-                  : 'text-slate-500 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 {region === r && <MapPin className="w-3 h-3" />}
@@ -323,7 +323,7 @@ export const TrendSearch: React.FC<Props> = ({
                 className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
                   timeframe === t.value 
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' 
-                  : 'text-slate-500 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 {timeframe === t.value && <Clock4 className="w-3 h-3" />}
@@ -333,15 +333,15 @@ export const TrendSearch: React.FC<Props> = ({
          </div>
 
          {/* Deep Mode Toggle */}
-         <button 
-           onClick={() => setDeepMode(!deepMode)}
-           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all shadow-xl ${
-             deepMode 
-             ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-900/50' 
-             : 'bg-slate-900/80 border-slate-800 text-slate-500 hover:text-white hover:border-slate-600'
-           }`}
-           title="Deep Research Mode: Uses Reasoning Model (Slower but detailed)"
-         >
+          <button 
+            onClick={() => setDeepMode(!deepMode)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all shadow-xl ${
+              deepMode 
+              ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-900/50' 
+              : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-slate-600'
+            }`}
+            title="Deep Research Mode: Uses Reasoning Model (Slower but detailed)"
+          >
            {deepMode ? <BrainCircuit className="w-4 h-4 animate-pulse" /> : <Zap className="w-4 h-4" />}
            {deepMode ? "Deep Research" : "Fast Scan"}
          </button>
@@ -350,7 +350,7 @@ export const TrendSearch: React.FC<Props> = ({
       <form onSubmit={handleSubmit} className={`relative group mb-12 max-w-2xl mx-auto ${Z_INDEX.CONTENT}`}>
         <div className={`absolute -inset-0.5 bg-gradient-to-r ${validationError ? 'from-red-500 to-orange-500' : 'from-emerald-500 via-blue-500 to-purple-500'} rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500`}></div>
         <div className={`relative flex items-center bg-slate-950 rounded-2xl border ${validationError ? 'border-red-500/50' : 'border-slate-800'} p-2 shadow-2xl`}>
-          <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-400'}`} aria-hidden="true" />
+          <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-300'}`} aria-hidden="true" />
           
           {/* Attached Image Preview */}
           {previewUrl && (
@@ -386,7 +386,7 @@ export const TrendSearch: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="mr-2 p-2 hover:bg-slate-800 text-slate-500 hover:text-blue-400 rounded-full transition-all"
+                className="mr-2 p-2 hover:bg-slate-800 text-slate-300 hover:text-blue-400 rounded-full transition-all"
                 title="Search with Image (Visual Intelligence)"
                 aria-label="Upload Image"
               >
@@ -407,7 +407,7 @@ export const TrendSearch: React.FC<Props> = ({
             <button
               type="button"
               onClick={startListening}
-              className={`mr-2 p-2 rounded-full transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'hover:bg-slate-800 text-slate-500 hover:text-white'}`}
+              className={`mr-2 p-2 rounded-full transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}
               title="Voice Search"
               aria-label="Start Voice Search"
             >
@@ -467,7 +467,7 @@ export const TrendSearch: React.FC<Props> = ({
                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform group-hover:bg-emerald-900/20">
                   {getCategoryIcon(cat)}
                </div>
-               <span className="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider text-center">{cat}</span>
+                <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase tracking-wider text-center">{cat}</span>
              </button>
           ))}
         </div>
@@ -490,7 +490,7 @@ export const TrendSearch: React.FC<Props> = ({
                   setInput(term);
                   handleSearchTrigger(term, undefined);
                 }}
-                className="flex items-center justify-between px-4 py-2 bg-slate-900/50 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg text-sm font-medium border border-transparent hover:border-slate-700 transition-all group w-full text-left"
+                className="flex items-center justify-between px-4 py-2 bg-slate-900/50 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg text-sm font-medium border border-transparent hover:border-slate-700 transition-all group w-full text-left"
               >
                 <div className="flex items-center gap-2">
                   <Clock className="w-3 h-3 text-slate-600 group-hover:text-emerald-500 transition-colors" />

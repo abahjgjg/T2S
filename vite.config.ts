@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks: {
               // Split vendor libraries into separate chunks
-              'vendor-react': ['react', 'react-dom'],
+              // Note: React is handled automatically by the plugin
               'vendor-ui': ['lucide-react', 'recharts'],
               'vendor-ai': ['@google/genai'],
               'vendor-data': ['@supabase/supabase-js', '@tanstack/react-query'],

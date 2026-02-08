@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://trendventures.ai/sitemap.xml
+
+# Disallow admin routes
+Disallow: /admin
+Disallow: /api/
+
+# Crawl-delay to prevent server overload
+Crawl-delay: 1
