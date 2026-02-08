@@ -10,6 +10,22 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
+      build: {
+        sourcemap: true,
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              // Split vendor libraries into separate chunks
+              'vendor-react': ['react', 'react-dom'],
+              'vendor-ui': ['lucide-react', 'recharts'],
+              'vendor-ai': ['@google/genai'],
+              'vendor-data': ['@supabase/supabase-js', '@tanstack/react-query'],
+              'vendor-markdown': ['react-markdown', 'remark-gfm'],
+            }
+          }
+        },
+        chunkSizeWarningLimit: 1000
+      },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
