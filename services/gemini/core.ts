@@ -6,7 +6,7 @@ import { retryOperation } from "../../utils/retryUtils";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS, MEDIA_CONFIG, QUERY_LIMITS } from "../../constants/aiConfig";
-import { TOKEN_LIMITS, THINKING_BUDGETS } from "../../constants/apiConfig";
+import { TOKEN_LIMITS, THINKING_BUDGETS, AI_TEMPERATURES } from "../../constants/apiConfig";
 import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 
@@ -79,7 +79,7 @@ export const generateBusinessIdeas = async (niche: string, trends: any[], lang: 
         config: {
           responseMimeType: "application/json",
           responseSchema: ideaSchema,
-          temperature: 0.7,
+          temperature: AI_TEMPERATURES.DEFAULT,
         },
       });
 
@@ -327,7 +327,7 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
         config: {
           responseMimeType: "application/json",
           responseSchema: agentSchema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 
@@ -384,7 +384,7 @@ export const generateLaunchAssets = async (idea: BusinessIdea, blueprint: Bluepr
         config: {
           responseMimeType: "application/json",
           responseSchema: assetsSchema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 
@@ -493,7 +493,7 @@ export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang
         config: {
           responseMimeType: "application/json",
           responseSchema: bmcSchema,
-          temperature: 0.5,
+          temperature: AI_TEMPERATURES.BALANCED,
         },
       });
 
@@ -531,7 +531,7 @@ export const generateLandingPageCode = async (idea: BusinessIdea, assets: Launch
         contents: prompt,
         config: {
           // No schema, we want raw text (TSX)
-          temperature: 0.2,
+          temperature: AI_TEMPERATURES.PRECISE,
         },
       });
 
@@ -648,7 +648,7 @@ export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Bluep
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 
@@ -701,7 +701,7 @@ export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint,
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 

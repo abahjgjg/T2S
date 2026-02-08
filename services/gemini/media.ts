@@ -112,5 +112,5 @@ export const generateMarketingVideo = async (ideaName: string, description: stri
       console.error("Error generating marketing video:", error);
       throw error;
     }
-  }, 1, 1000);
+  }, MEDIA_CONFIG.RETRY.DEFAULT_MAX_RETRIES, MEDIA_CONFIG.RETRY.LONG_DELAY_MS);
 };
