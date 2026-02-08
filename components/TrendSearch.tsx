@@ -72,6 +72,8 @@ export const TrendSearch: React.FC<Props> = ({
   
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [focusedHistoryIndex, setFocusedHistoryIndex] = useState<number>(-1);
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
   
   const { language, uiText, provider } = usePreferences();
   
@@ -84,6 +86,8 @@ export const TrendSearch: React.FC<Props> = ({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const historyItemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const historyContainerRef = useRef<HTMLDivElement>(null);
   
   // Sync state if props change (e.g. from engine restoration)
   useEffect(() => {
@@ -93,6 +97,21 @@ export const TrendSearch: React.FC<Props> = ({
     if (initialDeepMode !== undefined) setDeepMode(initialDeepMode);
     if (initialImage) setSelectedImage(initialImage);
   }, [initialNiche, initialRegion, initialTimeframe, initialDeepMode, initialImage]);
+
+  // Close history when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (historyContainerRef.current && !historyContainerRef.current.contains(event.target as Node)) {
+        setIsHistoryVisible(false);
+        setFocusedHistoryIndex(-1);
+      }
+    };
+
+    if (isHistoryVisible) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isHistoryVisible]);
 
   useEffect(() => {
     // Load History
@@ -151,6 +170,72 @@ export const TrendSearch: React.FC<Props> = ({
   const clearHistory = () => {
     setRecentSearches([]);
     localStorage.removeItem(HISTORY_KEY);
+    setFocusedHistoryIndex(-1);
+  };
+
+  const handleHistoryKeyDown = (e: React.KeyboardEvent, currentIndex: number) => {
+    const visibleItems = recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN);
+    
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        const nextIndex = currentIndex < visibleItems.length - 1 ? currentIndex + 1 : 0;
+        setFocusedHistoryIndex(nextIndex);
+        historyItemRefs.current[nextIndex]?.focus();
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        if (currentIndex === 0) {
+          setFocusedHistoryIndex(-1);
+          inputRef.current?.focus();
+        } else {
+          const prevIndex = currentIndex - 1;
+          setFocusedHistoryIndex(prevIndex);
+          historyItemRefs.current[prevIndex]?.focus();
+        }
+        break;
+      }
+      case 'Home': {
+        e.preventDefault();
+        setFocusedHistoryIndex(0);
+        historyItemRefs.current[0]?.focus();
+        break;
+      }
+      case 'End': {
+        e.preventDefault();
+        const lastIndex = visibleItems.length - 1;
+        setFocusedHistoryIndex(lastIndex);
+        historyItemRefs.current[lastIndex]?.focus();
+        break;
+      }
+      case 'Escape': {
+        e.preventDefault();
+        setFocusedHistoryIndex(-1);
+        setIsHistoryVisible(false);
+        inputRef.current?.focus();
+        break;
+      }
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent) => {
+    const visibleItems = recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN);
+    
+    if (recentSearches.length > 0 && isHistoryVisible) {
+      switch (e.key) {
+        case 'ArrowDown': {
+          e.preventDefault();
+          setFocusedHistoryIndex(0);
+          historyItemRefs.current[0]?.focus();
+          break;
+        }
+        case 'Escape': {
+          setIsHistoryVisible(false);
+          break;
+        }
+      }
+    }
   };
 
   const handleSearchTrigger = (term: string, img?: string) => {
@@ -171,6 +256,8 @@ export const TrendSearch: React.FC<Props> = ({
     }
     
     setValidationError(null);
+    setIsHistoryVisible(false);
+    setFocusedHistoryIndex(-1);
 
     const cleanTerm = sanitizeInput(term);
     if (cleanTerm) addToHistory(cleanTerm);
@@ -376,8 +463,13 @@ export const TrendSearch: React.FC<Props> = ({
               setInput(e.target.value);
               if (validationError) setValidationError(null);
             }}
+            onFocus={() => setIsHistoryVisible(true)}
+            onKeyDown={handleInputKeyDown}
             disabled={isLoading}
             aria-label="Search topics"
+            aria-expanded={isHistoryVisible && recentSearches.length > 0}
+            aria-controls="search-history-list"
+            aria-activedescendant={focusedHistoryIndex >= 0 ? `history-item-${focusedHistoryIndex}` : undefined}
           />
           
           {/* Visual Search (Image Attachment) */}
@@ -474,34 +566,62 @@ export const TrendSearch: React.FC<Props> = ({
       )}
 
       {/* Recent Searches */}
-      {!isLoading && !selectedImage && recentSearches.length > 0 && (
-        <div className={`flex flex-col items-center gap-3 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}] border-t border-slate-900 pt-6 max-w-sm mx-auto relative ${Z_INDEX.CONTENT}`}>
-          <div className="flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2">
-             <span>{uiText.recent}</span>
-             <button onClick={clearHistory} className="hover:text-red-400 transition-colors flex items-center gap-1" title={uiText.clearHistory} aria-label="Clear history">
-               <X className="w-3 h-3" /> Clear
-             </button>
-          </div>
-          <div className="flex flex-col gap-2 w-full">
-            {recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN).map((term, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setInput(term);
-                  handleSearchTrigger(term, undefined);
-                }}
-                className="flex items-center justify-between px-4 py-2 bg-slate-900/50 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg text-sm font-medium border border-transparent hover:border-slate-700 transition-all group w-full text-left"
+      {!isLoading && !selectedImage && recentSearches.length > 0 && isHistoryVisible && (
+        <div 
+          ref={historyContainerRef}
+          id="search-history-list"
+          role="listbox"
+          aria-label="Recent searches"
+          className={`flex flex-col items-center gap-3 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}] border-t border-slate-900 pt-6 max-w-sm mx-auto relative ${Z_INDEX.CONTENT}`}
+        >
+           <div className="flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2">
+              <span>{uiText.recent}</span>
+              <button 
+                onClick={clearHistory} 
+                className="hover:text-red-400 transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-red-400/50 rounded px-1" 
+                title={uiText.clearHistory} 
+                aria-label="Clear history"
               >
-                <div className="flex items-center gap-2">
-                  <Clock className="w-3 h-3 text-slate-600 group-hover:text-emerald-500 transition-colors" />
-                  {term}
-                </div>
-                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0" />
+                <X className="w-3 h-3" /> Clear
               </button>
-            ))}
-          </div>
-        </div>
-      )}
+           </div>
+           <div className="flex flex-col gap-2 w-full">
+             {recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN).map((term, idx) => (
+               <button
+                 key={idx}
+                 ref={(el) => { historyItemRefs.current[idx] = el; }}
+                 id={`history-item-${idx}`}
+                 role="option"
+                 aria-selected={focusedHistoryIndex === idx}
+                 tabIndex={-1}
+                 onClick={() => {
+                   setInput(term);
+                   handleSearchTrigger(term, undefined);
+                 }}
+                 onKeyDown={(e) => handleHistoryKeyDown(e, idx)}
+                 className={`flex items-center justify-between px-4 py-2 bg-slate-900/50 text-slate-300 rounded-lg text-sm font-medium border transition-all group w-full text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:bg-slate-800 focus:text-white hover:bg-slate-800 hover:text-white hover:border-slate-700 ${
+                   focusedHistoryIndex === idx ? 'bg-slate-800 text-white border-slate-700 ring-2 ring-emerald-500/30' : 'border-transparent'
+                 }`}
+               >
+                 <div className="flex items-center gap-2">
+                   <Clock className="w-3 h-3 text-slate-600 group-hover:text-emerald-500 transition-colors" />
+                   {term}
+                 </div>
+                 <ArrowRight className={`w-3 h-3 transition-all -translate-x-2 ${focusedHistoryIndex === idx ? 'opacity-100 translate-x-0' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-0'}`} />
+               </button>
+             ))}
+           </div>
+           <div className="text-[10px] text-slate-600 flex items-center gap-1">
+             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">↑</span>
+             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">↓</span>
+             <span>to navigate</span>
+             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 ml-1">Enter</span>
+             <span>to select</span>
+             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 ml-1">Esc</span>
+             <span>to close</span>
+           </div>
+         </div>
+       )}
       
       {(isLoading) && (
         <div className={`mt-8 flex flex-col items-center animate-[fadeIn_${ANIMATION_TIMING.FADE_SLOW}s_${ANIMATION_EASING.EXIT}] relative ${Z_INDEX.CONTENT}`} role="status">
