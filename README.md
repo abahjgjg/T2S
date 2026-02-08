@@ -1,20 +1,127 @@
+# TrendVentures AI
+
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+<img width="1200" height="475" alt="TrendVentures AI Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+An AI-powered market intelligence suite that generates business blueprints from real-time news and trends.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1VkE8DwzlHFznSLewqsZw0hi3JWr0ycro
+- **AI-Powered Market Intelligence**: Leverages Gemini and OpenAI to analyze real-time trends
+- **Business Blueprint Generation**: Creates comprehensive business plans with roadmaps, revenue models, and SWOT analysis
+- **Live Pitch Practice**: Real-time voice roleplay with AI personas (VC, Customer, CTO)
+- **Visual Branding Tools**: AI-generated logos, brand identities, and color palettes
+- **Competitor Analysis**: Real-world competitor research and strategic positioning
+- **Content Calendar**: 30-day marketing plan generation
+- **Cloud Sync**: Save and manage projects with Supabase integration
+- **Community Directory**: Public showcase of generated blueprints
 
-## Run Locally
+## Tech Stack
 
-**Prerequisites:**  Node.js
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS
+- **State Management**: TanStack Query (React Query) + React Context
+- **Database/Auth**: Supabase (PostgreSQL, GoTrue, Storage)
+- **AI Providers**: 
+  - Google Gemini (via @google/genai)
+  - OpenAI (via REST API)
+- **Visualization**: Recharts
+- **Testing**: Vitest
 
+## Prerequisites
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- Node.js 22+ (specified in `.node-version`)
+- npm or yarn
+
+## Quick Start
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Set up environment variables**:
+   Create `.env.local` file:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**:
+   Navigate to `http://localhost:3000`
+
+## Available Scripts
+
+- `npm run dev` - Start development server (port 3000)
+- `npm run build` - Production build
+- `npm run preview` - Preview production build
+- `npm run test` - Run Vitest tests
+- `npm run lint` - ESLint checking
+- `npm run typecheck` - TypeScript type checking
+
+## Documentation
+
+- [Developer Guide](docs/DEVELOPER_GUIDE.md) - Architecture, setup, and development guidelines
+- [User Guide](docs/USER_GUIDE.md) - End-user documentation
+- [Agent Context](docs/AGENTS.md) - AI agent operational rules and decisions
+- [Blueprint](docs/blueprint.md) - Technical architecture overview
+- [Roadmap](docs/roadmap.md) - Feature roadmap and completed phases
+
+## Project Structure
+
+```
+├── components/       # React components (organized by feature)
+│   ├── admin/       # Admin panel components
+│   ├── blueprint/   # Blueprint-specific components
+│   └── ui/          # Shared UI components
+├── constants/       # Configuration and system prompts
+├── contexts/        # React context providers
+├── docs/           # Documentation
+├── hooks/          # Custom React hooks (engines)
+├── services/       # API services
+│   ├── gemini/     # Gemini-specific implementation
+│   ├── openai/     # OpenAI-specific implementation
+│   └── supabase/   # Supabase service modules
+├── supabase/       # Supabase schema
+├── utils/          # Utility functions
+└── types.ts        # TypeScript type definitions
+```
+
+## Testing
+
+Run the test suite:
+```bash
+npm run test
+```
+
+Key test files:
+- `utils/securityUtils.test.ts` - Input sanitization
+- `services/promptService.test.ts` - Prompt interpolation
+- `hooks/*.test.tsx` - Engine integration tests
+
+## Deployment
+
+The app is built as a static SPA:
+```bash
+npm run build
+```
+
+Deploy the `dist/` folder to Vercel, Netlify, or any static host. Ensure environment variables are configured in your hosting provider.
+
+## Security Notes
+
+- All user inputs are sanitized via `utils/securityUtils.ts`
+- Markdown is rendered through `SafeMarkdown` component with XSS protection
+- Supabase tables use Row Level Security (RLS) policies
+- Client-side API calls are planned to migrate to Supabase Edge Functions (see roadmap)
+
+## License
+
+Private - See repository owner for licensing information.

@@ -30,7 +30,7 @@ TrendVentures AI is a **Client-Side Heavy** React application that leverages mod
 ## 🚀 Setup & Installation
 
 ### Prerequisites
--   Node.js v18+.
+-   Node.js 22+ (as specified in `.node-version`).
 -   Supabase Project (for Cloud features).
 -   Google AI Studio API Key.
 -   OpenAI API Key (Optional).
