@@ -3,6 +3,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trend, Language, AIService, SearchRegion, SearchTimeframe } from '../types';
 import { CACHE_TIMING } from '../constants/uiConfig';
+import { DEFAULT_SEARCH_CONFIG } from '../constants/searchConfig';
 
 export const useTrendEngine = (aiService: AIService, language: Language) => {
   const queryClient = useQueryClient();
@@ -33,7 +34,7 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
     gcTime: CACHE_TIMING.TRENDS_GC_TIME,
   });
 
-  const fetchTrends = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
+  const fetchTrends = useCallback(async (searchTerm: string, region: SearchRegion = DEFAULT_SEARCH_CONFIG.REGION, timeframe: SearchTimeframe = DEFAULT_SEARCH_CONFIG.TIMEFRAME, deepMode: boolean = DEFAULT_SEARCH_CONFIG.DEEP_MODE, image?: string) => {
     setSearchParams({ niche: searchTerm, region, timeframe, deepMode, image });
     
     const result = await queryClient.fetchQuery({
@@ -94,16 +95,16 @@ export const useTrendEngine = (aiService: AIService, language: Language) => {
 
   return useMemo(() => ({
     niche: searchParams?.niche || '',
-    region: searchParams?.region || 'Global',
-    timeframe: searchParams?.timeframe || '30d',
-    deepMode: searchParams?.deepMode || false,
+    region: searchParams?.region || DEFAULT_SEARCH_CONFIG.REGION,
+    timeframe: searchParams?.timeframe || DEFAULT_SEARCH_CONFIG.TIMEFRAME,
+    deepMode: searchParams?.deepMode ?? DEFAULT_SEARCH_CONFIG.DEEP_MODE,
     image: searchParams?.image,
-    setNiche: (n: string) => setSearchParams(prev => ({ 
-      ...prev, 
-      niche: n, 
-      region: prev?.region || 'Global',
-      timeframe: prev?.timeframe || '30d',
-      deepMode: prev?.deepMode || false,
+    setNiche: (n: string) => setSearchParams(prev => ({
+      ...prev,
+      niche: n,
+      region: prev?.region || DEFAULT_SEARCH_CONFIG.REGION,
+      timeframe: prev?.timeframe || DEFAULT_SEARCH_CONFIG.TIMEFRAME,
+      deepMode: prev?.deepMode ?? DEFAULT_SEARCH_CONFIG.DEEP_MODE,
       image: prev?.image
     })),
     setSearchContext, // Helper for bulk restoration

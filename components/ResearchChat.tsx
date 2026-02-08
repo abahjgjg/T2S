@@ -149,6 +149,7 @@ export const ResearchChat: React.FC<Props> = ({
             type="submit"
             disabled={!input.trim() || isLoading}
             className="absolute right-2 top-1.5 p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Send message"
           >
             <Send className="w-4 h-4" />
           </button>
