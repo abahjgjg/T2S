@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-marquee: marquee 30s linear infinite;
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+  }
+  
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a; 
+}
+::-webkit-scrollbar-thumb {
+  background: #334155; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569; 
+}
+
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: auto;
+  }
+  
+  body {
+    background-color: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Force Reset for Dark Mode Containers */
+  [class*='bg-slate-'], [class*='bg-gray-'], [class*='bg-zinc-'] {
+    background-color: white !important;
+    border-color: #e2e8f0 !important;
+    color: black !important;
+  }
+  
+  /* Ensure text visibility */
+  [class*='text-slate-'], [class*='text-gray-'], [class*='text-white'] {
+    color: #0f172a !important;
+  }
+  
+  /* Keep accent colors but make them printable */
+  [class*='text-emerald-'], [class*='text-blue-'], [class*='text-purple-'] {
+    filter: brightness(0.8);
+  }
+
+  /* Hide UI elements */
+  header, nav, button, .no-print {
+    display: none !important;
+  }
+
+  /* Typography optimizations */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    color: #000 !important;
+  }
+  
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Layout cleanup */
+  .grid {
+    display: block !important;
+  }
+  .grid > * {
+    margin-bottom: 2rem;
+    page-break-inside: avoid;
+  }
+
+  /* Hide scrollbars in print */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
