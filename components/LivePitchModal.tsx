@@ -8,6 +8,8 @@ import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { LIVE_AUDIO_CONFIG } from '../constants/appConfig';
+import { AUDIO_VISUALIZER_CONFIG, AUDIO_PROCESSING_CONFIG, PERSONA_VOICE_CONFIG, PERSONA_ID_PREFIX } from '../constants/audioVisualizerConfig';
+import { TEXT_TRUNCATION } from '../constants/displayConfig';
 
 interface Props {
   blueprint: Blueprint;
@@ -45,12 +47,12 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
 
   const availablePersonas = useMemo(() => {
     const dynamicPersonas: PitchPersona[] = (blueprint.personas || []).map((p, index) => ({
-      id: `gen_${index}`,
+      id: `${PERSONA_ID_PREFIX.GENERATED}${index}`,
       name: p.name,
       role: p.occupation,
-      description: `Generated Persona: ${p.age}. ${p.bio.slice(0, 100)}...`,
+      description: `Generated Persona: ${p.age}. ${p.bio.slice(0, TEXT_TRUNCATION.BIO_PREVIEW)}...`,
       icon: 'Sparkles',
-      voiceName: index % 2 === 0 ? 'Puck' : 'Zephyr',
+      voiceName: PERSONA_VOICE_CONFIG.VOICES[index % PERSONA_VOICE_CONFIG.VOICES.length],
       promptKey: 'PERSONA_GENERATED',
       customData: {
         name: p.name,
@@ -67,7 +69,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
 
   useEffect(() => {
     if (blueprint.personas && blueprint.personas.length > 0 && selectedPersona.id === PITCH_PERSONAS[0].id) {
-        const match = availablePersonas.find(p => p.id === 'gen_0');
+        const match = availablePersonas.find(p => p.id === `${PERSONA_ID_PREFIX.GENERATED}0`);
         if (match) setSelectedPersona(match);
     }
   }, [availablePersonas]);
@@ -97,7 +99,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
         setErrorMsg(msg);
       },
       onAudioData: (vol) => {
-        setVolume(prev => prev * 0.8 + vol * 0.2);
+        setVolume(prev => prev * AUDIO_VISUALIZER_CONFIG.SMOOTHING.PRIMARY + vol * AUDIO_VISUALIZER_CONFIG.SMOOTHING.SECONDARY);
       },
       onTranscript: (text, isUser) => {
         setTranscripts(prev => {
@@ -169,13 +171,13 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = '#10b981';
-      const barCount = 30;
+      const barCount = AUDIO_VISUALIZER_CONFIG.BAR_COUNT;
       const barWidth = width / barCount;
       const center = height / 2;
       for (let i = 0; i < barCount; i++) {
-        const wave = Math.sin((Date.now() / 200) + i) * 0.5 + 0.5;
+        const wave = Math.sin((Date.now() / AUDIO_VISUALIZER_CONFIG.WAVE_SPEED_DIVISOR) + i) * 0.5 + 0.5;
         const h = Math.max(2, volume * height * wave);
-        ctx.fillRect(i * barWidth + 2, center - h / 2, barWidth - 4, h);
+        ctx.fillRect(i * barWidth + AUDIO_VISUALIZER_CONFIG.BAR_SPACING, center - h / 2, barWidth - AUDIO_VISUALIZER_CONFIG.BAR_WIDTH_PADDING, h);
       }
       animationId = requestAnimationFrame(draw);
     };

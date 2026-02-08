@@ -68,3 +68,11 @@ export const DEV_CONFIG = {
   // Default reload delay after settings change
   RELOAD_DELAY_MS: 1000,
 } as const;
+
+// Asset ID Prefix Configuration
+export const ASSET_ID_PREFIX = {
+  SEARCH: 'search-',
+  BLUEPRINT: 'blueprint-',
+  USER: 'user-',
+  TEMP: 'temp-',
+} as const;

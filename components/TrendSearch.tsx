@@ -12,7 +12,9 @@ import { useAsset } from '../hooks/useAsset';
 import { STORAGE_KEYS } from '../constants/storageConfig';
 import { UI_TIMING } from '../constants/uiConfig';
 import { SPEECH_CONFIG } from '../constants/apiConfig';
-import { STORAGE_CONFIG } from '../constants/appConfig';
+import { STORAGE_CONFIG, ASSET_ID_PREFIX } from '../constants/appConfig';
+import { DATE_FORMATS, formatDate } from '../constants/dateTimeConfig';
+import { DISPLAY_LIMITS } from '../constants/displayConfig';
 
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
@@ -105,8 +107,7 @@ export const TrendSearch: React.FC<Props> = ({
     }
     
     // Set Date
-    const now = new Date();
-    setCurrentDate(now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }));
+    setCurrentDate(formatDate(new Date(), 'COMPACT'));
 
     // Initialize Ticker (Default Topics + Recent History + Saved Niches)
     const dynamicPool = uiText.tickerTopics || ["AI Trends", "Market Shifts"];
@@ -140,8 +141,8 @@ export const TrendSearch: React.FC<Props> = ({
     const cleanTerm = term.trim();
     if (!cleanTerm) return;
     
-    // Add to front, remove duplicates, limit to 5
-    const updated = [cleanTerm, ...recentSearches.filter(s => s !== cleanTerm)].slice(0, 5);
+    // Add to front, remove duplicates, limit to max history
+    const updated = [cleanTerm, ...recentSearches.filter(s => s !== cleanTerm)].slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_MAX);
     setRecentSearches(updated);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   };
@@ -217,7 +218,7 @@ export const TrendSearch: React.FC<Props> = ({
       }
 
       try {
-        const assetId = `search-${Date.now()}`;
+        const assetId = `${ASSET_ID_PREFIX.SEARCH}${Date.now()}`;
         await indexedDBService.saveAsset(assetId, file);
         setSelectedImage(`asset://${assetId}`);
         toast.success("Image attached");
@@ -452,7 +453,7 @@ export const TrendSearch: React.FC<Props> = ({
           </button>
           
           {/* Category Cards */}
-          {uiText.searchCategories.slice(0, 6).map((cat: string, i: number) => (
+          {uiText.searchCategories.slice(0, DISPLAY_LIMITS.CATEGORY_GRID_MAX).map((cat: string, i: number) => (
              <button
                key={i}
                onClick={() => {
@@ -481,7 +482,7 @@ export const TrendSearch: React.FC<Props> = ({
              </button>
           </div>
           <div className="flex flex-col gap-2 w-full">
-            {recentSearches.slice(0, 3).map((term, idx) => (
+            {recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN).map((term, idx) => (
               <button
                 key={idx}
                 onClick={() => {

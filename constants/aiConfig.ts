@@ -47,6 +47,10 @@ export const MEDIA_CONFIG = {
   // Video generation polling interval (milliseconds)
   VIDEO_POLL_INTERVAL_MS: 5000,
 
+  // Video resolution and aspect ratio
+  VIDEO_RESOLUTION: '720p',
+  VIDEO_ASPECT_RATIO: '16:9',
+
   // Retry configuration
   RETRY: {
     DEFAULT_DELAY_MS: 500,
@@ -68,7 +72,15 @@ export const MEDIA_CONFIG = {
     SAMPLE_RATE: 24000,
     // Buffer size for audio processing
     BUFFER_SIZE: 2048,
-  }
+  },
+
+  // AI Temperature values
+  TEMPERATURES: {
+    CREATIVE: 0.9,
+    BALANCED: 0.7,
+    PRECISE: 0.3,
+    DETERMINISTIC: 0.1,
+  },
 } as const;
 
 // Database query limits

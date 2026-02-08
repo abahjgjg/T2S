@@ -9,6 +9,7 @@ import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, 
 import { TrendDeepDiveModal } from './TrendDeepDiveModal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { COLORS } from '../constants/theme';
+import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
 
 interface Props {
   trends: Trend[];
@@ -53,9 +54,9 @@ export const TrendAnalysis: React.FC<Props> = ({
   const chartData = useMemo(() => {
     return [...trends]
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
-      .slice(0, 5)
+      .slice(0, DISPLAY_LIMITS.TRENDS_MAX_ITEMS)
       .map(t => ({
-        name: t.title.length > 15 ? t.title.slice(0, 15) + '...' : t.title,
+        name: t.title.length > TEXT_TRUNCATION.TITLE_SHORT ? t.title.slice(0, TEXT_TRUNCATION.TITLE_SHORT) + '...' : t.title,
         fullName: t.title,
         score: t.relevanceScore,
         sentiment: t.sentiment

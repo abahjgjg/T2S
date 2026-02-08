@@ -28,6 +28,7 @@ import { BlueprintCompetitors } from './blueprint/BlueprintCompetitors';
 import { BlueprintAffiliates } from './blueprint/BlueprintAffiliates';
 import { BlueprintStrategies } from './blueprint/BlueprintStrategies';
 import { BlueprintMarkdownViewer } from './blueprint/BlueprintMarkdownViewer';
+import { TEXT_TRUNCATION } from '../constants/displayConfig';
 
 interface Props {
   idea: BusinessIdea;
@@ -148,7 +149,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
 
     try {
       const aiService = getAIService(provider);
-      const nicheContext = idea.type + " " + idea.description.slice(0, 50);
+      const nicheContext = idea.type + " " + idea.description.slice(0, TEXT_TRUNCATION.NICHE_CONTEXT);
       const analysis = await aiService.analyzeCompetitor(compName, nicheContext, language);
       setCompetitorData(analysis);
     } catch (e) {
