@@ -1,8 +1,9 @@
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { TrendingUp, RotateCcw, BookMarked, Compass, User, LogIn, LayoutDashboard, Shield, MoreHorizontal, Keyboard } from 'lucide-react';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
+import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 
 interface Props {
   onReset: () => void;
@@ -18,12 +19,27 @@ export const Header: React.FC<Props> = ({
 }) => {
   const { language, setLanguage, uiText } = usePreferences();
   const { user } = useAuth();
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
-  // Keyboard shortcut: Ctrl/Cmd + R for New Research
+  // Keyboard shortcuts handler
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Ctrl/Cmd + R for New Research
     if ((e.ctrlKey || e.metaKey) && e.key === 'r' && showReset) {
       e.preventDefault();
       onReset();
+    }
+    
+    // ? key for keyboard shortcuts help (not when typing in inputs)
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement instanceof HTMLInputElement || 
+                             activeElement instanceof HTMLTextAreaElement ||
+                             activeElement?.getAttribute('contenteditable') === 'true';
+      
+      if (!isInputFocused) {
+        e.preventDefault();
+        setShowShortcutsModal(prev => !prev);
+      }
     }
   }, [onReset, showReset]);
 
@@ -141,9 +157,26 @@ export const Header: React.FC<Props> = ({
               EN
             </button>
           </div>
+
+          {/* Keyboard Shortcuts Button */}
+          <button
+            onClick={() => setShowShortcutsModal(true)}
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
+            title={language === 'id' ? 'Pintasan Keyboard (?)' : 'Keyboard Shortcuts (?)'}
+            aria-label={language === 'id' ? 'Buka bantuan pintasan keyboard' : 'Open keyboard shortcuts help'}
+          >
+            <Keyboard className="w-4 h-4" />
+          </button>
         </div>
 
       </div>
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal 
+        isOpen={showShortcutsModal}
+        onClose={() => setShowShortcutsModal(false)}
+        language={language}
+      />
     </header>
   );
 };
