@@ -4,6 +4,7 @@ import { Sparkles, Bot, ShieldCheck, ShieldAlert, Database, Upload, Download, Al
 import { toast } from '../ToastNotifications';
 import { indexedDBService } from '../../utils/storageUtils';
 import { AIProvider } from '../../types';
+import { DEV_CONFIG } from '../../constants/appConfig';
 
 interface Props {
   provider: AIProvider;
@@ -46,7 +47,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
       const text = await file.text();
       await indexedDBService.importDatabase(text);
       toast.success("Database Restored. Reloading...");
-      setTimeout(() => window.location.reload(), 1000);
+      setTimeout(() => window.location.reload(), DEV_CONFIG.RELOAD_DELAY_MS);
     } catch (e) {
       console.error(e);
       toast.error("Import Failed: Invalid File");

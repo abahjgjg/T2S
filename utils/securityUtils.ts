@@ -4,8 +4,11 @@
  * Implements "Trust No Input" principle.
  */
 
-export const MAX_SEARCH_LENGTH = 150; // Increased slightly for complex queries
-export const MAX_PROMPT_LENGTH = 2000; // Limit for internal variables
+import { VALIDATION_CONFIG } from "../constants/appConfig";
+
+// Re-export from config for backward compatibility
+export const MAX_SEARCH_LENGTH = VALIDATION_CONFIG.MAX_SEARCH_LENGTH;
+export const MAX_PROMPT_LENGTH = VALIDATION_CONFIG.MAX_PROMPT_LENGTH;
 
 // Regex patterns for sanitization
 const HTML_TAG_PATTERN = /<[^>]*>/g;

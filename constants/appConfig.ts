@@ -44,3 +44,27 @@ export const LIVE_AUDIO_CONFIG = {
   MERGE_WINDOW_MS: 3000,
   BUFFER_SIZE: 2048,
 } as const;
+
+// Cache Configuration
+export const CACHE_CONFIG = {
+  // Default stale time for React Query (5 minutes in milliseconds)
+  DEFAULT_STALE_TIME_MS: 1000 * 60 * 5,
+  // Default cache time
+  DEFAULT_CACHE_TIME_MS: 1000 * 60 * 10,
+} as const;
+
+// Validation Configuration
+export const VALIDATION_CONFIG = {
+  // Maximum search input length
+  MAX_SEARCH_LENGTH: 150,
+  // Maximum prompt length for internal variables
+  MAX_PROMPT_LENGTH: 2000,
+} as const;
+
+// Development Configuration
+export const DEV_CONFIG = {
+  // Default development server port
+  DEFAULT_PORT: 3000,
+  // Default reload delay after settings change
+  RELOAD_DELAY_MS: 1000,
+} as const;

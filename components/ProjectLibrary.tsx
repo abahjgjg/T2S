@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { CACHE_CONFIG } from '../constants/appConfig';
 
 interface Props {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
       return data;
     },
     enabled: isOpen && activeTab === 'cloud' && !!user,
-    staleTime: 1000 * 60 * 5, 
+    staleTime: CACHE_CONFIG.DEFAULT_STALE_TIME_MS,
   });
 
   const deleteMutation = useMutation({

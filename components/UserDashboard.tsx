@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Cartes
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { CACHE_CONFIG } from '../constants/appConfig';
 
 interface Props {
   user: UserProfile;
@@ -20,7 +21,7 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
   const { data: blueprints = [], isLoading } = useQuery({
     queryKey: ['userBlueprints', user.id],
     queryFn: () => supabaseService.getUserPublishedBlueprints(user.id),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: CACHE_CONFIG.DEFAULT_STALE_TIME_MS,
     enabled: !!user.id,
   });
 
