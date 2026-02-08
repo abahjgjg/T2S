@@ -8,6 +8,7 @@ import { useIdeaEngine } from './useIdeaEngine';
 import { useBlueprintEngine } from './useBlueprintEngine';
 import { useResearchPersistence } from './useResearchPersistence';
 import { STORAGE_KEYS } from '../constants/storageConfig';
+import { DEFAULT_SEARCH_CONFIG, STANDARD_SEARCH_CONFIG } from '../constants/searchConfig';
 
 export const useResearch = (aiService: AIService, language: Language, userId?: string) => {
   // --- Engines ---
@@ -54,9 +55,9 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
       if (parsed.niche) {
         trendEngine.setSearchContext(
           parsed.niche,
-          parsed.region || 'Global',
-          parsed.timeframe || '30d',
-          parsed.deepMode || false,
+          parsed.region || DEFAULT_SEARCH_CONFIG.REGION,
+          parsed.timeframe || DEFAULT_SEARCH_CONFIG.TIMEFRAME,
+          parsed.deepMode ?? DEFAULT_SEARCH_CONFIG.DEEP_MODE,
           parsed.image
         );
       }
@@ -70,14 +71,20 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
 
   // Sync Engine Errors to Main UI
   useEffect(() => {
-    if (trendEngine.error) setError((trendEngine.error as any).message || "Market research failed.");
-    if (ideaEngine.error) setError((ideaEngine.error as any).message || "Idea generation failed.");
-    if (blueprintEngine.error) setError((blueprintEngine.error as any).message || "Blueprint generation failed.");
+    const errors: string[] = [];
+    if (trendEngine.error) errors.push((trendEngine.error as any).message || "Market research failed.");
+    if (ideaEngine.error) errors.push((ideaEngine.error as any).message || "Idea generation failed.");
+    if (blueprintEngine.error) errors.push((blueprintEngine.error as any).message || "Blueprint generation failed.");
+    
+    // Set the most recent error, or clear if none
+    if (errors.length > 0) {
+      setError(errors[0]);
+    }
   }, [trendEngine.error, ideaEngine.error, blueprintEngine.error]);
 
   // --- Actions ---
 
-  const executeFreshAIResearch = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
+  const executeFreshAIResearch = useCallback(async (searchTerm: string, region: SearchRegion = DEFAULT_SEARCH_CONFIG.REGION, timeframe: SearchTimeframe = DEFAULT_SEARCH_CONFIG.TIMEFRAME, deepMode: boolean = DEFAULT_SEARCH_CONFIG.DEEP_MODE, image?: string) => {
     setAppState('RESEARCHING');
     setIsFromCache(false);
     setError(null);
@@ -105,10 +112,10 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     await ideaEngine.generateIdeas(trendEngine.niche, selectedTrends);
   }, [ideaEngine, trendEngine.niche]);
 
-  const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string) => {
+  const executeSearchSequence = useCallback(async (searchTerm: string, region: SearchRegion = DEFAULT_SEARCH_CONFIG.REGION, timeframe: SearchTimeframe = DEFAULT_SEARCH_CONFIG.TIMEFRAME, deepMode: boolean = DEFAULT_SEARCH_CONFIG.DEEP_MODE, image?: string) => {
     try {
       // Check Cache (Only if no image, as image search is too specific)
-      const isStandardSearch = region === 'Global' && timeframe === '30d' && !deepMode && !image;
+      const isStandardSearch = region === STANDARD_SEARCH_CONFIG.REGION && timeframe === STANDARD_SEARCH_CONFIG.TIMEFRAME && !deepMode && !image;
       const cachedIdeas = isStandardSearch ? await supabaseService.findBlueprintsByNiche(searchTerm) : [];
 
       if (cachedIdeas.length > 0) {
@@ -168,7 +175,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
   }, [trendEngine, ideaEngine, blueprintEngine]);
 
   const loadProject = useCallback((project: { niche: string, idea: BusinessIdea, blueprint: Blueprint }) => {
-    trendEngine.setSearchContext(project.niche, 'Global', '30d', false, undefined);
+    trendEngine.setSearchContext(project.niche, DEFAULT_SEARCH_CONFIG.REGION, DEFAULT_SEARCH_CONFIG.TIMEFRAME, DEFAULT_SEARCH_CONFIG.DEEP_MODE, undefined);
     trendEngine.setTrends([]);
     ideaEngine.setIdeas([]);
     blueprintEngine.setSelectedIdea(project.idea);

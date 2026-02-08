@@ -17,6 +17,7 @@ import { useAuth } from './contexts/AuthContext';
 import { usePreferences } from './contexts/PreferencesContext';
 import { useRouter } from './hooks/useRouter';
 import { STORAGE_KEYS } from './constants/storageConfig';
+import { DEFAULT_SEARCH_CONFIG } from './constants/searchConfig';
 
 // Lazy Load Heavy Route Components
 const PublicBlogView = React.lazy(() => import('./components/PublicBlogView').then(module => ({ default: module.PublicBlogView })));
@@ -65,7 +66,7 @@ const App: React.FC = () => {
       rActions.resetResearch();
       pushState('/');
     }
-  }, [language, rActions, pushState]);
+  }, [uiText.resetConfirmation, rActions, pushState]);
 
   const handleSearch = useCallback(async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
     const newUrl = `/idea?niche=${encodeURIComponent(searchTerm)}`;
@@ -121,7 +122,7 @@ const App: React.FC = () => {
         rSetters.setAppState('ANALYZING');
       } else {
         if (isInitialLoad || rState.niche !== sharedNiche) {
-          rActions.executeSearchSequence(sharedNiche, 'Global', '30d');
+          rActions.executeSearchSequence(sharedNiche, DEFAULT_SEARCH_CONFIG.REGION, DEFAULT_SEARCH_CONFIG.TIMEFRAME);
         }
       }
       return;
@@ -174,7 +175,7 @@ const App: React.FC = () => {
     window.addEventListener('popstate', onPopState);
 
     const onReSearch = (e: any) => {
-      handleSearch(e.detail, 'Global', '30d', false);
+      handleSearch(e.detail, DEFAULT_SEARCH_CONFIG.REGION, DEFAULT_SEARCH_CONFIG.TIMEFRAME, DEFAULT_SEARCH_CONFIG.DEEP_MODE);
     };
     window.addEventListener('re-search', onReSearch);
 
