@@ -52,7 +52,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
       role: p.occupation,
       description: `Generated Persona: ${p.age}. ${p.bio.slice(0, TEXT_TRUNCATION.BIO_PREVIEW)}...`,
       icon: 'Sparkles',
-      voiceName: PERSONA_VOICE_CONFIG.VOICES[index % PERSONA_VOICE_CONFIG.VOICES.length],
+      voiceName: PERSONA_VOICE_CONFIG.VOICES[index % PERSONA_VOICE_CONFIG.VOICES.length] as PitchPersona['voiceName'],
       promptKey: 'PERSONA_GENERATED',
       customData: {
         name: p.name,
