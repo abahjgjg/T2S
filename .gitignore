@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 
 # Tool-specific directories
-.opencode
+# .opencode - Commented out to track agent configurations
+# Note: CMZ agent configuration and skills are tracked in repository
