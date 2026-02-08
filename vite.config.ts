@@ -37,6 +37,9 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
+      build: {
+        chunkSizeWarningLimit: 1500,
+      },
       test: {
         globals: true,
         environment: 'jsdom',
