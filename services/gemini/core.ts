@@ -6,6 +6,7 @@ import { retryOperation } from "../../utils/retryUtils";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS, MEDIA_CONFIG, QUERY_LIMITS } from "../../constants/aiConfig";
+import { TOKEN_LIMITS, THINKING_BUDGETS } from "../../constants/apiConfig";
 import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 
@@ -161,8 +162,8 @@ export const generateSystemBlueprint = async (idea: BusinessIdea, lang: Language
           responseMimeType: "application/json",
           responseSchema: blueprintSchema,
           // Set both maxOutputTokens and thinkingBudget to ensure space for the large JSON response
-          maxOutputTokens: 32768, 
-          thinkingConfig: { thinkingBudget: 10240 }, 
+          maxOutputTokens: TOKEN_LIMITS.MAX_OUTPUT, 
+          thinkingConfig: { thinkingBudget: THINKING_BUDGETS.COMPLEX }, 
         },
       });
 
@@ -442,7 +443,7 @@ export const conductViabilityAudit = async (idea: BusinessIdea, blueprint: Bluep
         config: {
           responseMimeType: "application/json",
           responseSchema: auditSchema,
-          thinkingConfig: { thinkingBudget: 2048 }, 
+          thinkingConfig: { thinkingBudget: THINKING_BUDGETS.STANDARD }, 
         },
       });
 
@@ -758,7 +759,7 @@ export const analyzePitchTranscript = async (transcript: string, idea: BusinessI
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,
-          thinkingConfig: { thinkingBudget: 2048 },
+          thinkingConfig: { thinkingBudget: THINKING_BUDGETS.STANDARD },
         },
       });
 

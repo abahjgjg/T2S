@@ -1,5 +1,6 @@
 
 import { supabase } from './client';
+import { STORAGE_CONFIG } from '../../constants/appConfig';
 
 const BUCKET_NAME = 'public-assets';
 
@@ -15,7 +16,7 @@ export const uploadPublicAsset = async (file: Blob, folder: 'images' | 'videos',
     const { error } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(fileName, file, {
-        cacheControl: '3600',
+        cacheControl: String(STORAGE_CONFIG.CACHE_TTL),
         upsert: false
       });
 

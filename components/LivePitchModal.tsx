@@ -7,6 +7,7 @@ import { getAIService } from '../services/aiRegistry';
 import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { LIVE_AUDIO_CONFIG } from '../constants/appConfig';
 
 interface Props {
   blueprint: Blueprint;
@@ -101,7 +102,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
       onTranscript: (text, isUser) => {
         setTranscripts(prev => {
            const last = prev[prev.length - 1];
-           if (last && last.isUser === isUser && Date.now() - last.timestamp < 3000) {
+            if (last && last.isUser === isUser && Date.now() - last.timestamp < LIVE_AUDIO_CONFIG.MERGE_WINDOW_MS) {
              const updated = [...prev];
              updated[updated.length - 1].text += " " + text;
              updated[updated.length - 1].timestamp = Date.now();

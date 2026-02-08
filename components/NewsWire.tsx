@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { Globe, ExternalLink, Search, Newspaper, Zap, CheckCircle2, AlertTriangle, Radio, BarChart2, ShieldCheck } from 'lucide-react';
 import { AIProvider } from '../types';
+import { API_ENDPOINTS } from '../constants/apiConfig';
 
 interface Props {
   sources: { title: string; url: string }[];
@@ -95,11 +96,11 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
               <span>{new Date().toLocaleDateString()}</span>
            </div>
            
-           {sources.map((source, i) => {
-             // Basic favicon fallback
-             const domain = new URL(source.url).hostname;
-             const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-             const trusted = isTrusted(source.url);
+            {sources.map((source, i) => {
+              // Basic favicon fallback
+              const domain = new URL(source.url).hostname;
+              const faviconUrl = `${API_ENDPOINTS.EXTERNAL.FAVICON}?domain=${domain}&sz=64`;
+              const trusted = isTrusted(source.url);
 
              return (
                <a 
