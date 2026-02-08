@@ -2,6 +2,7 @@
 import { AffiliateProduct, Lead } from '../../types';
 import { supabase } from './client';
 import { APP_URLS } from '../../constants/appConfig';
+import { DATABASE_TABLES, DATABASE_SPECIAL_IDS } from '../../constants/databaseTables';
 
 // --- Admin Security (Cloud Lock) ---
 
@@ -15,9 +16,9 @@ export const getAdminOwner = async (): Promise<string | null> => {
 
   try {
     const { data, error } = await supabase
-      .from('affiliate_products')
+      .from(DATABASE_TABLES.AFFILIATE_PRODUCTS)
       .select('description')
-      .eq('id', 'ADMIN_LOCK')
+      .eq('id', DATABASE_SPECIAL_IDS.ADMIN_LOCK)
       .single();
     
     if (!error && data) {
@@ -45,10 +46,10 @@ export const claimAdminLock = async (email: string): Promise<boolean> => {
   }
 
   const { error } = await supabase
-    .from('affiliate_products')
+    .from(DATABASE_TABLES.AFFILIATE_PRODUCTS)
     .upsert({
-      id: 'ADMIN_LOCK',
-      name: 'SYSTEM_LOCK',
+      id: DATABASE_SPECIAL_IDS.ADMIN_LOCK,
+      name: DATABASE_SPECIAL_IDS.SYSTEM_LOCK_NAME,
       affiliateUrl: APP_URLS.ADMIN, // Dummy
       description: email,
       keywords: [] // No keywords = no injection
@@ -68,7 +69,7 @@ export const claimAdminLock = async (email: string): Promise<boolean> => {
 export const releaseAdminLock = async (): Promise<boolean> => {
   if (!supabase) return false;
   
-  const { error } = await supabase.from('affiliate_products').delete().eq('id', 'ADMIN_LOCK');
+  const { error } = await supabase.from(DATABASE_TABLES.AFFILIATE_PRODUCTS).delete().eq('id', DATABASE_SPECIAL_IDS.ADMIN_LOCK);
   return !error;
 };
 
@@ -79,9 +80,9 @@ export const getAffiliateProducts = async (): Promise<AffiliateProduct[]> => {
 
   try {
     const { data, error } = await supabase
-      .from('affiliate_products')
+      .from(DATABASE_TABLES.AFFILIATE_PRODUCTS)
       .select('*')
-      .neq('id', 'ADMIN_LOCK'); // Filter out the security lock
+      .neq('id', DATABASE_SPECIAL_IDS.ADMIN_LOCK); // Filter out the security lock
       
     if (error) throw error;
     return data as AffiliateProduct[];
@@ -94,14 +95,14 @@ export const getAffiliateProducts = async (): Promise<AffiliateProduct[]> => {
 export const saveAffiliateProduct = async (product: AffiliateProduct): Promise<void> => {
   if (!supabase) return;
 
-  const { error } = await supabase.from('affiliate_products').upsert(product);
+  const { error } = await supabase.from(DATABASE_TABLES.AFFILIATE_PRODUCTS).upsert(product);
   if (error) console.error("Supabase affiliate save error", error);
 };
 
 export const deleteAffiliateProduct = async (id: string): Promise<void> => {
   if (!supabase) return;
 
-  const { error } = await supabase.from('affiliate_products').delete().eq('id', id);
+  const { error } = await supabase.from(DATABASE_TABLES.AFFILIATE_PRODUCTS).delete().eq('id', id);
   if (error) console.error("Supabase affiliate delete error", error);
 };
 
@@ -110,14 +111,14 @@ export const incrementAffiliateClick = async (id: string): Promise<void> => {
 
   try {
     const { data } = await supabase
-      .from('affiliate_products')
+      .from(DATABASE_TABLES.AFFILIATE_PRODUCTS)
       .select('clicks')
       .eq('id', id)
       .single();
     
     if (data) {
       const newCount = (data.clicks || 0) + 1;
-      await supabase.from('affiliate_products').update({ clicks: newCount }).eq('id', id);
+      await supabase.from(DATABASE_TABLES.AFFILIATE_PRODUCTS).update({ clicks: newCount }).eq('id', id);
     }
   } catch (e) {
     console.warn("Supabase click tracking failed (Column might be missing)", e);
@@ -140,7 +141,7 @@ export const saveLead = async (blueprintId: string, email: string, sourceTitle?:
     return false;
   }
 
-  const { error } = await supabase.from('leads').insert([{
+  const { error } = await supabase.from(DATABASE_TABLES.LEADS).insert([{
     blueprint_id: blueprintId,
     email: email,
     source_title: sourceTitle
@@ -158,7 +159,7 @@ export const getLeads = async (): Promise<Lead[]> => {
   if (!supabase) return [];
 
   try {
-    const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from(DATABASE_TABLES.LEADS).select('*').order('created_at', { ascending: false });
     if (error) throw error;
     
     // Map back to Lead interface

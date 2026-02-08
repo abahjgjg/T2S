@@ -17,8 +17,9 @@ import { useAuth } from './contexts/AuthContext';
 import { usePreferences } from './contexts/PreferencesContext';
 import { useRouter } from './hooks/useRouter';
 import { STORAGE_KEYS } from './constants/storageConfig';
-import { SEO_CONFIG, getOgImageUrl } from './constants/appConfig';
+import { SEO_CONFIG, getOgImageUrl, SCROLL_CONFIG } from './constants/appConfig';
 import { DEFAULT_SEARCH_CONFIG } from './constants/searchConfig';
+import { ROUTES, buildRoute } from './constants/routes';
 
 // Lazy Load Heavy Route Components
 const PublicBlogView = React.lazy(() => import('./components/PublicBlogView').then(module => ({ default: module.PublicBlogView })));
@@ -50,14 +51,14 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      setShowScrollTop(window.scrollY > SCROLL_CONFIG.THRESHOLD);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: SCROLL_CONFIG.TOP_POSITION, behavior: 'smooth' });
   }, []);
   
   const handleReset = useCallback(() => {
@@ -65,12 +66,12 @@ const App: React.FC = () => {
 
     if (window.confirm(confirmMsg)) {
       rActions.resetResearch();
-      pushState('/');
+      pushState(ROUTES.HOME);
     }
   }, [uiText.resetConfirmation, rActions, pushState]);
 
   const handleSearch = useCallback(async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
-    const newUrl = `/idea?niche=${encodeURIComponent(searchTerm)}`;
+    const newUrl = buildRoute.idea({ niche: searchTerm });
     pushState(newUrl);
     rActions.executeSearchSequence(searchTerm, region, timeframe, deepMode, image);
   }, [pushState, rActions]);
@@ -78,13 +79,13 @@ const App: React.FC = () => {
   const handleIdeaSelectionWrapper = useCallback(async (idea: any) => {
     const publishedId = await rActions.handleSelectIdea(idea);
     if (publishedId) {
-      pushState(`/blueprint?id=${publishedId}`);
+      pushState(buildRoute.blueprint({ id: publishedId }));
     }
   }, [pushState, rActions]);
 
   const handleBackToIdeasWrapper = useCallback(() => {
     rActions.handleBackToIdeas();
-    pushState(`/idea?niche=${encodeURIComponent(rState.niche)}`);
+    pushState(buildRoute.idea({ niche: rState.niche }));
   }, [pushState, rActions, rState.niche]);
 
   const handleRouting = useCallback(async (isInitialLoad = false) => {
@@ -93,30 +94,30 @@ const App: React.FC = () => {
     const params = getParams();
     const path = getPath();
 
-    if (path.includes('/admin')) {
+    if (path.includes(ROUTES.ADMIN)) {
       rSetters.setAppState('ADMIN');
       return;
     }
 
-    if (path.includes('/dashboard')) {
+    if (path.includes(ROUTES.DASHBOARD)) {
       rSetters.setAppState('DASHBOARD');
       return;
     }
 
-    if (path.includes('/directory')) {
+    if (path.includes(ROUTES.DIRECTORY)) {
       rSetters.setAppState('DIRECTORY');
       return;
     }
 
     const sharedId = params.get('id');
-    if (path.includes('/blueprint') && sharedId) {
+    if (path.includes(ROUTES.BLUEPRINT) && sharedId) {
       if (rState.appState === 'VIEWING' && rState.currentBlueprintId === sharedId) return;
       rSetters.setAppState('VIEWING_PUBLIC');
       return;
     }
 
     const sharedNiche = params.get('niche');
-    if (path.includes('/idea') && sharedNiche) {
+    if (path.includes(ROUTES.IDEA) && sharedNiche) {
       if (rState.niche === sharedNiche && rState.ideas.length > 0) {
         rSetters.setSelectedIdea(null);
         rSetters.setBlueprint(null);
@@ -129,7 +130,7 @@ const App: React.FC = () => {
       return;
     }
 
-    if (path === '/' || path === '') {
+    if (path === ROUTES.HOME || path === '') {
       if (!isInitialLoad) {
         rActions.resetResearch();
       }
@@ -165,9 +166,9 @@ const App: React.FC = () => {
   }, [rState.isRestoring, handleRouting]);
 
   useEffect(() => {
-    if (!user && window.location.pathname.includes('/dashboard')) {
+    if (!user && window.location.pathname.includes(ROUTES.DASHBOARD)) {
         rSetters.setAppState('IDLE');
-        pushState('/');
+        pushState(ROUTES.HOME);
     }
   }, [user, rSetters, pushState]);
 
@@ -261,7 +262,7 @@ const App: React.FC = () => {
           id={sharedId}
           onHome={() => {
             rSetters.setAppState('IDLE');
-            pushState('/');
+            pushState(ROUTES.HOME);
           }}
         />
         <ToastNotifications />
@@ -275,7 +276,7 @@ const App: React.FC = () => {
         <AdminPanel 
           onExit={() => {
             rSetters.setAppState('IDLE');
-            pushState('/');
+            pushState(ROUTES.HOME);
           }}
           user={user}
           onLogin={openAuthModal}
@@ -295,7 +296,7 @@ const App: React.FC = () => {
             user={user}
             onHome={() => {
               rSetters.setAppState('IDLE');
-              pushState('/');
+              pushState(ROUTES.HOME);
             }}
           />
         ) : (
@@ -303,7 +304,7 @@ const App: React.FC = () => {
             <h2 className="text-2xl font-bold text-white mb-4">Please Log In</h2>
             <p className="text-slate-400 mb-6">You need to be signed in to view your dashboard.</p>
             <button onClick={openAuthModal} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">Log In</button>
-            <button onClick={() => { rSetters.setAppState('IDLE'); pushState('/'); }} className="mt-4 text-slate-500 hover:text-white">Go Home</button>
+            <button onClick={() => { rSetters.setAppState('IDLE'); pushState(ROUTES.HOME); }} className="mt-4 text-slate-500 hover:text-white">Go Home</button>
           </div>
         )}
         <ToastNotifications />
@@ -326,16 +327,16 @@ const App: React.FC = () => {
         onOpenLibrary={() => setIsLibraryOpen(true)}
         onOpenDirectory={() => {
           rSetters.setAppState('DIRECTORY');
-          pushState('/directory');
+          pushState(ROUTES.DIRECTORY);
         }}
         onOpenAdmin={() => {
           rSetters.setAppState('ADMIN');
-          pushState('/admin');
+          pushState(ROUTES.ADMIN);
         }}
         onLogin={() => {
           if (user) {
              rSetters.setAppState('DASHBOARD');
-             pushState('/dashboard');
+             pushState(ROUTES.DASHBOARD);
           } else {
              openAuthModal();
           }
@@ -369,7 +370,7 @@ const App: React.FC = () => {
            <Suspense fallback={<div className="py-20 flex justify-center"><Loader2 className="w-10 h-10 text-emerald-500 animate-spin" /></div>}>
              <Directory 
                onViewBlueprint={(id) => {
-                 pushState(`/blueprint?id=${id}`);
+                 pushState(buildRoute.blueprint({ id }));
                  rSetters.setAppState('VIEWING_PUBLIC');
                }} 
               />
