@@ -10,6 +10,9 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { indexedDBService } from '../utils/storageUtils';
 import { useAsset } from '../hooks/useAsset';
 import { STORAGE_KEYS } from '../constants/storageConfig';
+import { UI_TIMING } from '../constants/uiConfig';
+import { SPEECH_CONFIG } from '../constants/apiConfig';
+import { STORAGE_CONFIG } from '../constants/appConfig';
 
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
@@ -126,7 +129,7 @@ export const TrendSearch: React.FC<Props> = ({
       const interval = setInterval(() => {
         i = (i + 1) % texts.length;
         setLoadingText(texts[i]);
-      }, 2500);
+      }, UI_TIMING.LOADING_TEXT_ROTATION);
       return () => clearInterval(interval);
     } else {
       setLoadingText(uiText.scanning);
@@ -187,7 +190,7 @@ export const TrendSearch: React.FC<Props> = ({
     
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition() as ISpeechRecognition;
-      recognition.lang = 'en-US'; 
+      recognition.lang = SPEECH_CONFIG.DEFAULT_LANG; 
       recognition.start();
       setIsListening(true);
       
@@ -206,7 +209,7 @@ export const TrendSearch: React.FC<Props> = ({
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > STORAGE_CONFIG.MAX_FILE_SIZE_BYTES) {
         toast.error("Image too large (max 5MB)");
         return;
       }

@@ -2,13 +2,14 @@
 import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
 import { OPENAI_MODELS, MEDIA_CONFIG } from "../../constants/aiConfig";
+import { API_ENDPOINTS, VOICE_NAMES, IMAGE_SIZES, RESPONSE_FORMATS } from "../../constants/apiConfig";
 
 export const generateVoiceSummary = async (text: string, lang: Language): Promise<string | null> => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) return null;
 
   return retryOperation(async () => {
-    const response = await fetch("https://api.openai.com/v1/audio/speech", {
+    const response = await fetch(API_ENDPOINTS.OPENAI.SPEECH, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -17,7 +18,7 @@ export const generateVoiceSummary = async (text: string, lang: Language): Promis
       body: JSON.stringify({
         model: OPENAI_MODELS.TTS,
         input: text.slice(0, MEDIA_CONFIG.TTS_MAX_CHARS),
-        voice: "alloy"
+        voice: VOICE_NAMES.DEFAULT
       })
     });
 
@@ -45,7 +46,7 @@ export const generateBrandImage = async (ideaName: string, description: string, 
   return retryOperation(async () => {
     const prompt = `Professional logo design for "${ideaName}". ${description}. Style: ${style}. Vector flat design.`;
 
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
+    const response = await fetch(API_ENDPOINTS.OPENAI.IMAGES, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,8 +56,8 @@ export const generateBrandImage = async (ideaName: string, description: string, 
         model: OPENAI_MODELS.IMAGE,
         prompt: prompt,
         n: 1,
-        size: "1024x1024",
-        response_format: "b64_json"
+        size: IMAGE_SIZES.SQUARE,
+        response_format: RESPONSE_FORMATS.BASE64
       })
     });
 

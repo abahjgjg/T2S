@@ -7,6 +7,7 @@ import { toast } from './ToastNotifications';
 import { SafeMarkdown } from './SafeMarkdown';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { UI_TIMING } from '../constants/uiConfig';
+import { getOgImageUrl } from '../constants/appConfig';
 
 interface Props {
   id?: string | null;
@@ -58,7 +59,7 @@ export const PublicBlogView: React.FC<Props> = ({ id, data: initialData, onHome 
   const [isPostingComment, setIsPostingComment] = useState(false);
 
   // Dynamic SEO & Open Graph Tags
-  const ogImage = idea?.name ? `https://placehold.co/1200x630/0f172a/10b981?text=${encodeURIComponent(idea.name)}&font=roboto` : '';
+  const ogImage = idea?.name ? getOgImageUrl(encodeURIComponent(idea.name)) : '';
   useMetaTags(
     idea?.name ? `${idea.name} | TrendVentures` : 'TrendVentures',
     blueprint?.executiveSummary ? blueprint.executiveSummary.slice(0, 160) + '...' : 'Business Blueprint',

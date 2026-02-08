@@ -1,6 +1,7 @@
 
 import { safeLocalStorage } from '../utils/storageUtils';
 import { STORAGE_KEYS } from '../constants/storageConfig';
+import { TELEMETRY_CONFIG } from '../constants/appConfig';
 
 export interface SystemLog {
   id: string;
@@ -12,7 +13,6 @@ export interface SystemLog {
 }
 
 const LOG_STORAGE_KEY = STORAGE_KEYS.TELEMETRY_LOGS;
-const MAX_LOGS = 50;
 
 export const telemetryService = {
   logError: (error: Error | string, context: string = 'System') => {
@@ -29,7 +29,7 @@ export const telemetryService = {
     };
 
     const logs = safeLocalStorage.getItem<SystemLog[]>(LOG_STORAGE_KEY, []);
-    const updated = [newLog, ...logs].slice(0, MAX_LOGS);
+    const updated = [newLog, ...logs].slice(0, TELEMETRY_CONFIG.MAX_LOGS);
     safeLocalStorage.setItem(LOG_STORAGE_KEY, updated);
     
     console.error(`[${context}]`, error);

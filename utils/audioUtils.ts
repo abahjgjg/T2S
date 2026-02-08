@@ -1,5 +1,7 @@
 
 // Utility to handle audio encoding/decoding for Gemini Live API and standard formats
+import { MEDIA_CONFIG } from "../constants/aiConfig";
+import { AUDIO_CONSTANTS } from "../constants/appConfig";
 
 /**
  * Decodes a base64 string into a Uint8Array
@@ -34,7 +36,7 @@ export function encodeBase64(bytes: Uint8Array): string {
 export async function decodeAudioData(
   base64Data: string,
   ctx: AudioContext,
-  sampleRate: number = 24000,
+  sampleRate: number = MEDIA_CONFIG.AUDIO.SAMPLE_RATE,
   numChannels: number = 1
 ): Promise<AudioBuffer> {
   const data = decodeBase64(base64Data);
@@ -62,7 +64,7 @@ export async function decodeAudioData(
     const channelData = buffer.getChannelData(channel);
     for (let i = 0; i < frameCount; i++) {
       // Convert Int16 to Float32 [-1.0, 1.0]
-      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+      channelData[i] = dataInt16[i * numChannels + channel] / AUDIO_CONSTANTS.INT16_MAX;
     }
   }
   return buffer;

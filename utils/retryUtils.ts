@@ -5,10 +5,12 @@ import { telemetryService } from "../services/telemetryService";
  * Executes a promise-returning function with retry logic.
  * Handles exponential backoff and determines if errors are retryable.
  */
+import { MEDIA_CONFIG } from "../constants/aiConfig";
+
 export const retryOperation = async <T>(
   operation: () => Promise<T>,
-  maxRetries: number = 3,
-  initialDelayMs: number = 1000,
+  maxRetries: number = MEDIA_CONFIG.RETRY.DEFAULT_MAX_RETRIES,
+  initialDelayMs: number = MEDIA_CONFIG.RETRY.DEFAULT_DELAY_MS,
   context: string = 'Operation' // Added context parameter
 ): Promise<T> => {
   let lastError: any;

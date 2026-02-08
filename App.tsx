@@ -17,6 +17,7 @@ import { useAuth } from './contexts/AuthContext';
 import { usePreferences } from './contexts/PreferencesContext';
 import { useRouter } from './hooks/useRouter';
 import { STORAGE_KEYS } from './constants/storageConfig';
+import { SEO_CONFIG, getOgImageUrl } from './constants/appConfig';
 
 // Lazy Load Heavy Route Components
 const PublicBlogView = React.lazy(() => import('./components/PublicBlogView').then(module => ({ default: module.PublicBlogView })));
@@ -192,9 +193,9 @@ const App: React.FC = () => {
   }, [savedProjects]);
 
   useMetaTags(
-    "TrendVentures AI | Market Research Suite",
-    "Generate comprehensive business blueprints and revenue models from real-time news and trends.",
-    "https://placehold.co/1200x630/0f172a/10b981?text=TrendVentures+AI&font=roboto",
+    SEO_CONFIG.DEFAULT_TITLE,
+    SEO_CONFIG.DEFAULT_DESCRIPTION,
+    getOgImageUrl(),
     window.location.href
   );
 

@@ -1,6 +1,7 @@
 
 import { retryOperation } from "../../utils/retryUtils";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
+import { API_ENDPOINTS, AI_TEMPERATURES } from "../../constants/apiConfig";
 
 export interface OpenAIToolCall {
   id: string;
@@ -53,11 +54,11 @@ export const callOpenAI = async (
     const body: OpenAIRequestBody = {
       model,
       messages,
-      temperature: 0.7,
+      temperature: AI_TEMPERATURES.DEFAULT,
       ...options
     };
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch(API_ENDPOINTS.OPENAI.CHAT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

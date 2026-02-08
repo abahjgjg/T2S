@@ -1,6 +1,7 @@
 
 import { AffiliateProduct, Lead } from '../../types';
 import { supabase } from './client';
+import { APP_URLS } from '../../constants/appConfig';
 
 // --- Admin Security (Cloud Lock) ---
 
@@ -48,7 +49,7 @@ export const claimAdminLock = async (email: string): Promise<boolean> => {
     .upsert({
       id: 'ADMIN_LOCK',
       name: 'SYSTEM_LOCK',
-      affiliateUrl: 'https://trendventures.ai/admin', // Dummy
+      affiliateUrl: APP_URLS.ADMIN, // Dummy
       description: email,
       keywords: [] // No keywords = no injection
     });

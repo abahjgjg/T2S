@@ -5,6 +5,7 @@ import { retryOperation } from "../../utils/retryUtils";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS } from "../../constants/aiConfig";
+import { THINKING_BUDGETS } from "../../constants/apiConfig";
 import { TrendListSchema, TrendDeepDiveSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 import { Type } from "@google/genai";
@@ -65,7 +66,7 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
             }
           },
           // If Deep Mode, enable Thinking for better analysis
-          ...(deepMode ? { thinkingConfig: { thinkingBudget: 1024 } } : {})
+          ...(deepMode ? { thinkingConfig: { thinkingBudget: THINKING_BUDGETS.FAST } } : {})
         },
       };
 
@@ -163,7 +164,7 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
         contents: prompt,
         config: {
           tools: [{ googleSearch: {} }],
-          thinkingConfig: { thinkingBudget: 2048 }, // Enable reasoning for deeper analysis
+          thinkingConfig: { thinkingBudget: THINKING_BUDGETS.STANDARD }, // Enable reasoning for deeper analysis
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
