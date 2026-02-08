@@ -87,8 +87,8 @@ export const generateMarketingVideo = async (ideaName: string, description: stri
         prompt: prompt,
         config: {
           numberOfVideos: 1,
-          resolution: '720p',
-          aspectRatio: '16:9'
+          resolution: MEDIA_CONFIG.VIDEO_RESOLUTION,
+          aspectRatio: MEDIA_CONFIG.VIDEO_ASPECT_RATIO
         }
       });
 

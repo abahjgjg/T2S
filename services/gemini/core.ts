@@ -590,7 +590,7 @@ export const generateContentCalendar = async (idea: BusinessIdea, blueprint: Blu
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,
-          temperature: 0.7
+          temperature: MEDIA_CONFIG.TEMPERATURES.BALANCED
         },
       });
 

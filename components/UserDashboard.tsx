@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
+import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
 
 interface Props {
   user: UserProfile;
@@ -58,9 +59,9 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
   const topBlueprints = useMemo(() => 
     [...blueprints]
       .sort((a, b) => (b.votes || 0) - (a.votes || 0))
-      .slice(0, 5)
+      .slice(0, DISPLAY_LIMITS.DASHBOARD_RECENT_BLUEPRINTS)
       .map(b => ({
-        name: b.title.length > 15 ? b.title.slice(0, 15) + '...' : b.title,
+        name: b.title.length > TEXT_TRUNCATION.TITLE_SHORT ? b.title.slice(0, TEXT_TRUNCATION.TITLE_SHORT) + '...' : b.title,
         votes: b.votes || 0
       })),
   [blueprints]);
