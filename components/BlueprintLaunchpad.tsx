@@ -13,7 +13,7 @@ interface Props {
   idea: BusinessIdea;
   blueprint: Blueprint;
   assets?: LaunchAssets;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, onUpdateBlueprint }) => {

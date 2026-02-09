@@ -1,6 +1,6 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
-import { TrendingUp, RotateCcw, BookMarked, Compass, User, LogIn, LayoutDashboard, Shield, MoreHorizontal, Keyboard } from 'lucide-react';
+import { TrendingUp, RotateCcw, BookMarked, Compass, LogIn, LayoutDashboard, Shield, Keyboard } from 'lucide-react';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';

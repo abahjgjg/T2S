@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void;
   analyzingCompetitor: string | null;
   competitorData: CompetitorAnalysis | null;
-  onSaveToSWOT: (strengths: string[], weaknesses: string[]) => void;
+  onSaveToSWOT: (_strengths: string[], _weaknesses: string[]) => void;
 }
 
 export const CompetitorAnalysisModal: React.FC<Props> = ({ 

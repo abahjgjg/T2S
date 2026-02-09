@@ -19,7 +19,7 @@ export const SafeMarkdown: React.FC<Props> = ({ content, className, components, 
   const safeComponents: Components = {
     ...components,
     // Enforce safe link rendering, overriding any passed 'a' component if necessary
-    a: ({ node, href, ...props }) => {
+    a: ({ href, ...props }) => {
       // Whitelist allowed protocols
       const isSafe = href && (
         href.startsWith('http://') || 

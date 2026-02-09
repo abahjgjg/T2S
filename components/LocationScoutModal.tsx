@@ -13,7 +13,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   idea: BusinessIdea;
-  onSaveToBlueprint: (strategy: string) => void;
+  onSaveToBlueprint: (_strategy: string) => void;
 }
 
 export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onSaveToBlueprint }) => {
