@@ -74,7 +74,7 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
              <LayoutDashboard className="w-8 h-8 text-emerald-400" />
              <h1 className="text-3xl font-bold text-white">Creator Dashboard</h1>
            </div>
-           <p className="text-slate-400">
+            <p className="text-slate-300">
              Manage your published blueprints and track performance.
            </p>
         </div>
@@ -96,19 +96,19 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg">
-               <div className="flex items-center gap-2 text-slate-400 mb-2 text-sm font-bold uppercase tracking-wider">
-                 <FileText className="w-4 h-4 text-blue-400" /> Published
+                <div className="flex items-center gap-2 text-slate-300 mb-2 text-sm font-bold uppercase tracking-wider">
+                  <FileText className="w-4 h-4 text-blue-400" /> Published
                </div>
                <p className="text-4xl font-black text-white">{blueprints.length}</p>
             </div>
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg">
-               <div className="flex items-center gap-2 text-slate-400 mb-2 text-sm font-bold uppercase tracking-wider">
-                 <Heart className="w-4 h-4 text-red-400" /> Total Votes
+                <div className="flex items-center gap-2 text-slate-300 mb-2 text-sm font-bold uppercase tracking-wider">
+                  <Heart className="w-4 h-4 text-red-400" /> Total Votes
                </div>
                <p className="text-4xl font-black text-white">{totalVotes}</p>
             </div>
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center text-center">
-               <p className="text-sm text-slate-500 mb-2">Account</p>
+                <p className="text-sm text-slate-300 mb-2">Account</p>
                <p className="text-white font-mono text-sm bg-slate-950 px-3 py-1 rounded-full border border-slate-800">{user.email}</p>
             </div>
           </div>
