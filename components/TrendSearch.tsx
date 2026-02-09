@@ -337,7 +337,7 @@ export const TrendSearch: React.FC<Props> = ({
              <div className="flex animate-marquee whitespace-nowrap gap-12">
                 {allTickerTopics.map((topic, i) => (
                    <span key={i} className="text-[10px] font-mono text-slate-400 flex items-center gap-2 uppercase tracking-wider">
-                      <TrendingUp className="w-3 h-3 text-emerald-500/70" /> {topic}
+                       <TrendingUp className="w-3 h-3 text-emerald-400" /> {topic}
                    </span>
                 ))}
              </div>
@@ -359,9 +359,9 @@ export const TrendSearch: React.FC<Props> = ({
            <Globe className="w-3 h-3" />
            Live Intelligence
            <span className="w-px h-3 bg-emerald-500/30 mx-1"></span>
-           <span className="text-[10px] text-emerald-500/70 font-mono flex items-center gap-1">
-             {currentDate}
-           </span>
+            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+              {currentDate}
+            </span>
         </div>
         
          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-300 text-[10px] font-bold uppercase tracking-wider">
@@ -456,6 +456,7 @@ export const TrendSearch: React.FC<Props> = ({
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
             className="flex-1 bg-transparent border-none outline-none text-white px-4 py-3 placeholder:text-slate-600 text-base md:text-lg w-full min-w-0"
             placeholder={selectedImage ? "Describe what to look for in this image..." : uiText.placeholder}
             value={input}
@@ -471,6 +472,22 @@ export const TrendSearch: React.FC<Props> = ({
             aria-controls="search-history-list"
             aria-activedescendant={focusedHistoryIndex >= 0 ? `history-item-${focusedHistoryIndex}` : undefined}
           />
+
+          {/* Clear Input Button */}
+          {input && !isLoading && (
+            <button
+              type="button"
+              onClick={() => {
+                setInput('');
+                inputRef.current?.focus();
+              }}
+              className="mr-2 p-2 hover:bg-slate-800 text-slate-400 hover:text-white rounded-full transition-all"
+              title="Clear search"
+              aria-label="Clear search input"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
           
           {/* Visual Search (Image Attachment) */}
           {!isLoading && !selectedImage && (
@@ -611,13 +628,13 @@ export const TrendSearch: React.FC<Props> = ({
                </button>
              ))}
            </div>
-           <div className="text-[10px] text-slate-600 flex items-center gap-1">
-             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">↑</span>
-             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">↓</span>
+              <div className="text-[10px] text-slate-600 flex items-center gap-1">
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">↑</span>
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">↓</span>
              <span>to navigate</span>
-             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 ml-1">Enter</span>
-             <span>to select</span>
-             <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 ml-1">Esc</span>
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300 ml-1">Enter</span>
+              <span>to select</span>
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300 ml-1">Esc</span>
              <span>to close</span>
            </div>
          </div>

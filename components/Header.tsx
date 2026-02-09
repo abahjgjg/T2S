@@ -75,7 +75,7 @@ export const Header: React.FC<Props> = ({
         <nav className="flex items-center gap-1 bg-slate-900/50 p-1 rounded-xl border border-white/5">
           <button 
             onClick={onOpenDirectory}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-blue-400 transition-all text-xs font-bold"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-blue-400 transition-all text-xs font-bold"
             aria-label="Discover Blueprints"
           >
             <Compass className="w-3.5 h-3.5" />
@@ -84,7 +84,7 @@ export const Header: React.FC<Props> = ({
 
           <button 
             onClick={onOpenLibrary}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-emerald-400 transition-all text-xs font-bold"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-emerald-400 transition-all text-xs font-bold"
             aria-label="Open Library"
           >
             <BookMarked className="w-3.5 h-3.5" />
@@ -139,24 +139,24 @@ export const Header: React.FC<Props> = ({
           </div>
 
           {/* Language Switcher */}
-          <div className="flex items-center bg-slate-900/50 border border-white/5 rounded-xl p-1" role="group" aria-label="Language Selection">
-            <button 
-              onClick={() => setLanguage('id')}
-              className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500 hover:text-white'}`}
-              aria-label="Switch to Indonesian"
-              aria-pressed={language === 'id'}
-            >
-              ID
-            </button>
-            <button 
-              onClick={() => setLanguage('en')}
-              className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'en' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500 hover:text-white'}`}
-              aria-label="Switch to English"
-              aria-pressed={language === 'en'}
-            >
-              EN
-            </button>
-          </div>
+           <div className="flex items-center bg-slate-900/50 border border-white/5 rounded-xl p-1" role="group" aria-label="Language Selection">
+             <button
+               onClick={() => setLanguage('id')}
+               className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
+               aria-label="Switch to Indonesian"
+               aria-pressed={language === 'id'}
+             >
+               ID
+             </button>
+             <button
+               onClick={() => setLanguage('en')}
+               className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'en' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
+               aria-label="Switch to English"
+               aria-pressed={language === 'en'}
+             >
+               EN
+             </button>
+           </div>
 
           {/* Keyboard Shortcuts Button */}
           <button
