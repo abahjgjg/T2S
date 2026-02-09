@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Bot, Copy, Edit2, Trash2, Plus, X, Check, Sparkles, MessageSquare, Save, Cpu, PlayCircle } from 'lucide-react';
+import { Bot, Copy, Edit2, Trash2, Plus, Check, MessageSquare, Save, Cpu, PlayCircle } from 'lucide-react';
 import { AgentProfile, Blueprint } from '../types';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -11,7 +11,7 @@ interface Props {
   agents: AgentProfile[];
   isGenerating: boolean;
   onGenerate: () => void;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGenerate, onUpdateBlueprint }) => {

@@ -11,7 +11,7 @@ interface Props {
   audit: ViabilityAudit;
   isOpen: boolean;
   onClose: () => void;
-  onApplyPivot: (pivot: string) => void;
+  onApplyPivot: (_pivot: string) => void;
   isPivoting: boolean;
 }
 

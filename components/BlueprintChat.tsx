@@ -1,19 +1,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, User, Bot, Loader2, Minimize2, Maximize2, Zap } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Loader2, Minimize2 } from 'lucide-react';
 import { Blueprint, ChatMessage } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { toast } from './ToastNotifications';
 import { GEMINI_MODELS, OPENAI_MODELS } from '../constants/aiConfig';
 import { SafeMarkdown } from './SafeMarkdown';
 import { usePreferences } from '../contexts/PreferencesContext';
-import { MODAL_DIMENSIONS, MODAL_Z_INDEX, MODAL_ANIMATION } from '../constants/modalConfig';
+import { MODAL_DIMENSIONS, MODAL_Z_INDEX } from '../constants/modalConfig';
 import { Z_INDEX } from '../constants/zIndex';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 
 interface Props {
   blueprint: Blueprint;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint }) => {
@@ -23,7 +23,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { provider, language, uiText } = usePreferences();
+  const { provider, language } = usePreferences();
   const aiService = getAIService(provider);
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
                 
                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}`}>
                   <div className="prose prose-invert prose-xs max-w-none">
-                    <SafeMarkdown content={msg.content} components={{ p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} /> }} />
+                    <SafeMarkdown content={msg.content} components={{ p: (props) => <p className="mb-1 last:mb-0" {...props} /> }} />
                   </div>
                 </div>
 
