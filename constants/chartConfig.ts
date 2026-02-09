@@ -5,6 +5,8 @@
  * All values can be overridden via environment variables.
  */
 
+import { COLORS } from './theme';
+
 // Helper to safely get env var with fallback
 const getEnv = (key: string, defaultValue: string): string => {
   const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key] 
@@ -46,6 +48,58 @@ const parseTuple = (key: string, defaultValue: [number, number, number, number])
   }
   return defaultValue;
 };
+
+// Chart color scheme using theme colors
+export const CHART_COLORS = {
+  // Primary data series colors
+  primary: [
+    COLORS.primary.blue,
+    COLORS.primary.emerald,
+    COLORS.primary.purple,
+    COLORS.primary.indigo,
+  ],
+  // Semantic colors for data representation
+  semantic: {
+    positive: COLORS.sentiment.positive,
+    negative: COLORS.sentiment.negative,
+    neutral: COLORS.sentiment.neutral,
+  },
+  // Chart element colors
+  elements: {
+    grid: COLORS.chart.grid,
+    axis: COLORS.chart.axis,
+    axisLabel: COLORS.chart.axisLabel,
+    tooltipBg: COLORS.chart.tooltipBg,
+    tooltipBorder: COLORS.chart.tooltipBorder,
+    tooltipText: COLORS.chart.tooltipText,
+    cursor: COLORS.chart.cursor,
+  },
+  // Bar chart colors
+  bars: {
+    primary: COLORS.chart.bar1,
+    secondary: COLORS.chart.bar2,
+    alternate: [COLORS.primary.emerald, COLORS.primary.blue],
+  },
+  // Area/Line chart colors
+  area: {
+    stroke: COLORS.primary.emerald,
+    fillStart: COLORS.primary.emerald,
+    fillOpacity: {
+      start: 0.3,
+      end: 0,
+    },
+  },
+  // Cell colors for pie/donut charts
+  cells: {
+    primary: COLORS.chart.cell1,
+    secondary: COLORS.chart.cell2,
+  },
+  // Stroke colors for polar/radar charts
+  stroke: {
+    grid: COLORS.chart.stroke1,
+    axis: COLORS.chart.stroke2,
+  },
+} as const;
 
 export const CHART_RANGES = {
   // Score ranges (0-100)
