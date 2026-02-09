@@ -26,3 +26,8 @@ dist-ssr
 # Tool-specific directories
 # .opencode - Commented out to track agent configurations
 # Note: CMZ agent configuration and skills are tracked in repository
+
+# CI-generated files
+.lighthouseci/
+coverage/
+*.lcov
