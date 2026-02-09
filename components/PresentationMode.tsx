@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Blueprint, BusinessIdea } from '../types';
 import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Palette, TrendingUp, Target, Layers, ShieldCheck, Share2, DollarSign } from 'lucide-react';
 import { SafeMarkdown } from './SafeMarkdown';
+import { SmartImage } from './ui/SmartImage';
 
 interface Props {
   idea: BusinessIdea;
@@ -55,14 +56,20 @@ export const PresentationMode: React.FC<Props> = ({ idea, blueprint, onClose }) 
     const slide = slides[currentSlide];
 
     switch (slide.type) {
-      case 'COVER':
-        return (
-          <div className="flex flex-col items-center justify-center h-full text-center px-8 animate-[fadeIn_0.5s_ease-out]">
-            {blueprint.brandImageUrl ? (
-              <img src={blueprint.brandImageUrl} alt="Logo" className="w-48 h-48 object-contain mb-8 drop-shadow-2xl rounded-2xl bg-white/5 p-4 border border-white/10" />
-            ) : (
-              <div className="w-32 h-32 bg-emerald-500/20 rounded-full flex items-center justify-center mb-8 border border-emerald-500/30"><Palette className="w-16 h-16 text-emerald-400" /></div>
-            )}
+       case 'COVER':
+         return (
+           <div className="flex flex-col items-center justify-center h-full text-center px-8 animate-[fadeIn_0.5s_ease-out]">
+             {blueprint.brandImageUrl ? (
+               <SmartImage 
+                 src={blueprint.brandImageUrl} 
+                 alt="Logo" 
+                 className="w-48 h-48 object-contain mb-8 drop-shadow-2xl rounded-2xl bg-white/5 p-4 border border-white/10"
+                 containerClassName="w-48 h-48 mb-8"
+                 fallbackIcon={<div className="w-32 h-32 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30"><Palette className="w-16 h-16 text-emerald-400" /></div>}
+               />
+             ) : (
+               <div className="w-32 h-32 bg-emerald-500/20 rounded-full flex items-center justify-center mb-8 border border-emerald-500/30"><Palette className="w-16 h-16 text-emerald-400" /></div>
+             )}
             <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-emerald-400 mb-6 tracking-tight">{idea.name}</h1>
             <p className="text-2xl text-slate-300 font-light max-w-3xl leading-relaxed">{idea.description}</p>
             <div className="mt-12 flex gap-4">

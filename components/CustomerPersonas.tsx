@@ -8,6 +8,7 @@ import { useBlueprintMedia } from '../hooks/useBlueprintMedia';
 import { useAsset } from '../hooks/useAsset';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { EmptyState } from './ui/EmptyState';
+import { SmartImage } from './ui/SmartImage';
 
 interface Props {
   idea: BusinessIdea;
@@ -27,14 +28,20 @@ const PersonaCard: React.FC<{
   return (
     <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 flex flex-col hover:border-blue-500/30 transition-all group">
       <div className="flex items-start gap-4 mb-4">
-        <div className="relative w-16 h-16 shrink-0 bg-slate-900 rounded-full border border-slate-700 flex items-center justify-center overflow-hidden">
-           {avatarUrl ? (
-             <img src={avatarUrl} alt={persona.name} className="w-full h-full object-cover" />
-           ) : isLoading ? (
-             <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
-           ) : (
-             <User className="w-8 h-8 text-slate-600" />
-           )}
+         <div className="relative w-16 h-16 shrink-0 bg-slate-900 rounded-full border border-slate-700 flex items-center justify-center overflow-hidden">
+            {avatarUrl ? (
+              <SmartImage 
+                src={avatarUrl} 
+                alt={persona.name} 
+                className="w-full h-full object-cover"
+                containerClassName="w-full h-full"
+                fallbackIcon={<User className="w-8 h-8 text-slate-600" />}
+              />
+            ) : isLoading ? (
+              <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
+            ) : (
+              <User className="w-8 h-8 text-slate-600" />
+            )}
            {!avatarUrl && !isLoading && (
              <button 
                onClick={() => onGenerateAvatar(persona.name, persona.bio, idx)}
