@@ -14,20 +14,28 @@ const loadConfig = (env: Record<string, string>) => ({
   build: {
     sourcemap: env.VITE_BUILD_SOURCEMAP !== 'false',
     chunkSizeWarningLimit: parseInt(env.VITE_CHUNK_SIZE_WARNING_LIMIT || '1500', 10),
-    rollupOptions: {
+      rollupOptions: {
       output: {
         manualChunks: {
           // Vendor chunks - separate third-party libraries
-          'vendor-react': ['react', 'react-dom'],
+          'vendor-react': ['react', 'react-dom', '@tanstack/react-query'],
           'vendor-charts': ['recharts'],
           'vendor-markdown': ['react-markdown', 'remark-gfm'],
           'vendor-ui': ['lucide-react'],
-          // Feature chunks - lazy loaded features
+          // Feature chunks - lazy loaded features (use lazy loading)
           'feature-admin': ['./components/AdminPanel'],
           'feature-dashboard': ['./components/UserDashboard'],
           'feature-blueprint': ['./components/BlueprintView'],
         }
       }
+    },
+    // Minification for production
+    minify: 'terser' as const,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
     }
   },
 });
