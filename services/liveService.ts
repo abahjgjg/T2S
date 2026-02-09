@@ -9,6 +9,7 @@ import { promptService } from "./promptService";
 import { PromptKey } from "../constants/systemPrompts";
 import { getGeminiClient } from "./gemini/shared";
 import { interpolate } from "../utils/promptUtils";
+import { AUDIO_PROCESSING_CONFIG } from "../constants/audioVisualizerConfig";
 import { PITCH_PERSONAS, LIVE_AUDIO_CONFIG, PitchPersona } from "../constants/liveConfig";
 
 export interface LiveSessionCallbacks {
@@ -156,7 +157,7 @@ export class LivePitchService {
         sum += inputData[i] * inputData[i];
       }
       const rms = Math.sqrt(sum / inputData.length);
-      onAudioData(rms * 5); // Scale up for UI
+      onAudioData(rms * AUDIO_PROCESSING_CONFIG.VOLUME_UI_SCALE); // Scale up for UI
 
       // Encode and send
       const b64Data = float32ToPcm16Base64(inputData);

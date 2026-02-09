@@ -72,6 +72,12 @@ export const MEDIA_CONFIG = {
   VIDEO_RESOLUTION: getEnv('VITE_MEDIA_VIDEO_RESOLUTION', '720p'),
   VIDEO_ASPECT_RATIO: getEnv('VITE_MEDIA_VIDEO_ASPECT_RATIO', '16:9'),
 
+  // Default image style for brand image generation
+  DEFAULT_IMAGE_STYLE: getEnv(
+    'VITE_MEDIA_DEFAULT_IMAGE_STYLE',
+    'Minimalist, Tech-focused, Clean lines, Vector art style'
+  ),
+
   // Retry configuration
   RETRY: {
     DEFAULT_DELAY_MS: getEnvNumber('VITE_MEDIA_RETRY_DEFAULT_DELAY_MS', 500),
