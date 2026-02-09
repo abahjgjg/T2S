@@ -23,6 +23,9 @@ export const STORAGE_KEYS = {
   TELEMETRY_LOGS: getEnv('VITE_STORAGE_KEY_TELEMETRY_LOGS', 'trendventures_sys_logs_v1'),
   VOTES: getEnv('VITE_STORAGE_KEY_VOTES', 'trendventures_votes_v1'),
   PROMPTS: getEnv('VITE_STORAGE_KEY_PROMPTS', 'trendventures_prompts_v1'),
+  // Flexy added: Centralized preference keys to eliminate hardcoding!
+  PREFERENCES_LANGUAGE: getEnv('VITE_STORAGE_KEY_PREFERENCES_LANGUAGE', 'trendventures_lang'),
+  PREFERENCES_PROVIDER: getEnv('VITE_STORAGE_KEY_PREFERENCES_PROVIDER', 'trendventures_provider'),
 } as const;
 
 export const ASSET_CONFIG = {

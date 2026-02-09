@@ -29,6 +29,7 @@ import { BlueprintAffiliates } from './blueprint/BlueprintAffiliates';
 import { BlueprintStrategies } from './blueprint/BlueprintStrategies';
 import { BlueprintMarkdownViewer } from './blueprint/BlueprintMarkdownViewer';
 import { TEXT_TRUNCATION } from '../constants/displayConfig';
+import { BRAND_CONFIG } from '../config';
 
 interface Props {
   idea: BusinessIdea;
@@ -115,10 +116,10 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
       
       if (updates) {
         onUpdateBlueprint(updates);
-        toast.success(`Pivot Applied: ${pivot}`);
+        toast.success((uiText.pivotApplied || "Pivot Applied: {pivot}").replace('{pivot}', pivot));
         setShowAuditModal(false);
       } else {
-        toast.error("AI could not generate pivot updates.");
+        toast.error(uiText.pivotUpdateFailed || "AI could not generate pivot updates.");
       }
     } catch (e) {
       console.error("Pivot failed", e);
@@ -155,7 +156,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
       setCompetitorData(analysis);
     } catch (e) {
       console.error("Failed to analyze competitor", e);
-      toast.error("Analysis failed. Try again.");
+      toast.error(uiText.analysisFailed || "Analysis failed. Try again.");
       setShowCompetitorModal(false);
     } finally {
       setAnalyzingCompetitor(null);
@@ -257,9 +258,9 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
       <div className="hidden print:flex flex-col items-center justify-center h-screen text-center print:break-after-page">
          <div className="flex items-center gap-2 mb-8">
             <TrendingUp className="w-10 h-10 text-emerald-600" />
-            <h1 className="text-3xl font-bold tracking-tighter text-slate-900">
-              Trend<span className="text-emerald-600">Ventures</span> AI
-            </h1>
+             <h1 className="text-3xl font-bold tracking-tighter text-slate-900">
+               {BRAND_CONFIG.NAME}<span className="text-emerald-600">{BRAND_CONFIG.NAME_HIGHLIGHT}</span>
+             </h1>
          </div>
          <h1 className="text-6xl font-black text-slate-900 mb-4">{idea.name}</h1>
          <p className="text-2xl text-slate-600 mb-12">{idea.description}</p>
