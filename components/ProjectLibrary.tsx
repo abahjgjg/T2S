@@ -13,7 +13,7 @@ interface Props {
   onClose: () => void;
   projects: SavedProject[];
   onLoad: (project: SavedProject) => void;
-  onDelete: (id: string) => void; 
+  onDelete: (_id: string) => void; 
   user: UserProfile | null;
   onOpenLogin: () => void;
 }

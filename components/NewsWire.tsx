@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { Globe, ExternalLink, Search, Newspaper, Zap, CheckCircle2, AlertTriangle, Radio, BarChart2, ShieldCheck } from 'lucide-react';
+import { Globe, ExternalLink, Newspaper, Zap, CheckCircle2, Radio, BarChart2, ShieldCheck } from 'lucide-react';
 import { AIProvider } from '../types';
 import { API_ENDPOINTS } from '../constants/apiConfig';
 import { DISPLAY_LIMITS, FAVICON_CONFIG } from '../constants/displayLimits';

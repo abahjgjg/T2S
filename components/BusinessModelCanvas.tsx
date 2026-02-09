@@ -10,7 +10,7 @@ interface Props {
   idea: BusinessIdea;
   blueprint: Blueprint;
   bmc?: BMC;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 export const BusinessModelCanvas: React.FC<Props> = ({ idea, blueprint, bmc, onUpdateBlueprint }) => {

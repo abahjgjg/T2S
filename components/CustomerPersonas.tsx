@@ -14,7 +14,7 @@ interface Props {
   idea: BusinessIdea;
   blueprint: Blueprint;
   personas?: CustomerPersona[];
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 const PersonaCard: React.FC<{ 

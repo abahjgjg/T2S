@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine, Legend } from 'recharts';
-import { BarChart as BarChartIcon, RefreshCcw, Save, TrendingUp, Calculator } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
+import { BarChart as BarChartIcon, RefreshCcw, Save, Calculator } from 'lucide-react';
 import { Blueprint } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { CHART_COLORS } from '../constants/chartConfig';
@@ -16,6 +16,7 @@ export const BlueprintRevenue: React.FC<Props> = ({ revenueStreams, onUpdate }) 
   const [trafficMultiplier, setTrafficMultiplier] = useState(1);
   const [pricingMultiplier, setPricingMultiplier] = useState(1);
   const [isSimulating, setIsSimulating] = useState(false);
+  // Note: streams parameter is used in simulationData useMemo
 
   // Memoize simulated data to avoid recalcs on every render
   const simulationData = useMemo(() => {

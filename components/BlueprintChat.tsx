@@ -42,10 +42,10 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
     setIsLoading(true);
 
     try {
-      const { text, updates } = await aiService.sendBlueprintChat(messages, userMsg.content, blueprint, language);
+      const { text, updates: _updates } = await aiService.sendBlueprintChat(messages, userMsg.content, blueprint, language);
       
-      if (updates) {
-        onUpdateBlueprint(updates);
+      if (_updates) {
+        onUpdateBlueprint(_updates);
         toast.success("Blueprint updated based on your request.");
         
         setMessages(prev => [

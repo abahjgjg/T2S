@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Blueprint, BusinessIdea, CompetitorAnalysis } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { supabaseService } from '../services/supabaseService';
 import { toast } from './ToastNotifications'; 
-import { ShieldCheck, Loader2, TrendingUp, ArrowUp } from 'lucide-react';
+import { ShieldCheck, Loader2, TrendingUp } from 'lucide-react';
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { useBlueprintMedia } from '../hooks/useBlueprintMedia';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -57,6 +57,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
 
   const { provider, language, uiText } = usePreferences();
   const isGemini = provider === 'gemini';
+  // Note: updates parameters used in callback functions
 
   const { 
     play: playSummary, 

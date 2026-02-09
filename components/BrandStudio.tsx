@@ -11,8 +11,8 @@ interface Props {
   idea: BusinessIdea;
   blueprint: Blueprint;
   brandIdentity?: BrandIdentity;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
-  onUpdateIdea: (updates: Partial<BusinessIdea>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
+  onUpdateIdea: (_updates: Partial<BusinessIdea>) => void;
 }
 
 export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, onUpdateBlueprint, onUpdateIdea }) => {

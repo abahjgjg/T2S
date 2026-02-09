@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Blueprint, BusinessIdea } from '../types';
-import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Palette, TrendingUp, Target, Layers, ShieldCheck, Share2, DollarSign } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Palette, TrendingUp, Target, Layers, ShieldCheck, DollarSign } from 'lucide-react';
 import { SafeMarkdown } from './SafeMarkdown';
 import { SmartImage } from './ui/SmartImage';
 

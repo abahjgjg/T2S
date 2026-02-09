@@ -8,14 +8,14 @@ import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { LIVE_AUDIO_CONFIG } from '../constants/appConfig';
-import { AUDIO_VISUALIZER_CONFIG, AUDIO_PROCESSING_CONFIG, PERSONA_VOICE_CONFIG, PERSONA_ID_PREFIX } from '../constants/audioVisualizerConfig';
+import { AUDIO_VISUALIZER_CONFIG, PERSONA_VOICE_CONFIG, PERSONA_ID_PREFIX } from '../constants/audioVisualizerConfig';
 import { TEXT_TRUNCATION } from '../constants/displayConfig';
 
 interface Props {
   blueprint: Blueprint;
   idea: BusinessIdea;
   onClose: () => void;
-  onUpdateBlueprint?: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint?: (_updates: Partial<Blueprint>) => void;
 }
 
 interface TranscriptItem {
@@ -24,12 +24,13 @@ interface TranscriptItem {
   timestamp: number;
 }
 
-const IconMap: Record<string, React.ReactNode> = {
+  const IconMap: Record<string, React.ReactNode> = {
   'Briefcase': <Briefcase className="w-5 h-5" />,
   'User': <User className="w-5 h-5" />,
   'Cpu': <Cpu className="w-5 h-5" />,
   'Sparkles': <Sparkles className="w-5 h-5" />
 };
+  // Note: IconMap is used in renderSetup
 
 export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUpdateBlueprint }) => {
   const [status, setStatus] = useState<'setup' | 'connecting' | 'connected' | 'error' | 'disconnected' | 'analyzing' | 'results'>('setup');
