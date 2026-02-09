@@ -472,6 +472,22 @@ export const TrendSearch: React.FC<Props> = ({
             aria-controls="search-history-list"
             aria-activedescendant={focusedHistoryIndex >= 0 ? `history-item-${focusedHistoryIndex}` : undefined}
           />
+
+          {/* Clear Input Button */}
+          {input && !isLoading && (
+            <button
+              type="button"
+              onClick={() => {
+                setInput('');
+                inputRef.current?.focus();
+              }}
+              className="mr-2 p-2 hover:bg-slate-800 text-slate-400 hover:text-white rounded-full transition-all"
+              title="Clear search"
+              aria-label="Clear search input"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
           
           {/* Visual Search (Image Attachment) */}
           {!isLoading && !selectedImage && (
