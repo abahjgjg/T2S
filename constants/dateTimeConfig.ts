@@ -147,4 +147,73 @@ export const getRegionFromTimezone = (timezone: string): string => {
   return TIMEZONE_REGION_MAP[timezone] || 'us';
 };
 
+// SearchRegion type values used in the app
+export type SearchRegion = 'Global' | 'Indonesia' | 'USA' | 'Europe' | 'Asia';
+
+// Flexy hates hardcoded timezone detection! This config maps timezones to SearchRegion
+export const TIMEZONE_TO_SEARCH_REGION: Record<string, SearchRegion> = {
+  // Indonesia
+  'Asia/Jakarta': 'Indonesia',
+  'Asia/Makassar': 'Indonesia',
+  'Asia/Pontianak': 'Indonesia',
+  'Asia/Jayapura': 'Indonesia',
+  // USA (any America timezone)
+  'America/New_York': 'USA',
+  'America/Chicago': 'USA',
+  'America/Denver': 'USA',
+  'America/Los_Angeles': 'USA',
+  'America/Toronto': 'USA',
+  'America/Vancouver': 'USA',
+  // Europe
+  'Europe/London': 'Europe',
+  'Europe/Paris': 'Europe',
+  'Europe/Berlin': 'Europe',
+  'Europe/Madrid': 'Europe',
+  'Europe/Rome': 'Europe',
+  'Europe/Amsterdam': 'Europe',
+  'Europe/Vienna': 'Europe',
+  'Europe/Brussels': 'Europe',
+  'Europe/Zurich': 'Europe',
+  'Europe/Stockholm': 'Europe',
+  'Europe/Oslo': 'Europe',
+  'Europe/Copenhagen': 'Europe',
+  'Europe/Helsinki': 'Europe',
+  'Europe/Dublin': 'Europe',
+  'Europe/Lisbon': 'Europe',
+  // Asia (non-Indonesia)
+  'Asia/Tokyo': 'Asia',
+  'Asia/Seoul': 'Asia',
+  'Asia/Shanghai': 'Asia',
+  'Asia/Hong_Kong': 'Asia',
+  'Asia/Singapore': 'Asia',
+  'Asia/Taipei': 'Asia',
+  'Asia/Bangkok': 'Asia',
+  'Asia/Manila': 'Asia',
+  'Asia/Kuala_Lumpur': 'Asia',
+};
+
+/**
+ * Detect SearchRegion from browser timezone
+ * Flexy loves this modular approach!
+ */
+export const detectSearchRegion = (): SearchRegion => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
+    // Check direct match first
+    if (TIMEZONE_TO_SEARCH_REGION[tz]) {
+      return TIMEZONE_TO_SEARCH_REGION[tz];
+    }
+    
+    // Fallback to pattern matching
+    if (tz.includes('Jakarta') || tz.includes('Makassar') || tz.includes('Pontianak') || tz.includes('Jayapura')) return 'Indonesia';
+    if (tz.includes('America')) return 'USA';
+    if (tz.includes('Europe') || tz.includes('London') || tz.includes('Berlin') || tz.includes('Paris')) return 'Europe';
+    if (tz.includes('Asia') || tz.includes('Tokyo') || tz.includes('Seoul') || tz.includes('Singapore')) return 'Asia';
+  } catch (e) {
+    console.warn("Timezone detection failed", e);
+  }
+  return 'Global';
+};
+
 export type DateFormatKey = keyof typeof DATE_FORMATS;

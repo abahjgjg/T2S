@@ -4,6 +4,7 @@ import { TrendingUp, RotateCcw, BookMarked, Compass, LogIn, LayoutDashboard, Shi
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+import { BRAND_CONFIG } from '../config';
 
 interface Props {
   onReset: () => void;
@@ -64,7 +65,7 @@ export const Header: React.FC<Props> = ({
            <TrendingUp className="w-6 h-6" />
         </div>
         <h1 className="text-xl font-bold tracking-tighter text-white">
-          Trend<span className="text-emerald-400">Ventures</span> AI
+          {BRAND_CONFIG.NAME}<span className="text-emerald-400">{BRAND_CONFIG.NAME_HIGHLIGHT}</span>
         </h1>
       </div>
 
@@ -134,7 +135,7 @@ export const Header: React.FC<Props> = ({
               aria-label={user ? "Open Dashboard" : "Log In"}
             >
               {user ? <LayoutDashboard className="w-3.5 h-3.5" /> : <LogIn className="w-3.5 h-3.5" />}
-              {user ? <span className="max-w-[80px] truncate hidden sm:inline">Dashboard</span> : <span className="hidden sm:inline">Login</span>}
+              {user ? <span className="max-w-[80px] truncate hidden sm:inline">{uiText.dashboard || "Dashboard"}</span> : <span className="hidden sm:inline">{uiText.login || "Login"}</span>}
             </button>
           </div>
 

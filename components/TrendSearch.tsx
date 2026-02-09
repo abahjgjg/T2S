@@ -9,8 +9,10 @@ import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { indexedDBService } from '../utils/storageUtils';
 import { useAsset } from '../hooks/useAsset';
-import { STORAGE_KEYS } from '../constants/storageConfig';
+import { STORAGE_KEYS, ASSET_CONFIG } from '../constants/storageConfig';
 import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
+import { getCategoryIconConfig } from '../constants/iconConfig';
+import { detectSearchRegion } from '../constants/dateTimeConfig';
 import { Z_INDEX } from '../constants/zIndex';
 import { SPEECH_CONFIG } from '../constants/apiConfig';
 import { STORAGE_CONFIG, ASSET_ID_PREFIX } from '../constants/appConfig';
@@ -31,28 +33,13 @@ interface Props {
 const HISTORY_KEY = STORAGE_KEYS.SEARCH_HISTORY;
 
 const getCategoryIcon = (category: string) => {
-  const lower = category.toLowerCase();
-  if (lower.includes('tech') || lower.includes('teknologi')) return <Cpu className="w-5 h-5 text-blue-400" />;
-  if (lower.includes('health') || lower.includes('kesehatan')) return <Heart className="w-5 h-5 text-red-400" />;
-  if (lower.includes('finance') || lower.includes('keuangan')) return <DollarSign className="w-5 h-5 text-emerald-400" />;
-  if (lower.includes('green') || lower.includes('energi')) return <Leaf className="w-5 h-5 text-green-400" />;
-  if (lower.includes('commerce')) return <ShoppingCart className="w-5 h-5 text-orange-400" />;
-  if (lower.includes('saas') || lower.includes('digital')) return <Smartphone className="w-5 h-5 text-purple-400" />;
-  return <Activity className="w-5 h-5 text-slate-400" />;
+  const config = getCategoryIconConfig(category);
+  const IconComponent = config.icon;
+  return <IconComponent className={`w-5 h-5 ${config.color}`} />;
 };
 
-const detectRegion = (): SearchRegion => {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz.includes('Jakarta') || tz.includes('Makassar') || tz.includes('Pontianak') || tz.includes('Jayapura')) return 'Indonesia';
-    if (tz.includes('America')) return 'USA';
-    if (tz.includes('Europe') || tz.includes('London') || tz.includes('Berlin') || tz.includes('Paris')) return 'Europe';
-    if (tz.includes('Asia') || tz.includes('Tokyo') || tz.includes('Seoul') || tz.includes('Singapore')) return 'Asia';
-  } catch (e) {
-    console.warn("Timezone detection failed", e);
-  }
-  return 'Global';
-};
+// Flexy hates hardcoded region detection! Using modular detectSearchRegion from dateTimeConfig
+const detectRegion = detectSearchRegion;
 
 export const TrendSearch: React.FC<Props> = ({ 
   onSearch, 
@@ -241,7 +228,7 @@ export const TrendSearch: React.FC<Props> = ({
   const handleSearchTrigger = (term: string, img?: string) => {
     // Allow empty term ONLY if image is present
     if (!term.trim() && !img) {
-      setValidationError("Please enter a topic or upload an image.");
+      setValidationError(uiText.validationEmptySearch || "Please enter a topic or upload an image.");
       inputRef.current?.focus();
       return;
     }
@@ -249,7 +236,7 @@ export const TrendSearch: React.FC<Props> = ({
     if (term.trim()) {
       const validation = validateInput(term);
       if (!validation.isValid) {
-        setValidationError(validation.error || "Invalid input");
+        setValidationError(validation.error || uiText.invalidInput || "Invalid input");
         inputRef.current?.focus();
         return;
       }
@@ -293,7 +280,7 @@ export const TrendSearch: React.FC<Props> = ({
       recognition.onerror = () => setIsListening(false);
       recognition.onend = () => setIsListening(false);
     } else {
-      toast.info("Voice search is not supported in this browser. Try Chrome or Edge.");
+      toast.info(uiText.voiceSearchNotSupported || "Voice search is not supported in this browser. Try Chrome or Edge.");
     }
   };
 
@@ -301,7 +288,7 @@ export const TrendSearch: React.FC<Props> = ({
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > STORAGE_CONFIG.MAX_FILE_SIZE_BYTES) {
-        toast.error("Image too large (max 5MB)");
+        toast.error((uiText.imageTooLarge || "Image too large (max {size}MB)").replace('{size}', String(ASSET_CONFIG.MAX_SIZE_MB)));
         return;
       }
 
@@ -309,7 +296,7 @@ export const TrendSearch: React.FC<Props> = ({
         const assetId = `${ASSET_ID_PREFIX.SEARCH}${Date.now()}`;
         await indexedDBService.saveAsset(assetId, file);
         setSelectedImage(`asset://${assetId}`);
-        toast.success("Image attached");
+        toast.success(uiText.imageAttached || "Image attached");
       } catch (err) {
         console.error("Failed to save image asset", err);
         // Fallback to base64 if IDB fails for some reason
@@ -599,7 +586,7 @@ export const TrendSearch: React.FC<Props> = ({
                 title={uiText.clearHistory} 
                 aria-label="Clear history"
               >
-                <X className="w-3 h-3" /> Clear
+                 <X className="w-3 h-3" /> {uiText.clear || "Clear"}
               </button>
            </div>
            <div className="flex flex-col gap-2 w-full">

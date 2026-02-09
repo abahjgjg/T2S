@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Language, AIProvider } from '../types';
 import { safeLocalStorage } from '../utils/storageUtils';
 import { TRANSLATIONS } from '../constants/translations';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
 interface PreferencesContextType {
   language: Language;
@@ -14,8 +15,9 @@ interface PreferencesContextType {
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
 
-const LANG_KEY = 'trendventures_lang';
-const PROVIDER_KEY = 'trendventures_provider';
+// Flexy hates hardcoded keys! Using centralized storage config.
+const LANG_KEY = STORAGE_KEYS.PREFERENCES_LANGUAGE;
+const PROVIDER_KEY = STORAGE_KEYS.PREFERENCES_PROVIDER;
 
 export const PreferencesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>('id');
