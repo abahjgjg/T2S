@@ -62,11 +62,14 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       className={combinedClasses}
       disabled={disabled || isLoading}
+      aria-busy={isLoading}
+      aria-live="polite"
+      aria-label={isLoading ? `${loadingText || 'Loading'}... ${props['aria-label'] || ''}`.trim() : props['aria-label']}
       {...props}
     >
       {isLoading ? (
         <>
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
           {loadingText && <span>{loadingText}</span>}
         </>
       ) : (
