@@ -4,6 +4,9 @@ import { Lead } from '../../types';
 import { TrendingUp, Mail, Download } from 'lucide-react';
 import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from '../ToastNotifications';
+import { CHART_COLORS } from '../../constants/chartConfig';
+import { COLORS } from '../../constants/theme';
+import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
 
 interface Props {
   leads: Lead[];
@@ -57,7 +60,7 @@ export const AdminLeads: React.FC<Props> = ({ leads }) => {
   };
 
   return (
-    <div className="space-y-8 animate-[fadeIn_0.3s_ease-out]">
+    <div className={`space-y-8 animate-[fadeIn_${ANIMATION_DURATION.standard.normal}ms_${ANIMATION_EASING.default}]`}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
            <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Total Leads</h4>
@@ -70,16 +73,20 @@ export const AdminLeads: React.FC<Props> = ({ leads }) => {
            <div className="h-32 w-full">
              <ResponsiveContainer width="100%" height="100%">
                <AreaChart data={leadGrowthData}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }} 
-                  />
-                  <Area type="monotone" dataKey="count" stroke="#10b981" fillOpacity={1} fill="url(#colorCount)" />
+                   <defs>
+                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                       <stop offset="5%" stopColor={CHART_COLORS.area.stroke} stopOpacity={CHART_COLORS.area.fillOpacity.start}/>
+                       <stop offset="95%" stopColor={CHART_COLORS.area.stroke} stopOpacity={CHART_COLORS.area.fillOpacity.end}/>
+                     </linearGradient>
+                   </defs>
+                   <Tooltip 
+                     contentStyle={{ 
+                       backgroundColor: CHART_COLORS.elements.tooltipBg, 
+                       borderColor: CHART_COLORS.elements.tooltipBorder, 
+                       color: CHART_COLORS.elements.tooltipText 
+                     }} 
+                   />
+                   <Area type="monotone" dataKey="count" stroke={CHART_COLORS.area.stroke} fillOpacity={1} fill="url(#colorCount)" />
                </AreaChart>
              </ResponsiveContainer>
            </div>

@@ -8,6 +8,8 @@ import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
+import { CHART_COLORS, CHART_RANGES } from '../constants/chartConfig';
+import { ANIMATION_DURATION, ANIMATION_EASING } from '../constants/animationConfig';
 
 interface Props {
   user: UserProfile;
@@ -126,20 +128,24 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
               {topBlueprints.length > 0 && topBlueprints.some(b => b.votes > 0) ? (
                  <div className="h-[250px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={topBlueprints} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={true} vertical={false} />
-                        <XAxis type="number" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                        <YAxis dataKey="name" type="category" width={100} stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }}
-                          cursor={{ fill: '#1e293b' }}
-                        />
-                        <Bar dataKey="votes" radius={[0, 4, 4, 0]} barSize={20}>
-                          {topBlueprints.map((entry, index) => (
-                             <Cell key={`cell-${index}`} fill={'#8b5cf6'} />
-                          ))}
-                        </Bar>
-                      </BarChart>
+                     <BarChart data={topBlueprints} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
+                         <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.elements.grid} horizontal={true} vertical={false} />
+                         <XAxis type="number" stroke={CHART_COLORS.elements.axis} fontSize={12} tickLine={false} axisLine={false} />
+                         <YAxis dataKey="name" type="category" width={100} stroke={CHART_COLORS.elements.axis} fontSize={12} tickLine={false} axisLine={false} />
+                         <Tooltip 
+                           contentStyle={{ 
+                             backgroundColor: CHART_COLORS.elements.tooltipBg, 
+                             borderColor: CHART_COLORS.elements.tooltipBorder, 
+                             color: CHART_COLORS.elements.tooltipText 
+                           }}
+                           cursor={{ fill: CHART_COLORS.elements.cursor }}
+                         />
+                         <Bar dataKey="votes" radius={[0, 4, 4, 0]} barSize={CHART_RANGES.BAR_SIZE}>
+                           {topBlueprints.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={CHART_COLORS.cells.primary} />
+                           ))}
+                         </Bar>
+                       </BarChart>
                     </ResponsiveContainer>
                  </div>
               ) : (
