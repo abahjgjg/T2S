@@ -3,10 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <!-- Content Security Policy -->
-    <!-- 'unsafe-eval' may be required for some libraries. -->
-    <!-- 'connect-src' ensures API calls to Google, OpenAI, and Supabase are allowed. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: blob: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; connect-src 'self' https: data: blob:; media-src 'self' https: data: blob:; worker-src 'self' blob:;">
 
     <!-- Default SEO / Open Graph Tags -->
@@ -18,7 +16,7 @@
     <meta property="og:url" content="https://trendventures.ai" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Preconnect to required origins for performance -->
+    <!-- Critical resource hints for performance -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -27,31 +25,87 @@
     <!-- Favicon to prevent 404 errors -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E" />
 
+    <!-- Critical CSS inlined for fast First Contentful Paint -->
     <style>
+      /* Critical render path optimizations */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+        -moz-tab-size: 4;
+        tab-size: 4;
+      }
+
+      body {
+        margin: 0;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Dark theme background applied immediately to prevent flash */
+      body.bg-slate-950 {
+        background-color: #020617;
+      }
+
+      /* Loading state for better perceived performance */
+      #root:empty::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 40px;
+        border: 3px solid #1e293b;
+        border-top-color: #10b981;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      @keyframes spin {
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+
       /* Button press feedback optimization for micro-UX */
       button, [role="button"] {
         will-change: transform;
         transform: translateZ(0);
       }
-      
+
       button:active:not(:disabled), [role="button"]:active:not([aria-disabled="true"]) {
         transform: scale(0.97);
       }
-      
-      /* Custom scrollbar for dark theme */
+
+      /* Custom scrollbar for dark theme - optimized */
       ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #0f172a; 
+        background: #0f172a;
       }
       ::-webkit-scrollbar-thumb {
-        background: #334155; 
+        background: #334155;
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #475569; 
+        background: #475569;
+      }
+
+      /* Reduced motion preference support */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        #root:empty::before {
+          animation: none;
+        }
       }
     </style>
 

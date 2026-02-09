@@ -13,7 +13,7 @@ interface Props {
   niche: string;
   trends: Trend[];
   ideas: BusinessIdea[];
-  onSelectIdea: (idea: BusinessIdea) => void;
+  onSelectIdea: (_idea: BusinessIdea) => void;
   onGenerateIdeas: (selectedTrends: Trend[]) => void;
   isGeneratingBlueprint: boolean;
   isGeneratingIdeas: boolean;

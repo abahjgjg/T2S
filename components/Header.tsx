@@ -1,9 +1,10 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
-import { TrendingUp, RotateCcw, BookMarked, Compass, User, LogIn, LayoutDashboard, Shield, MoreHorizontal, Keyboard } from 'lucide-react';
+import { TrendingUp, RotateCcw, BookMarked, Compass, LogIn, LayoutDashboard, Shield, Keyboard } from 'lucide-react';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+import { BRAND_CONFIG } from '../config';
 
 interface Props {
   onReset: () => void;
@@ -64,7 +65,7 @@ export const Header: React.FC<Props> = ({
            <TrendingUp className="w-6 h-6" />
         </div>
         <h1 className="text-xl font-bold tracking-tighter text-white">
-          Trend<span className="text-emerald-400">Ventures</span> AI
+          {BRAND_CONFIG.NAME}<span className="text-emerald-400">{BRAND_CONFIG.NAME_HIGHLIGHT}</span>
         </h1>
       </div>
 
@@ -103,7 +104,7 @@ export const Header: React.FC<Props> = ({
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{uiText.newResearch}</span>
-              <kbd className="hidden md:inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-slate-900 rounded text-slate-500 group-hover:text-slate-400 transition-colors">
+              <kbd className="hidden md:inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-slate-900 rounded text-slate-400 group-hover:text-slate-300 transition-colors">
                 <span className="text-[8px]">Ctrl</span>+
                 <span>R</span>
               </kbd>
@@ -115,7 +116,7 @@ export const Header: React.FC<Props> = ({
             {/* Admin */}
             <button
               onClick={onOpenAdmin}
-              className="p-2 rounded-lg text-slate-500 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
               title="Admin Panel"
               aria-label="Open Admin Panel"
             >
@@ -134,34 +135,34 @@ export const Header: React.FC<Props> = ({
               aria-label={user ? "Open Dashboard" : "Log In"}
             >
               {user ? <LayoutDashboard className="w-3.5 h-3.5" /> : <LogIn className="w-3.5 h-3.5" />}
-              {user ? <span className="max-w-[80px] truncate hidden sm:inline">Dashboard</span> : <span className="hidden sm:inline">Login</span>}
+              {user ? <span className="max-w-[80px] truncate hidden sm:inline">{uiText.dashboard || "Dashboard"}</span> : <span className="hidden sm:inline">{uiText.login || "Login"}</span>}
             </button>
           </div>
 
           {/* Language Switcher */}
            <div className="flex items-center bg-slate-900/50 border border-white/5 rounded-xl p-1" role="group" aria-label="Language Selection">
-             <button
-               onClick={() => setLanguage('id')}
-               className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
-               aria-label="Switch to Indonesian"
-               aria-pressed={language === 'id'}
-             >
-               ID
-             </button>
-             <button
-               onClick={() => setLanguage('en')}
-               className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'en' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
-               aria-label="Switch to English"
-               aria-pressed={language === 'en'}
-             >
-               EN
-             </button>
+              <button
+                onClick={() => setLanguage('id')}
+                className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:text-white'}`}
+                aria-label="Switch to Indonesian"
+                aria-pressed={language === 'id'}
+              >
+                ID
+              </button>
+              <button
+                onClick={() => setLanguage('en')}
+                className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'en' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:text-white'}`}
+                aria-label="Switch to English"
+                aria-pressed={language === 'en'}
+              >
+                EN
+              </button>
            </div>
 
           {/* Keyboard Shortcuts Button */}
           <button
             onClick={() => setShowShortcutsModal(true)}
-            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
             title={language === 'id' ? 'Pintasan Keyboard (?)' : 'Keyboard Shortcuts (?)'}
             aria-label={language === 'id' ? 'Buka bantuan pintasan keyboard' : 'Open keyboard shortcuts help'}
           >

@@ -68,6 +68,11 @@ export interface AppConfig {
     readonly BASE: string;
     readonly ADMIN: string;
   };
+  readonly BRAND: {
+    readonly NAME: string;
+    readonly NAME_HIGHLIGHT: string;
+    readonly TAGLINE: string;
+  };
   readonly SEO: {
     readonly DEFAULT_TITLE: string;
     readonly DEFAULT_DESCRIPTION: string;
@@ -199,6 +204,11 @@ export const APP_CONFIG: AppConfig = {
     BASE: getEnv('VITE_APP_BASE_URL', 'https://trendventures.ai'),
     ADMIN: getEnv('VITE_APP_ADMIN_URL', 'https://trendventures.ai/admin'),
   },
+  BRAND: {
+    NAME: getEnv('VITE_BRAND_NAME', 'TrendVentures'),
+    NAME_HIGHLIGHT: getEnv('VITE_BRAND_NAME_HIGHLIGHT', 'AI'),
+    TAGLINE: getEnv('VITE_BRAND_TAGLINE', 'Market Research Suite'),
+  },
   SEO: {
     DEFAULT_TITLE: getEnv('VITE_APP_DEFAULT_TITLE', 'TrendVentures AI | Market Research Suite'),
     DEFAULT_DESCRIPTION: getEnv(
@@ -260,6 +270,7 @@ export const IMAGE_SIZES = API_CONFIG.IMAGE_SIZES;
 export const SPEECH_CONFIG = API_CONFIG.SPEECH_CONFIG;
 export const PLACEHOLDER_CONFIG = API_CONFIG.PLACEHOLDER_CONFIG;
 export const APP_URLS = APP_CONFIG.URLS;
+export const BRAND_CONFIG = APP_CONFIG.BRAND;
 export const SEO_CONFIG = APP_CONFIG.SEO;
 export const STORAGE_CONFIG = APP_CONFIG.STORAGE;
 export const TELEMETRY_CONFIG = APP_CONFIG.TELEMETRY;

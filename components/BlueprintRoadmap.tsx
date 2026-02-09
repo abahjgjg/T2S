@@ -17,9 +17,9 @@ export const BlueprintRoadmap: React.FC<Props> = ({ roadmap, progress = {}, onTo
     let total = 0;
     let completed = 0;
     roadmap.forEach(phase => {
-      phase.tasks.forEach(task => {
+      phase.tasks.forEach(t => {
         total++;
-        if (progress[task]) completed++;
+        if (progress[t]) completed++;
       });
     });
     return { total, completed, percentage: total === 0 ? 0 : Math.round((completed / total) * 100) };

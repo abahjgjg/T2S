@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Blueprint, BusinessIdea } from '../types';
-import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Palette, TrendingUp, Target, Layers, ShieldCheck, Share2, DollarSign } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Palette, TrendingUp, Target, Layers, ShieldCheck, DollarSign } from 'lucide-react';
 import { SafeMarkdown } from './SafeMarkdown';
+import { SmartImage } from './ui/SmartImage';
 
 interface Props {
   idea: BusinessIdea;
@@ -55,14 +56,20 @@ export const PresentationMode: React.FC<Props> = ({ idea, blueprint, onClose }) 
     const slide = slides[currentSlide];
 
     switch (slide.type) {
-      case 'COVER':
-        return (
-          <div className="flex flex-col items-center justify-center h-full text-center px-8 animate-[fadeIn_0.5s_ease-out]">
-            {blueprint.brandImageUrl ? (
-              <img src={blueprint.brandImageUrl} alt="Logo" className="w-48 h-48 object-contain mb-8 drop-shadow-2xl rounded-2xl bg-white/5 p-4 border border-white/10" />
-            ) : (
-              <div className="w-32 h-32 bg-emerald-500/20 rounded-full flex items-center justify-center mb-8 border border-emerald-500/30"><Palette className="w-16 h-16 text-emerald-400" /></div>
-            )}
+       case 'COVER':
+         return (
+           <div className="flex flex-col items-center justify-center h-full text-center px-8 animate-[fadeIn_0.5s_ease-out]">
+             {blueprint.brandImageUrl ? (
+               <SmartImage 
+                 src={blueprint.brandImageUrl} 
+                 alt="Logo" 
+                 className="w-48 h-48 object-contain mb-8 drop-shadow-2xl rounded-2xl bg-white/5 p-4 border border-white/10"
+                 containerClassName="w-48 h-48 mb-8"
+                 fallbackIcon={<div className="w-32 h-32 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30"><Palette className="w-16 h-16 text-emerald-400" /></div>}
+               />
+             ) : (
+               <div className="w-32 h-32 bg-emerald-500/20 rounded-full flex items-center justify-center mb-8 border border-emerald-500/30"><Palette className="w-16 h-16 text-emerald-400" /></div>
+             )}
             <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-emerald-400 mb-6 tracking-tight">{idea.name}</h1>
             <p className="text-2xl text-slate-300 font-light max-w-3xl leading-relaxed">{idea.description}</p>
             <div className="mt-12 flex gap-4">
@@ -125,13 +132,13 @@ export const PresentationMode: React.FC<Props> = ({ idea, blueprint, onClose }) 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col text-white animate-[fadeIn_0.3s_ease-out]">
       <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/50 to-transparent hover:opacity-100 transition-opacity">
-         <div className="flex items-center gap-4"><button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white"><X className="w-6 h-6" /></button><div className="text-sm font-bold text-slate-400 uppercase tracking-widest">{idea.name} • {slides[currentSlide].title}</div></div>
-         <button onClick={toggleFullscreen} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white">{isFullscreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}</button>
+         <div className="flex items-center gap-4"><button onClick={onClose} aria-label="Close presentation" className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white"><X className="w-6 h-6" /></button><div className="text-sm font-bold text-slate-300 uppercase tracking-widest">{idea.name} • {slides[currentSlide].title}</div></div>
+         <button onClick={toggleFullscreen} aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white">{isFullscreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}</button>
       </div>
       <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-slate-950"><div className="w-full h-full max-w-[1600px] mx-auto aspect-video relative">{renderSlideContent()}</div></div>
       <div className="h-16 border-t border-white/10 bg-slate-900 flex items-center justify-between px-8 z-50">
          <div className="text-slate-500 font-mono text-sm">Slide {currentSlide + 1} / {slides.length}</div>
-         <div className="flex items-center gap-6"><button onClick={handlePrev} disabled={currentSlide === 0} className="p-3 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"><ChevronLeft className="w-6 h-6" /></button><div className="flex gap-2">{slides.map((_, i) => (<button key={i} onClick={() => setCurrentSlide(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${currentSlide === i ? 'bg-emerald-500 scale-125' : 'bg-slate-700 hover:bg-slate-500'}`} />))}</div><button onClick={handleNext} disabled={currentSlide === slides.length - 1} className="p-3 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"><ChevronRight className="w-6 h-6" /></button></div>
+          <div className="flex items-center gap-6"><button onClick={handlePrev} disabled={currentSlide === 0} aria-label="Previous slide" className="p-3 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"><ChevronLeft className="w-6 h-6" /></button><div className="flex gap-2">{slides.map((_, i) => (<button key={i} onClick={() => setCurrentSlide(i)} aria-label={`Go to slide ${i + 1}`} aria-current={currentSlide === i ? 'true' : undefined} className={`w-2.5 h-2.5 rounded-full transition-all ${currentSlide === i ? 'bg-emerald-500 scale-125' : 'bg-slate-600 hover:bg-slate-400'}`} />))}</div><button onClick={handleNext} disabled={currentSlide === slides.length - 1} aria-label="Next slide" className="p-3 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"><ChevronRight className="w-6 h-6" /></button></div>
          <div className="w-24 text-right"><span className="text-emerald-500 font-bold text-sm tracking-widest">TV.AI</span></div>
       </div>
     </div>

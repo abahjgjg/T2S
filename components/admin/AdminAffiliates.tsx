@@ -5,6 +5,9 @@ import { supabaseService } from '../../services/supabaseService';
 import { toast } from '../ToastNotifications';
 import { Plus, Edit2, Save, AlertCircle, BarChart3, Package, MousePointerClick, Tag, Link, Trash2, Download } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
+import { CHART_COLORS } from '../../constants/chartConfig';
+import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
+import { DISPLAY_LIMITS } from '../../constants/displayLimits';
 
 interface Props {
   products: AffiliateProduct[];
@@ -138,11 +141,11 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
     return products
       .map(p => ({ name: p.name, clicks: p.clicks || 0 }))
       .sort((a, b) => b.clicks - a.clicks)
-      .slice(0, 10);
+      .slice(0, DISPLAY_LIMITS.analytics.dataPoints);
   }, [products]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-[fadeIn_0.3s_ease-out]">
+    <div className={`grid grid-cols-1 lg:grid-cols-3 gap-8 animate-[fadeIn_${ANIMATION_DURATION.standard.normal}ms_${ANIMATION_EASING.default}]`}>
       {/* Form Section */}
       <div className="lg:col-span-1">
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg sticky top-6">
@@ -232,17 +235,21 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
              <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                <BarChart3 className="w-4 h-4" /> Performance (Clicks)
              </h4>
-             <ResponsiveContainer width="100%" height="100%">
-               <BarChart data={clickData}>
-                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                 <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
-                 <Tooltip 
-                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }}
-                   cursor={{ fill: '#1e293b' }}
-                 />
-                 <Bar dataKey="clicks" fill="#10b981" radius={[4, 4, 0, 0]} barSize={30} />
-               </BarChart>
-             </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={clickData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.elements.grid} vertical={false} />
+                  <XAxis dataKey="name" stroke={CHART_COLORS.elements.axis} fontSize={10} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: CHART_COLORS.elements.tooltipBg, 
+                      borderColor: CHART_COLORS.elements.tooltipBorder, 
+                      color: CHART_COLORS.elements.tooltipText 
+                    }}
+                    cursor={{ fill: CHART_COLORS.elements.cursor }}
+                  />
+                  <Bar dataKey="clicks" fill={CHART_COLORS.bars.secondary} radius={[4, 4, 0, 0]} barSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
           </div>
         )}
 

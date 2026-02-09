@@ -7,12 +7,13 @@ import { toast } from './ToastNotifications';
 import { SafeMarkdown } from './SafeMarkdown';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { COORDINATE_PRECISION, TEXT_TRUNCATION } from '../constants/displayLimits';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   idea: BusinessIdea;
-  onSaveToBlueprint: (strategy: string) => void;
+  onSaveToBlueprint: (_strategy: string) => void;
 }
 
 export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onSaveToBlueprint }) => {
@@ -52,7 +53,7 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        setLocation(`${latitude.toFixed(COORDINATE_PRECISION.latitude)}, ${longitude.toFixed(COORDINATE_PRECISION.longitude)}`);
         toast.success("Coordinates acquired!");
       },
       (error) => {
@@ -63,7 +64,7 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
 
   const handleAddToBlueprint = () => {
     if (!result) return;
-    const strategy = `Target Expansion in ${location}: ${result.summary.slice(0, 150)}...`;
+    const strategy = `Target Expansion in ${location}: ${result.summary.slice(0, TEXT_TRUNCATION.insight)}...`;
     onSaveToBlueprint(strategy);
     setIsSaved(true);
     toast.success("Added to Marketing Strategy");

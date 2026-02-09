@@ -1,8 +1,9 @@
 
 import React, { useMemo } from 'react';
-import { Globe, ExternalLink, Search, Newspaper, Zap, CheckCircle2, AlertTriangle, Radio, BarChart2, ShieldCheck } from 'lucide-react';
+import { Globe, ExternalLink, Newspaper, Zap, CheckCircle2, Radio, BarChart2, ShieldCheck } from 'lucide-react';
 import { AIProvider } from '../types';
 import { API_ENDPOINTS } from '../constants/apiConfig';
+import { DISPLAY_LIMITS, FAVICON_CONFIG } from '../constants/displayLimits';
 
 interface Props {
   sources: { title: string; url: string }[];
@@ -31,9 +32,9 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
           // Silent fail - invalid URL, skip this source
         }
      });
-     // Sort by count descending
-     return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
-  }, [sources]);
+      // Sort by count descending
+      return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, DISPLAY_LIMITS.domains.stats);
+   }, [sources]);
 
   const isTrusted = (url: string) => {
     try {
@@ -97,9 +98,9 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
            </div>
            
             {sources.map((source, i) => {
-              // Basic favicon fallback
-              const domain = new URL(source.url).hostname;
-              const faviconUrl = `${API_ENDPOINTS.EXTERNAL.FAVICON}?domain=${domain}&sz=64`;
+               // Basic favicon fallback
+               const domain = new URL(source.url).hostname;
+               const faviconUrl = `${FAVICON_CONFIG.serviceUrl}?domain=${domain}&sz=${FAVICON_CONFIG.size}`;
               const trusted = isTrusted(source.url);
 
              return (

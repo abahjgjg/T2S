@@ -6,7 +6,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { usePreferences } from '../contexts/PreferencesContext';
 
 interface Props {
-  onViewBlueprint: (id: string) => void;
+  onViewBlueprint: (_id: string) => void;
 }
 
 export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
@@ -31,7 +31,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
 
   // React Query Fetcher
   const fetchBlueprints = async ({ queryKey }: any) => {
-    const [_, search, sort, currentLimit] = queryKey;
+    const [, search, sort, currentLimit] = queryKey;
     if (!supabaseService.isConfigured()) {
       throw new Error("Database connection not configured.");
     }
