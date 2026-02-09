@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { SavedProject, UserProfile } from '../types';
 import { supabaseService } from '../services/supabaseService';
 import { Trash2, FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search, History, Clock } from 'lucide-react';
+import { ProjectCardSkeleton } from './ui/ProjectCardSkeleton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
@@ -169,9 +170,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           )}
 
           {activeTab === 'cloud' && user && loadingCloud && (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-            </div>
+            <ProjectCardSkeleton count={4} />
           )}
 
           {activeTab === 'cloud' && user && cloudError && (
