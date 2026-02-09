@@ -6,7 +6,7 @@ async function runLighthouse() {
   console.log('🚦 Running Lighthouse audit...\n');
   
   // Launch Chrome with remote debugging
-  const chromeProcess = spawn('/snap/bin/chromium', [
+  const chromeProcess = spawn('/home/runner/.cache/ms-playwright/chromium-1208/chrome-linux/chrome', [
     '--headless',
     '--no-sandbox',
     '--disable-setuid-sandbox',

@@ -84,7 +84,7 @@ export const ResearchChat: React.FC<Props> = ({
              </p>
            </div>
         </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-white" aria-label="Close Chat">
+         <button onClick={onClose} className="text-slate-300 hover:text-white" aria-label="Close Chat">
           <X className="w-5 h-5" />
         </button>
       </div>
