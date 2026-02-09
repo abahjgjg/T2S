@@ -4,6 +4,7 @@ import { Blueprint, BusinessIdea } from '../types';
 import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Palette, TrendingUp, Target, Layers, ShieldCheck, DollarSign } from 'lucide-react';
 import { SafeMarkdown } from './SafeMarkdown';
 import { SmartImage } from './ui/SmartImage';
+import { Z_INDEX } from '../constants/zIndex';
 
 interface Props {
   idea: BusinessIdea;
@@ -130,13 +131,13 @@ export const PresentationMode: React.FC<Props> = ({ idea, blueprint, onClose }) 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col text-white animate-[fadeIn_0.3s_ease-out]">
-      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/50 to-transparent hover:opacity-100 transition-opacity">
+    <div className={`fixed inset-0 ${Z_INDEX.TOAST} bg-slate-950 flex flex-col text-white animate-[fadeIn_0.3s_ease-out]`}>
+      <div className={`absolute top-0 left-0 right-0 p-4 flex justify-between items-center ${Z_INDEX.MODAL} bg-gradient-to-b from-black/50 to-transparent hover:opacity-100 transition-opacity`}>
          <div className="flex items-center gap-4"><button onClick={onClose} aria-label="Close presentation" className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white"><X className="w-6 h-6" /></button><div className="text-sm font-bold text-slate-300 uppercase tracking-widest">{idea.name} • {slides[currentSlide].title}</div></div>
          <button onClick={toggleFullscreen} aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white">{isFullscreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}</button>
       </div>
       <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-slate-950"><div className="w-full h-full max-w-[1600px] mx-auto aspect-video relative">{renderSlideContent()}</div></div>
-      <div className="h-16 border-t border-white/10 bg-slate-900 flex items-center justify-between px-8 z-50">
+       <div className={`h-16 border-t border-white/10 bg-slate-900 flex items-center justify-between px-8 ${Z_INDEX.MODAL}`}>
          <div className="text-slate-500 font-mono text-sm">Slide {currentSlide + 1} / {slides.length}</div>
           <div className="flex items-center gap-6"><button onClick={handlePrev} disabled={currentSlide === 0} aria-label="Previous slide" className="p-3 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"><ChevronLeft className="w-6 h-6" /></button><div className="flex gap-2">{slides.map((_, i) => (<button key={i} onClick={() => setCurrentSlide(i)} aria-label={`Go to slide ${i + 1}`} aria-current={currentSlide === i ? 'true' : undefined} className={`w-2.5 h-2.5 rounded-full transition-all ${currentSlide === i ? 'bg-emerald-500 scale-125' : 'bg-slate-600 hover:bg-slate-400'}`} />))}</div><button onClick={handleNext} disabled={currentSlide === slides.length - 1} aria-label="Next slide" className="p-3 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"><ChevronRight className="w-6 h-6" /></button></div>
          <div className="w-24 text-right"><span className="text-emerald-500 font-bold text-sm tracking-widest">TV.AI</span></div>

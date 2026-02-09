@@ -4,6 +4,7 @@ import { Globe, ExternalLink, Newspaper, Zap, CheckCircle2, Radio, BarChart2, Sh
 import { AIProvider } from '../types';
 import { API_ENDPOINTS } from '../constants/apiConfig';
 import { DISPLAY_LIMITS, FAVICON_CONFIG } from '../constants/displayLimits';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   sources: { title: string; url: string }[];
@@ -46,7 +47,7 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden animate-[fadeIn_0.3s_ease-out] flex flex-col h-full">
+    <div className={`bg-slate-900 border border-slate-800 rounded-xl overflow-hidden ${ANIMATION_CLASSES.fadeIn.normal} flex flex-col h-full`}>
        <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col gap-3">
          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

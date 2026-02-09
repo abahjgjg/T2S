@@ -8,6 +8,7 @@ import { SafeMarkdown } from './SafeMarkdown';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { COORDINATE_PRECISION, TEXT_TRUNCATION } from '../constants/displayLimits';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   isOpen: boolean;
@@ -91,8 +92,8 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
              </div>
            )}
            {loading && (<div className="flex flex-col items-center justify-center py-12"><Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" /><p className="text-slate-400 animate-pulse">{uiText.findingPlaces}</p></div>)}
-           {result && (
-             <div className="animate-[fadeIn_0.5s_ease-out]">
+            {result && (
+              <div className={`${ANIMATION_CLASSES.fadeIn.slow}`}>
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-white text-lg flex items-center gap-2"><MapPin className="w-5 h-5 text-red-500" /> Results for {location}</h3>
                   <div className="flex gap-3"><button onClick={handleAddToBlueprint} disabled={isSaved} className={`text-xs font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors ${isSaved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}>{isSaved ? <Check className="w-3 h-3" /> : <PlusCircle className="w-3 h-3" />}{isSaved ? "Strategy Added" : "Add to Plan"}</button><button onClick={() => setResult(null)} className="text-xs text-blue-400 hover:text-blue-300 underline">New Search</button></div>

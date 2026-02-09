@@ -4,6 +4,8 @@ import { supabaseService } from '../services/supabaseService';
 import { Calendar, Search, ArrowRight, Loader2, AlertCircle, Heart, Flame, Clock, ChevronDown } from 'lucide-react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
+import { SHADOWS } from '../constants/shadowConfig';
 
 interface Props {
   onViewBlueprint: (_id: string) => void;
@@ -60,7 +62,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-12 animate-[fadeIn_0.5s_ease-out]">
+    <div className={`w-full max-w-7xl mx-auto px-4 py-12 ${ANIMATION_CLASSES.fadeIn.slow}`}>
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-500 mb-4">
           {uiText.directoryTitle || "Community Blueprints"}
@@ -132,7 +134,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
                 <div 
                   key={bp.id}
                   onClick={() => onViewBlueprint(bp.id)}
-                  className="group bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-6 transition-all hover:shadow-[0_0_20px_-5px_rgba(16,185,129,0.15)] cursor-pointer flex flex-col h-full relative overflow-hidden animate-[fadeIn_0.3s_ease-out]"
+                  className={`group bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-6 transition-all hover:${SHADOWS.glow.emerald.md} cursor-pointer flex flex-col h-full relative overflow-hidden ${ANIMATION_CLASSES.fadeIn.normal}`}
                 >
                   <div className="flex justify-between items-start mb-3 relative z-10">
                     <span className="text-xs font-bold px-2 py-1 rounded bg-slate-800 text-emerald-400 border border-slate-700/50">

@@ -8,6 +8,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
 import { EmptyState } from './ui/EmptyState';
 import { copyWithFeedback } from '../utils/clipboardUtils';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   idea: BusinessIdea;
@@ -99,7 +100,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
 
   if (!assets) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 mb-8 text-center animate-[fadeIn_0.3s_ease-out] print:break-inside-avoid">
+      <div className={`bg-slate-900 border border-slate-800 rounded-xl p-8 mb-8 text-center ${ANIMATION_CLASSES.fadeIn.normal} print:break-inside-avoid`}>
         <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
           <Megaphone className="w-8 h-8 text-indigo-400" />
         </div>
@@ -118,7 +119,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid animate-[fadeIn_0.3s_ease-out]">
+    <div className={`bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid ${ANIMATION_CLASSES.fadeIn.normal}`}>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
           <Rocket className="w-5 h-5 text-indigo-400" /> {(uiText as any).launchpad.title}
@@ -176,7 +177,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
 
       <div className="min-h-[250px]">
         {activeTab === 'landing' && (
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 relative group animate-[fadeIn_0.2s_ease-out]">
+          <div className={`bg-slate-950 border border-slate-800 rounded-xl p-6 relative group ${ANIMATION_CLASSES.fadeIn.fast}`}>
              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => handleCopy(
@@ -213,7 +214,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'social' && (
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 max-w-lg mx-auto relative group animate-[fadeIn_0.2s_ease-out]">
+          <div className={`bg-slate-950 border border-slate-800 rounded-xl p-6 max-w-lg mx-auto relative group ${ANIMATION_CLASSES.fadeIn.fast}`}>
              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => handleCopy(assets.socialPost, 'social')}
@@ -244,7 +245,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'email' && (
-          <div className="bg-white text-slate-900 rounded-xl p-8 max-w-2xl mx-auto shadow-xl relative group animate-[fadeIn_0.2s_ease-out]">
+          <div className={`bg-white text-slate-900 rounded-xl p-8 max-w-2xl mx-auto shadow-xl relative group ${ANIMATION_CLASSES.fadeIn.fast}`}>
              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => handleCopy(assets.emailPitch, 'email')}
@@ -272,7 +273,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'code' && (
-          <div className="animate-[fadeIn_0.2s_ease-out]">
+          <div className={`${ANIMATION_CLASSES.fadeIn.fast}`}>
              {!assets.landingPageCode ? (
                 <div className="text-center py-12 border border-slate-800 border-dashed rounded-xl">
                    <Code className="w-8 h-8 text-orange-400 mx-auto mb-3" />
@@ -314,7 +315,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'calendar' && (
-          <div className="animate-[fadeIn_0.2s_ease-out]">
+          <div className={`${ANIMATION_CLASSES.fadeIn.fast}`}>
              {!assets.contentCalendar ? (
                 <div className="text-center py-12 border border-slate-800 border-dashed rounded-xl">
                    <Calendar className="w-8 h-8 text-purple-400 mx-auto mb-3" />

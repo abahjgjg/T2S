@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
+import { Z_INDEX } from '../../constants/zIndex';
 
 interface ModalProps {
   isOpen: boolean;
@@ -78,7 +79,7 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-[fadeIn_${ANIMATION_TIMING.FADE_FAST}s_${ANIMATION_EASING.DEFAULT}]`}>
+    <div className={`fixed inset-0 ${Z_INDEX.MODAL} flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-[fadeIn_${ANIMATION_TIMING.FADE_FAST}s_${ANIMATION_EASING.DEFAULT}]`}>
       <div 
         ref={modalRef}
         tabIndex={-1}
