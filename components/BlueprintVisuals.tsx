@@ -4,6 +4,7 @@ import { Blueprint } from '../types';
 import { toast } from './ToastNotifications';
 import { useAsset } from '../hooks/useAsset';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { SmartImage } from './ui/SmartImage';
 
 interface Props {
   blueprint: Blueprint;
@@ -75,19 +76,24 @@ export const BlueprintVisuals: React.FC<Props> = ({
                     <AlertCircle className="w-6 h-6 mx-auto mb-2" />
                     Image expired or missing.
                   </div>
-               ) : (
-                 <>
-                   <img src={resolvedImageUrl || ''} alt="Generated Logo" className="w-full h-full object-contain" />
-                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button 
-                        onClick={handleDownloadLogo}
-                        className="flex items-center gap-2 px-4 py-2 bg-white text-slate-900 rounded-full font-bold text-sm transform scale-90 group-hover:scale-100 transition-transform"
-                      >
-                         <Download className="w-4 h-4" /> Download
-                      </button>
-                   </div>
-                 </>
-               )
+                ) : (
+                  <>
+                    <SmartImage 
+                      src={resolvedImageUrl || ''} 
+                      alt="Generated Logo" 
+                      className="w-full h-full object-contain"
+                      containerClassName="w-full h-full"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                       <button 
+                         onClick={handleDownloadLogo}
+                         className="flex items-center gap-2 px-4 py-2 bg-white text-slate-900 rounded-full font-bold text-sm transform scale-90 group-hover:scale-100 transition-transform"
+                       >
+                          <Download className="w-4 h-4" /> Download
+                       </button>
+                    </div>
+                  </>
+                )
             ) : isGeneratingLogo ? (
                <div className="flex flex-col items-center">
                   <Loader2 className="w-8 h-8 text-pink-500 animate-spin mb-2" />
