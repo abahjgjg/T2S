@@ -1,7 +1,19 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+
+// BroCula plugin: Transform CSS links to be non-render-blocking
+const nonBlockingCssPlugin = (): Plugin => ({
+  name: 'non-blocking-css',
+  transformIndexHtml(html) {
+    // Find CSS link tags and make them non-blocking
+    return html.replace(
+      /<link rel="stylesheet" crossorigin href="([^"]+)"\s*\/?>/g,
+      '<link rel="preload" href="$1" as="style" onload="this.onload=null;this.rel=\'stylesheet\'" />\n<noscript><link rel="stylesheet" href="$1" /></noscript>'
+    );
+  },
+});
 
 // Load configuration from environment variables with defaults
 const loadConfig = (env: Record<string, string>) => ({
@@ -10,12 +22,12 @@ const loadConfig = (env: Record<string, string>) => ({
     port: parseInt(env.VITE_DEV_DEFAULT_PORT || '3000', 10),
     host: env.VITE_DEV_HOST || '0.0.0.0',
   },
-  // Build configuration - BroCula optimized
-  build: {
-    sourcemap: env.VITE_BUILD_SOURCEMAP !== 'false',
-    chunkSizeWarningLimit: parseInt(env.VITE_CHUNK_SIZE_WARNING_LIMIT || '1500', 10),
-    // CSS code splitting to prevent render-blocking
-    cssCodeSplit: true,
+    // Build configuration - BroCula optimized
+    build: {
+        sourcemap: env.VITE_BUILD_SOURCEMAP !== 'false',
+        chunkSizeWarningLimit: parseInt(env.VITE_CHUNK_SIZE_WARNING_LIMIT || '1500', 10),
+        // CSS code splitting to prevent render-blocking
+        cssCodeSplit: true,
     rollupOptions: {
       output: {
         // Optimize chunk loading with better naming
@@ -86,7 +98,7 @@ export default defineConfig(({ mode }) => {
     
     return {
       server: config.server,
-      plugins: [react(), tailwindcss()],
+      plugins: [react(), tailwindcss(), nonBlockingCssPlugin()],
       build: config.build,
       define: exposeEnvVars(env),
       resolve: {
