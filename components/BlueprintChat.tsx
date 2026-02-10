@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, User, Bot, Loader2, Minimize2 } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Minimize2 } from 'lucide-react';
 import { Blueprint, ChatMessage } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { toast } from './ToastNotifications';
@@ -137,9 +137,10 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
                  <div className="w-8 h-8 rounded-full bg-emerald-900/50 border border-emerald-500/20 flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4 text-emerald-400" />
                  </div>
-                 <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
-                    <span className="text-xs text-slate-400">Processing changes...</span>
+                 <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-1" aria-label="AI is typing">
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                  </div>
               </div>
             )}
