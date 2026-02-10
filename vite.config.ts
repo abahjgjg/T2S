@@ -10,14 +10,27 @@ const loadConfig = (env: Record<string, string>) => ({
     port: parseInt(env.VITE_DEV_DEFAULT_PORT || '3000', 10),
     host: env.VITE_DEV_HOST || '0.0.0.0',
   },
-  // Build configuration
+  // Build configuration - BroCula optimized
   build: {
     sourcemap: env.VITE_BUILD_SOURCEMAP !== 'false',
     chunkSizeWarningLimit: parseInt(env.VITE_CHUNK_SIZE_WARNING_LIMIT || '1500', 10),
-      rollupOptions: {
+    // CSS code splitting to prevent render-blocking
+    cssCodeSplit: true,
+    rollupOptions: {
       output: {
+        // Optimize chunk loading with better naming
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name ? assetInfo.name.split('.') : [];
+          const ext = info[info.length - 1];
+          if (/\.(css)$/i.test(assetInfo.name || '')) {
+            return 'assets/[name]-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
         manualChunks: {
-          // Vendor chunks - separate third-party libraries
+          // Vendor chunks - separate third-party libraries for better caching
           'vendor-react': ['react', 'react-dom', '@tanstack/react-query'],
           'vendor-charts': ['recharts'],
           'vendor-markdown': ['react-markdown', 'remark-gfm'],
@@ -29,14 +42,21 @@ const loadConfig = (env: Record<string, string>) => ({
         }
       }
     },
-    // Minification for production
+    // Minification for production - BroCula optimized
     minify: 'terser' as const,
     terserOptions: {
       compress: {
         drop_console: true,
         drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
+        passes: 2,
       },
-    }
+      format: {
+        comments: false,
+      },
+    },
+    // Target modern browsers for smaller bundles
+    target: 'es2020',
   },
 });
 
