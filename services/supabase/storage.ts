@@ -1,8 +1,8 @@
 
 import { supabase } from './client';
-import { STORAGE_CONFIG } from '../../constants/appConfig';
+import { STORAGE_CONFIG, SUPABASE_STORAGE_CONFIG } from '../../constants/appConfig';
 
-const BUCKET_NAME = 'public-assets';
+const BUCKET_NAME = SUPABASE_STORAGE_CONFIG.BUCKET_NAME;
 
 /**
  * Uploads a file to the public storage bucket.
