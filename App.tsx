@@ -15,6 +15,7 @@ import { useResearch } from './hooks/useResearch';
 import { indexedDBService } from './utils/storageUtils';
 import { useAuth } from './contexts/AuthContext';
 import { usePreferences } from './contexts/PreferencesContext';
+import { useConfirm } from './contexts/ConfirmContext';
 import { useRouter } from './hooks/useRouter';
 import { STORAGE_KEYS } from './constants/storageConfig';
 import { SEO_CONFIG, getOgImageUrl, SCROLL_CONFIG } from './constants/appConfig';
@@ -41,6 +42,7 @@ const App: React.FC = () => {
   const { language, provider, setProvider, uiText } = usePreferences();
   const { pushState, getParams, getPath } = useRouter();
   const { user, openAuthModal } = useAuth();
+  const { confirm } = useConfirm();
 
   const aiService = getAIService(provider);
   const { state: rState, setters: rSetters, actions: rActions } = useResearch(aiService, language, user?.id);
@@ -61,14 +63,20 @@ const App: React.FC = () => {
     window.scrollTo({ top: SCROLL_CONFIG.TOP_POSITION, behavior: 'smooth' });
   }, []);
   
-  const handleReset = useCallback(() => {
-    const confirmMsg = uiText.resetConfirmation;
+  const handleReset = useCallback(async () => {
+    const confirmed = await confirm({
+      title: uiText.resetConfirmationTitle || 'Start New Research?',
+      message: uiText.resetConfirmation || 'This will clear your current research. Any unsaved progress will be lost.',
+      confirmText: uiText.confirm || 'Start New',
+      cancelText: uiText.cancel || 'Keep Working',
+      variant: 'warning',
+    });
 
-    if (window.confirm(confirmMsg)) {
+    if (confirmed) {
       rActions.resetResearch();
       pushState(ROUTES.HOME);
     }
-  }, [uiText.resetConfirmation, rActions, pushState]);
+  }, [uiText.resetConfirmation, uiText.resetConfirmationTitle, uiText.confirm, uiText.cancel, rActions, pushState, confirm]);
 
   const handleSearch = useCallback(async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
     const newUrl = buildRoute.idea({ niche: searchTerm });
@@ -443,8 +451,15 @@ const App: React.FC = () => {
             onClose={() => setIsLibraryOpen(false)}
             projects={savedProjects}
             onLoad={handleLoadProject}
-            onDelete={(id) => {
-               if (window.confirm(uiText.delete + '?')) {
+            onDelete={async (id) => {
+               const confirmed = await confirm({
+                 title: uiText.deleteConfirmationTitle || 'Delete Project?',
+                 message: uiText.deleteConfirmation || 'This project will be permanently deleted. This action cannot be undone.',
+                 confirmText: uiText.delete || 'Delete',
+                 cancelText: uiText.cancel || 'Cancel',
+                 variant: 'danger',
+               });
+               if (confirmed) {
                  setSavedProjects(prev => prev.filter(p => p.id !== id));
                }
             }}

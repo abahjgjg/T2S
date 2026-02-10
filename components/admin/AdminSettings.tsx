@@ -5,6 +5,7 @@ import { toast } from '../ToastNotifications';
 import { indexedDBService } from '../../utils/storageUtils';
 import { AIProvider } from '../../types';
 import { DEV_CONFIG } from '../../constants/appConfig';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 interface Props {
   provider: AIProvider;
@@ -15,6 +16,7 @@ interface Props {
 
 export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEmail, onResetOwnership }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { confirm } = useConfirm();
 
   const handleBackup = async () => {
     try {
@@ -39,7 +41,15 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!window.confirm("This will overwrite current local data. Continue?")) {
+    const confirmed = await confirm({
+      title: 'Restore Database?',
+      message: 'This will overwrite all current local data with the backup file. This action cannot be undone.',
+      confirmText: 'Restore',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+
+    if (!confirmed) {
       return;
     }
 

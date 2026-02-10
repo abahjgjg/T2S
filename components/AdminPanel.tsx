@@ -4,6 +4,7 @@ import { supabaseService } from '../services/supabaseService';
 import { AffiliateProduct, Lead, UserProfile, AIProvider } from '../types';
 import { ShieldCheck, ShieldAlert, LogIn, UserCheck, X, Package, Users, Settings, Lock, Loader2, MessageSquareCode, Unlock, Database, Activity } from 'lucide-react';
 import { toast } from './ToastNotifications';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 // Sub-components
 import { AdminAffiliates } from './admin/AdminAffiliates';
@@ -24,6 +25,7 @@ export const AdminPanel: React.FC<Props> = ({ onExit, user, onLogin, provider, s
   const [activeTab, setActiveTab] = useState<'affiliates' | 'leads' | 'settings' | 'prompts' | 'logs'>('affiliates');
   const [ownerEmail, setOwnerEmail] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const { confirm } = useConfirm();
   
   // Data State
   const [products, setProducts] = useState<AffiliateProduct[]>([]);
@@ -65,7 +67,14 @@ export const AdminPanel: React.FC<Props> = ({ onExit, user, onLogin, provider, s
 
   const handleClaimOwnership = async () => {
     if (user && !ownerEmail) {
-      if (window.confirm(`Set ${user.email} as the permanent Admin Owner for this device and cloud?`)) {
+      const confirmed = await confirm({
+        title: 'Claim Admin Ownership?',
+        message: `Set ${user.email} as the permanent Admin Owner for this device and cloud? This can only be reset by the current owner.`,
+        confirmText: 'Claim Ownership',
+        cancelText: 'Cancel',
+        variant: 'warning',
+      });
+      if (confirmed) {
         const success = await supabaseService.claimAdminLock(user.email);
         if (success) {
            setOwnerEmail(user.email);
@@ -78,7 +87,14 @@ export const AdminPanel: React.FC<Props> = ({ onExit, user, onLogin, provider, s
   };
 
   const handleResetOwnership = async () => {
-    if (window.confirm("Reset Admin Ownership? This will allow a new user to claim admin rights.")) {
+    const confirmed = await confirm({
+      title: 'Reset Admin Ownership?',
+      message: 'Reset Admin Ownership? This will allow a new user to claim admin rights.',
+      confirmText: 'Reset Ownership',
+      cancelText: 'Keep Current Owner',
+      variant: 'danger',
+    });
+    if (confirmed) {
       const success = await supabaseService.releaseAdminLock();
       if (success) {
         setOwnerEmail(null);

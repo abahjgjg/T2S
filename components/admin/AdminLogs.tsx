@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { telemetryService, SystemLog } from '../../services/telemetryService';
 import { Trash2, RefreshCcw, AlertTriangle, AlertCircle, Info } from 'lucide-react';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export const AdminLogs: React.FC = () => {
   const [logs, setLogs] = useState<SystemLog[]>([]);
+  const { confirm } = useConfirm();
 
   useEffect(() => {
     loadLogs();
@@ -14,8 +16,15 @@ export const AdminLogs: React.FC = () => {
     setLogs(telemetryService.getLogs());
   };
 
-  const handleClear = () => {
-    if (window.confirm("Clear all logs?")) {
+  const handleClear = async () => {
+    const confirmed = await confirm({
+      title: 'Clear All Logs?',
+      message: 'This will permanently delete all system logs. This action cannot be undone.',
+      confirmText: 'Clear Logs',
+      cancelText: 'Keep Logs',
+      variant: 'danger',
+    });
+    if (confirmed) {
       telemetryService.clearLogs();
       loadLogs();
     }

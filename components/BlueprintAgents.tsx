@@ -4,6 +4,7 @@ import { Bot, Copy, Edit2, Trash2, Plus, Check, MessageSquare, Save, Cpu, PlayCi
 import { AgentProfile, Blueprint } from '../types';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { UI_TIMING } from '../constants/uiConfig';
 import { AgentChatModal } from './AgentChatModal';
 
@@ -22,6 +23,7 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
   const [editForm, setEditForm] = useState<Partial<AgentProfile>>({});
   const [isAdding, setIsAdding] = useState(false);
   const { uiText } = usePreferences();
+  const { confirm } = useConfirm();
 
   const handleCopySystemPrompt = (prompt: string, index: number) => {
     navigator.clipboard.writeText(prompt);
@@ -30,8 +32,15 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
     setTimeout(() => setCopiedAgentIndex(null), UI_TIMING.COPY_FEEDBACK_DURATION);
   };
 
-  const handleDeleteAgent = (index: number) => {
-    if (window.confirm("Remove this agent from your team?")) {
+  const handleDeleteAgent = async (index: number) => {
+    const confirmed = await confirm({
+      title: 'Remove Agent?',
+      message: 'Remove this agent from your team?',
+      confirmText: 'Remove',
+      cancelText: 'Keep',
+      variant: 'warning',
+    });
+    if (confirmed) {
       const newAgents = [...agents];
       newAgents.splice(index, 1);
       onUpdateBlueprint({ agents: newAgents });
