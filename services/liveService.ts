@@ -11,6 +11,7 @@ import { getGeminiClient } from "./gemini/shared";
 import { interpolate } from "../utils/promptUtils";
 import { AUDIO_PROCESSING_CONFIG } from "../constants/audioVisualizerConfig";
 import { PITCH_PERSONAS, LIVE_AUDIO_CONFIG, PitchPersona } from "../constants/liveConfig";
+import { getErrorMessageFromError, GENERIC_ERROR_MESSAGES } from "../constants/errorMessages";
 
 export interface LiveSessionCallbacks {
   onConnect: () => void;
@@ -60,7 +61,7 @@ export class LivePitchService {
       try {
         this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       } catch (e) {
-        throw new Error("Microphone access denied. Please allow audio permissions.");
+        throw new Error(GENERIC_ERROR_MESSAGES.MICROPHONE_ACCESS_DENIED);
       }
 
       // 3. Prepare System Instruction
@@ -111,11 +112,8 @@ export class LivePitchService {
           },
           onerror: (e: any) => {
             console.error("Live API Error:", e);
-            // Friendly error mapping
-            let msg = "Connection error occurred.";
-            if (e.message?.includes("403")) msg = "API Key invalid or quota exceeded.";
-            if (e.message?.includes("404")) msg = "Model not found or unavailable.";
-            if (e.message?.includes("503")) msg = "Service overloaded. Retry shortly.";
+            // Use modular error message resolution
+            const msg = getErrorMessageFromError(e);
             
             callbacks.onError(msg);
             this.disconnect();
@@ -137,7 +135,10 @@ export class LivePitchService {
 
     } catch (error: any) {
       console.error("Failed to connect live session:", error);
-      callbacks.onError(error.message || "Failed to access microphone or connect.");
+      const errorMessage = error?.message 
+        ? getErrorMessageFromError(error)
+        : GENERIC_ERROR_MESSAGES.LIVE_SESSION_FAILED;
+      callbacks.onError(errorMessage);
       this.disconnect();
     }
   }
