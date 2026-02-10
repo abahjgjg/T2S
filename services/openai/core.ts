@@ -5,6 +5,7 @@ import { callOpenAI, OpenAIToolDefinition } from "./shared";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { OPENAI_MODELS, QUERY_LIMITS } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
+import { AI_INSTRUCTIONS } from "../../constants/contentConfig";
 import { 
   BusinessIdeaListSchema, 
   BlueprintSchema, 
@@ -82,7 +83,7 @@ export const generateSystemBlueprint = async (idea: BusinessIdea, lang: Language
 };
 
 export const sendBlueprintChat = async (history: ChatMessage[], newMessage: string, context: Blueprint, lang: Language): Promise<{ text: string; updates?: Partial<Blueprint> }> => {
-  const langInstruction = lang === 'id' ? "Reply in Indonesian." : "Reply in English.";
+  const langInstruction = lang === 'id' ? AI_INSTRUCTIONS.CHAT_LANGUAGE.id : AI_INSTRUCTIONS.CHAT_LANGUAGE.en;
   
   const systemPrompt = promptService.build('CHAT_SYSTEM', {
     executiveSummary: context.executiveSummary,
@@ -110,9 +111,7 @@ export const sendBlueprintChat = async (history: ChatMessage[], newMessage: stri
       try {
         updates = JSON.parse(call.function.arguments);
         if (!responseText) {
-          responseText = lang === 'id' 
-            ? "Saya telah memperbarui blueprint sesuai permintaan Anda." 
-            : "I have updated the blueprint with your changes.";
+          responseText = AI_INSTRUCTIONS.CHAT_UPDATE_MESSAGES[lang];
         }
       } catch (e) {
         console.error("Failed to parse tool arguments", e);
