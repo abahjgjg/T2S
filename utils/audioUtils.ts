@@ -79,8 +79,8 @@ export function float32ToPcm16Base64(float32Data: Float32Array): string {
   for (let i = 0; i < l; i++) {
     // Clamp values to [-1, 1]
     const s = Math.max(-1, Math.min(1, float32Data[i]));
-    // Scale to Int16 range
-    int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    // Scale to Int16 range using named constants (Flexy hates hardcoded hex!)
+    int16[i] = s < 0 ? s * -AUDIO_CONSTANTS.INT16_MIN : s * (AUDIO_CONSTANTS.INT16_MAX - 1);
   }
   return encodeBase64(new Uint8Array(int16.buffer));
 }

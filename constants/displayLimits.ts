@@ -1,22 +1,11 @@
 /**
  * Display Limits Configuration
  * Centralized limits for truncation, slicing, and display counts
- * Flexy: Eliminating hardcoded slice/truncation limits throughout the codebase
+ * Flexy: Uses centralized env utilities for modularity
  * All values can be overridden via environment variables.
  */
 
-// Helper to safely get env var with fallback
-const getEnv = (key: string, defaultValue: string): string => {
-  const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key] 
-    ?? (typeof process !== 'undefined' ? process.env?.[key] : undefined);
-  return value || defaultValue;
-};
-
-const getEnvNumber = (key: string, defaultValue: number): number => {
-  const value = getEnv(key, String(defaultValue));
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? defaultValue : parsed;
-};
+import { getEnv, getEnvNumber } from '../utils/envUtils';
 
 // Text truncation limits
 export const TEXT_TRUNCATION = {

@@ -1,16 +1,11 @@
 /**
  * Theme Colors Configuration
  * Centralized color palette for consistent theming across the application
- * Flexy: Eliminating hardcoded colors throughout the codebase
+ * Flexy: Uses centralized env utilities for modularity
  * All values can be overridden via environment variables.
  */
 
-// Helper to safely get env var with fallback
-const getEnv = (key: string, defaultValue: string): string => {
-  const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key] 
-    ?? (typeof process !== 'undefined' ? process.env?.[key] : undefined);
-  return value || defaultValue;
-};
+import { getEnv } from '../utils/envUtils';
 
 // Helper to generate rgba values from hex colors
 const hexToRgba = (hex: string, alpha: number): string => {

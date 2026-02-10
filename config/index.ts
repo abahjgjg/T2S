@@ -133,24 +133,7 @@ export interface AppConfig {
   };
 }
 
-// Helper to safely get env var with fallback
-export const getEnv = (key: string, defaultValue: string): string => {
-  // In browser, env vars are injected via vite's define
-  const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key]
-    ?? (typeof process !== 'undefined' ? process.env?.[key] : undefined);
-  return value || defaultValue;
-};
-
-export const getEnvNumber = (key: string, defaultValue: number): number => {
-  const value = getEnv(key, String(defaultValue));
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? defaultValue : parsed;
-};
-
-export const getEnvBoolean = (key: string, defaultValue: boolean): boolean => {
-  const value = getEnv(key, String(defaultValue)).toLowerCase();
-  return value === 'true' || value === '1' || value === 'yes';
-};
+import { getEnv, getEnvNumber, getEnvBoolean } from '../utils/envUtils';
 
 // API Configuration
 export const API_CONFIG: ApiConfig = {
