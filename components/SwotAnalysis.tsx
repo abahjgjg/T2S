@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { SWOTAnalysis } from '../types';
-import { Shield, Zap, TrendingUp, AlertTriangle, Target, Copy, Check } from 'lucide-react';
+import { Shield, Zap, TrendingUp, AlertTriangle, Target } from 'lucide-react';
 import { usePreferences } from '../contexts/PreferencesContext';
-import { copyWithFeedback } from '../utils/clipboardUtils';
+import { CopyButton } from './ui/CopyButton';
 
 interface Props {
   data: SWOTAnalysis;
@@ -11,10 +11,8 @@ interface Props {
 
 export const SwotAnalysis: React.FC<Props> = ({ data }) => {
   const { uiText } = usePreferences();
-  const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    const text = `
+  const swotText = `
 SWOT Analysis:
 STRENGTHS:
 ${data.strengths.map(s => `- ${s}`).join('\n')}
@@ -27,10 +25,7 @@ ${data.opportunities.map(o => `- ${o}`).join('\n')}
 
 THREATS:
 ${data.threats.map(t => `- ${t}`).join('\n')}
-    `.trim();
-
-    copyWithFeedback(text, setCopied);
-  };
+  `.trim();
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid relative group">
@@ -38,13 +33,12 @@ ${data.threats.map(t => `- ${t}`).join('\n')}
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
           <Target className="w-5 h-5 text-blue-400" /> {uiText.swotTitle || "Strategic Analysis"}
         </h3>
-        <button
-          onClick={handleCopy}
-          className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
-          title="Copy SWOT Analysis"
-        >
-          {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-        </button>
+        <CopyButton
+          text={swotText}
+          ariaLabel="Copy SWOT Analysis"
+          tooltip="Copy SWOT Analysis"
+          revealOnHover
+        />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
