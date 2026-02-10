@@ -315,7 +315,7 @@ export const TrendSearch: React.FC<Props> = ({
   };
 
   return (
-    <div className={`w-full max-w-5xl mx-auto text-center mt-8 md:mt-12 px-4 animate-[fadeIn_${ANIMATION_TIMING.FADE_SLOW}s_${ANIMATION_EASING.DEFAULT}]`}>
+    <div className={`w-full max-w-5xl mx-auto text-center mt-8 md:mt-12 px-4`}>
       
       {/* Background Market Ticker (Subtle) */}
       {!isLoading && (

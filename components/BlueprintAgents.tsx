@@ -7,6 +7,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { UI_TIMING } from '../constants/uiConfig';
 import { AgentChatModal } from './AgentChatModal';
+import { Z_INDEX } from '../constants/zIndex';
 
 interface Props {
   agents: AgentProfile[];
@@ -99,7 +100,7 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
   };
 
   const renderEditor = () => (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+    <div className={`fixed inset-0 ${Z_INDEX.MAXIMUM} flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]`}>
       <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">{isAdding ? <Plus className="w-5 h-5 text-emerald-400" /> : <Edit2 className="w-5 h-5 text-blue-400" />} {isAdding ? "Hire Custom Agent" : "Edit Agent Profile"}</h3>
         <div className="space-y-4">

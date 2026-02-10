@@ -10,6 +10,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { LIVE_AUDIO_CONFIG } from '../constants/appConfig';
 import { AUDIO_VISUALIZER_CONFIG, PERSONA_VOICE_CONFIG, PERSONA_ID_PREFIX } from '../constants/audioVisualizerConfig';
 import { TEXT_TRUNCATION } from '../constants/displayConfig';
+import { COLORS } from '../constants/theme';
 
 interface Props {
   blueprint: Blueprint;
@@ -171,7 +172,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#10b981';
+      ctx.fillStyle = COLORS.primary.emerald;
       const barCount = AUDIO_VISUALIZER_CONFIG.BAR_COUNT;
       const barWidth = width / barCount;
       const center = height / 2;

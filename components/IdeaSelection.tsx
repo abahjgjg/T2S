@@ -8,6 +8,8 @@ import { BusinessOpportunities } from './BusinessOpportunities';
 import { ResearchChat } from './ResearchChat';
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { Z_INDEX } from '../constants/zIndex';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   niche: string;
@@ -181,7 +183,7 @@ export const IdeaSelection: React.FC<Props> = ({
             {!isChatOpen && (
               <button 
                 onClick={() => setIsChatOpen(true)}
-                className="fixed z-40 bottom-6 left-6 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg hover:scale-105 transition-all flex items-center gap-2 border border-indigo-500/50 print:hidden animate-[fadeIn_0.5s_ease-out]"
+                 className={`fixed ${Z_INDEX.OVERLAY} bottom-6 left-6 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg hover:scale-105 transition-all flex items-center gap-2 border border-indigo-500/50 print:hidden ${ANIMATION_CLASSES.fadeIn.slow}`}
                 aria-label="Ask AI Analyst"
               >
                 <Sparkles className="w-5 h-5" />

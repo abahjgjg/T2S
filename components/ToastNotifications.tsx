@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 import { TOAST_CONFIG } from '../constants/appConfig';
+import { Z_INDEX } from '../constants/zIndex';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -193,7 +194,7 @@ export const ToastNotifications: React.FC = () => {
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {toasts[toasts.length - 1]?.message}
       </div>
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-md px-4 pointer-events-none">
+      <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 ${Z_INDEX.TOAST} flex flex-col gap-2 w-full max-w-md px-4 pointer-events-none`}>
         {toasts.map((t) => (
         <div
           key={t.id}
