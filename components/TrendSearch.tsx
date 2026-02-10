@@ -375,9 +375,9 @@ export const TrendSearch: React.FC<Props> = ({
                 onClick={() => setRegion(r)}
                 aria-pressed={region === r}
                 className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  region === r 
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  region === r
+                  ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-900/50'
+                  : 'bg-slate-800/50 text-slate-100 hover:text-white hover:bg-slate-700'
                 }`}
               >
                 {region === r && <MapPin className="w-3 h-3" />}
@@ -395,9 +395,9 @@ export const TrendSearch: React.FC<Props> = ({
                 onClick={() => setTimeframe(t.value)}
                 aria-pressed={timeframe === t.value}
                 className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  timeframe === t.value 
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  timeframe === t.value
+                  ? 'bg-blue-700 text-white shadow-lg shadow-blue-900/50'
+                  : 'bg-slate-800/50 text-slate-100 hover:text-white hover:bg-slate-700'
                 }`}
               >
                 {timeframe === t.value && <Clock4 className="w-3 h-3" />}
