@@ -6,6 +6,8 @@ import { telemetryService } from "../services/telemetryService";
  * Handles exponential backoff and determines if errors are retryable.
  */
 import { MEDIA_CONFIG } from "../constants/aiConfig";
+import { isFatalClientError, shouldRetryStatus, HTTP_STATUS } from "../constants/httpStatus";
+import { RETRY_MESSAGES } from "../constants/errorMessages";
 
 export const retryOperation = async <T>(
   operation: () => Promise<T>,
@@ -25,10 +27,10 @@ export const retryOperation = async <T>(
       const isSyntaxError = error instanceof SyntaxError;
       const status = error.status || error.response?.status || (error as any).statusCode;
       
-      // If it's a 4xx error (but NOT 429 Too Many Requests or 408 Timeout), treat as fatal
-      const isFatalClientError = status && status >= 400 && status < 500 && status !== 429 && status !== 408;
+      // Use modular status checking - fatal if client error (4xx) but NOT retryable ones
+      const fatalError = status && isFatalClientError(status);
 
-      if (!isSyntaxError && isFatalClientError) {
+      if (!isSyntaxError && fatalError) {
         telemetryService.logError(error, `${context} (Fatal Client Error)`);
         throw error;
       }
@@ -39,7 +41,7 @@ export const retryOperation = async <T>(
         throw error;
       }
       
-      console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms...`, error.message || error);
+      console.warn(RETRY_MESSAGES.ATTEMPT_FAILED(attempt, maxRetries, delay), error.message || error);
       
       // Wait for backoff delay
       await new Promise(resolve => setTimeout(resolve, delay));
