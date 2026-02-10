@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { BusinessIdea } from '../types';
 import { Briefcase, Loader2, Play, Database, Swords, DollarSign, Target, ArrowRight, Zap, LayoutGrid, Table } from 'lucide-react';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { SegmentedProgressBar } from './SegmentedProgressBar';
 
 interface Props {
   ideas: BusinessIdea[];
@@ -74,19 +75,25 @@ export const BusinessOpportunities: React.FC<Props> = ({
              )}
           </div>
           
-          {isGeneratingBlueprint ? (
-             <div className="flex flex-col items-center justify-center py-20 bg-slate-900/30 rounded-2xl border border-slate-800/50">
-               <div className="relative w-24 h-24 mb-8">
-                 <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
-                 <div className="absolute inset-0 border-4 border-t-emerald-500 rounded-full animate-spin"></div>
-                 <Briefcase className="absolute inset-0 m-auto text-emerald-400 w-10 h-10 animate-pulse" />
-               </div>
-               <div className="flex flex-col items-center h-20">
-                  <h4 className="text-xl font-bold text-white mb-2 animate-[fadeIn_0.5s_ease-in-out]">{uiText.building}</h4>
-                  <p className="text-emerald-400 font-mono text-sm animate-[pulse_2s_infinite]">{uiText.loadingSteps[loadingStepIndex]}</p>
-               </div>
-               <p className="text-slate-500 text-xs mt-8 max-w-xs text-center">{uiText.buildingDesc}</p>
-             </div>
+           {isGeneratingBlueprint ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-slate-900/30 rounded-2xl border border-slate-800/50">
+                <div className="relative w-24 h-24 mb-6">
+                  <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-t-emerald-500 rounded-full animate-spin"></div>
+                  <Briefcase className="absolute inset-0 m-auto text-emerald-400 w-10 h-10 animate-pulse" />
+                </div>
+                <h4 className="text-xl font-bold text-white mb-6 animate-[fadeIn_0.5s_ease-in-out]">{uiText.building}</h4>
+                
+                <SegmentedProgressBar 
+                  currentStep={loadingStepIndex}
+                  totalSteps={uiText.loadingSteps.length}
+                  stepLabels={uiText.loadingSteps}
+                  showStepNumbers={true}
+                  className="mb-6"
+                />
+                
+                <p className="text-slate-500 text-xs max-w-xs text-center">{uiText.buildingDesc}</p>
+              </div>
           ) : viewMode === 'compare' ? (
              <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 animate-[fadeIn_0.3s_ease-out]">
                 <table className="w-full text-left border-collapse">
