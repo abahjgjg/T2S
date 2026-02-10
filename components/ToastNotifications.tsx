@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
+import { TOAST_CONFIG } from '../constants/appConfig';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -27,7 +28,7 @@ const getToastDuration = (type: ToastType): number | null => {
 };
 
 // Event Bus for Toasts
-const TOAST_EVENT = 'trendventures_toast_event';
+const TOAST_EVENT = TOAST_CONFIG.EVENT_NAME;
 
 export const toast = {
   success: (message: string) => dispatchToast(message, 'success'),

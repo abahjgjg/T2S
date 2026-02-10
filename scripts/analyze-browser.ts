@@ -3,8 +3,9 @@ import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
 import fs from 'fs';
 import { execSync } from 'child_process';
+import { DEV_CONFIG } from '../config';
 
-const PORT = 4173;
+const PORT = DEV_CONFIG.BROWSER_ANALYZE_PORT;
 const BASE_URL = `http://localhost:${PORT}`;
 
 interface ConsoleLog {

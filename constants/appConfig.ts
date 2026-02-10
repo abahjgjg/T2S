@@ -21,6 +21,9 @@ import {
   SCROLL_CONFIG,
   getOgImageUrl,
   PLACEHOLDER_CONFIG,
+  DATABASE_CONFIG,
+  SUPABASE_STORAGE_CONFIG,
+  TOAST_CONFIG,
 } from '../config';
 
 // Re-export for backward compatibility
@@ -38,6 +41,9 @@ export {
   SCROLL_CONFIG,
   getOgImageUrl,
   APP_CONFIG,
+  DATABASE_CONFIG,
+  SUPABASE_STORAGE_CONFIG,
+  TOAST_CONFIG,
 };
 
 // Default export for convenience

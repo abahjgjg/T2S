@@ -107,6 +107,19 @@ export interface AppConfig {
   readonly DEV: {
     readonly DEFAULT_PORT: number;
     readonly RELOAD_DELAY_MS: number;
+    readonly BROWSER_ANALYZE_PORT: number;
+  };
+  readonly DATABASE: {
+    readonly DB_NAME: string;
+    readonly DB_VERSION: number;
+    readonly STORE_NAME: string;
+    readonly ASSETS_STORE_NAME: string;
+  };
+  readonly SUPABASE_STORAGE: {
+    readonly BUCKET_NAME: string;
+  };
+  readonly TOAST: {
+    readonly EVENT_NAME: string;
   };
   readonly ASSET_PREFIX: {
     readonly SEARCH: string;
@@ -246,6 +259,7 @@ export const APP_CONFIG: AppConfig = {
   DEV: {
     DEFAULT_PORT: getEnvNumber('VITE_DEV_DEFAULT_PORT', 3000),
     RELOAD_DELAY_MS: getEnvNumber('VITE_DEV_RELOAD_DELAY_MS', 1000),
+    BROWSER_ANALYZE_PORT: getEnvNumber('VITE_DEV_BROWSER_ANALYZE_PORT', 4173),
   },
   ASSET_PREFIX: {
     SEARCH: getEnv('VITE_ASSET_PREFIX_SEARCH', 'search-'),
@@ -256,6 +270,18 @@ export const APP_CONFIG: AppConfig = {
   SCROLL: {
     THRESHOLD: getEnvNumber('VITE_SCROLL_THRESHOLD', 400),
     TOP_POSITION: getEnvNumber('VITE_SCROLL_TOP_POSITION', 0),
+  },
+  DATABASE: {
+    DB_NAME: getEnv('VITE_DATABASE_NAME', 'TrendVenturesDB'),
+    DB_VERSION: getEnvNumber('VITE_DATABASE_VERSION', 1),
+    STORE_NAME: getEnv('VITE_DATABASE_STORE_NAME', 'keyval'),
+    ASSETS_STORE_NAME: getEnv('VITE_DATABASE_ASSETS_STORE_NAME', 'assets'),
+  },
+  SUPABASE_STORAGE: {
+    BUCKET_NAME: getEnv('VITE_SUPABASE_BUCKET_NAME', 'public-assets'),
+  },
+  TOAST: {
+    EVENT_NAME: getEnv('VITE_TOAST_EVENT_NAME', 'trendventures_toast_event'),
   },
 };
 
@@ -281,6 +307,9 @@ export const VALIDATION_CONFIG = APP_CONFIG.VALIDATION;
 export const DEV_CONFIG = APP_CONFIG.DEV;
 export const ASSET_ID_PREFIX = APP_CONFIG.ASSET_PREFIX;
 export const SCROLL_CONFIG = APP_CONFIG.SCROLL;
+export const DATABASE_CONFIG = APP_CONFIG.DATABASE;
+export const SUPABASE_STORAGE_CONFIG = APP_CONFIG.SUPABASE_STORAGE;
+export const TOAST_CONFIG = APP_CONFIG.TOAST;
 
 // Utility function to get OG Image URL
 export const getOgImageUrl = (text: string = 'TrendVentures+AI'): string => {
