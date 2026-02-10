@@ -5,15 +5,16 @@ import { callOpenAI } from "./shared";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { OPENAI_MODELS } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
+import { DATE_CONFIG, AI_INSTRUCTIONS, CONTENT_LIMITS } from "../../constants/contentConfig";
 
 export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string): Promise<Trend[]> => {
   // OpenAI Standard API does not have real-time Google Search tools built-in without extensions.
   // We simulate this by asking the model to use its internal knowledge base.
-  const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const currentDate = new Date().toLocaleDateString(DATE_CONFIG.DEFAULT_LOCALE, DATE_CONFIG.FORMAT_OPTIONS.full);
   const langInstruction = getLanguageInstruction(lang);
   
   const visualContext = image 
-        ? "VISUAL CONTEXT PROVIDED: An image has been attached. Analyze the image contents and identify trends related to the objects, style, or data visible in the image. Combine this visual insight with the search query."
+        ? AI_INSTRUCTIONS.VISUAL_CONTEXT
         : "";
 
   const prompt = promptService.build('OPENAI_FETCH_TRENDS', {
@@ -65,11 +66,10 @@ export const getTrendDeepDive = async (trend: string, niche: string, lang: Langu
 };
 
 export const extractTopicFromImage = async (base64Image: string, lang: Language): Promise<string> => {
-  const prompt = `
-    Identify the MAIN SUBJECT, NICHE, or TREND topic represented in this image.
-    Return ONLY a short, searchable string (max 5 words).
-    ${lang === 'id' ? 'Output in Indonesian.' : 'Output in English.'}
-  `;
+  const langInstruction = lang === 'id' ? AI_INSTRUCTIONS.LANGUAGE_OUTPUT.id : AI_INSTRUCTIONS.LANGUAGE_OUTPUT.en;
+  const prompt = AI_INSTRUCTIONS.TOPIC_EXTRACTION_SIMPLE
+    .replace('{{maxWords}}', String(CONTENT_LIMITS.TOPIC_EXTRACTION_MAX_WORDS))
+    .replace('{{langInstruction}}', langInstruction);
 
   const response = await callOpenAI(
     [

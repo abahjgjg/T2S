@@ -9,6 +9,7 @@ import { GEMINI_MODELS, MEDIA_CONFIG, QUERY_LIMITS } from "../../constants/aiCon
 import { TOKEN_LIMITS, THINKING_BUDGETS, AI_TEMPERATURES } from "../../constants/apiConfig";
 import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
+import { AI_INSTRUCTIONS } from "../../constants/contentConfig";
 
 // Tool Definition for Blueprint Updates
 const updateBlueprintTool: FunctionDeclaration = {
@@ -188,7 +189,7 @@ export const sendBlueprintChat = async (history: ChatMessage[], newMessage: stri
   return retryOperation(async () => {
     try {
       const ai = getGeminiClient();
-      const langInstruction = lang === 'id' ? "Reply in Indonesian." : "Reply in English.";
+      const langInstruction = lang === 'id' ? AI_INSTRUCTIONS.CHAT_LANGUAGE.id : AI_INSTRUCTIONS.CHAT_LANGUAGE.en;
       
       const systemInstruction = promptService.build('CHAT_SYSTEM', {
         executiveSummary: context.executiveSummary,
@@ -220,9 +221,7 @@ export const sendBlueprintChat = async (history: ChatMessage[], newMessage: stri
         if (call.name === 'update_blueprint') {
           updates = call.args as Partial<Blueprint>;
           if (!responseText) {
-             responseText = lang === 'id' 
-               ? "Saya telah memperbarui blueprint sesuai permintaan Anda." 
-               : "I have updated the blueprint with your changes.";
+             responseText = AI_INSTRUCTIONS.CHAT_UPDATE_MESSAGES[lang];
           }
         }
       }
