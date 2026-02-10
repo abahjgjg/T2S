@@ -6,6 +6,7 @@ import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { PreferencesProvider } from './contexts/PreferencesContext';
+import { ConfirmProvider } from './contexts/ConfirmContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CACHE_CONFIG } from './constants/appConfig';
 
@@ -31,7 +32,9 @@ root.render(
       <QueryClientProvider client={queryClient}>
         <PreferencesProvider>
           <AuthProvider>
-            <App />
+            <ConfirmProvider>
+              <App />
+            </ConfirmProvider>
           </AuthProvider>
         </PreferencesProvider>
       </QueryClientProvider>

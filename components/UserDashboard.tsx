@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Cartes
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
 import { CHART_COLORS, CHART_RANGES } from '../constants/chartConfig';
@@ -18,6 +19,7 @@ interface Props {
 
 export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
   const { uiText } = usePreferences();
+  const { confirm } = useConfirm();
   const queryClient = useQueryClient();
 
   // Query: Fetch User Blueprints
@@ -47,8 +49,15 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
     }
   });
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this blueprint? This action cannot be undone.')) {
+  const handleDelete = async (id: string) => {
+    const confirmed = await confirm({
+      title: 'Delete Blueprint?',
+      message: 'Are you sure you want to delete this blueprint? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+    if (confirmed) {
       deleteMutation.mutate(id);
     }
   };

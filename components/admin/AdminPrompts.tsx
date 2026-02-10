@@ -5,6 +5,7 @@ import { PromptKey, DEFAULT_PROMPTS } from '../../constants/systemPrompts';
 import { Save, RotateCcw, MessageSquareCode, Info, Cloud, Check } from 'lucide-react';
 import { toast } from '../ToastNotifications';
 import { supabaseService } from '../../services/supabaseService';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export const AdminPrompts: React.FC = () => {
   const [prompts, setPrompts] = useState<Record<string, string>>({});
@@ -12,6 +13,7 @@ export const AdminPrompts: React.FC = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isCloudEnabled, setIsCloudEnabled] = useState(false);
+  const { confirm } = useConfirm();
 
   useEffect(() => {
     loadPrompts();
@@ -43,7 +45,14 @@ export const AdminPrompts: React.FC = () => {
   };
 
   const handleReset = async () => {
-    if (window.confirm("Reset this prompt to system default?")) {
+    const confirmed = await confirm({
+      title: 'Reset to Default?',
+      message: 'Reset this prompt to system default? All custom changes will be lost.',
+      confirmText: 'Reset',
+      cancelText: 'Keep Changes',
+      variant: 'warning',
+    });
+    if (confirmed) {
       setIsSaving(true);
       try {
         await promptService.resetTemplate(selectedKey);
@@ -97,8 +106,17 @@ export const AdminPrompts: React.FC = () => {
           {Object.keys(DEFAULT_PROMPTS).map((key) => (
             <button
               key={key}
-              onClick={() => {
-                if (hasChanges && !window.confirm("Discard unsaved changes?")) return;
+              onClick={async () => {
+                if (hasChanges) {
+                  const discard = await confirm({
+                    title: 'Discard Changes?',
+                    message: 'You have unsaved changes. Discard them and switch prompts?',
+                    confirmText: 'Discard',
+                    cancelText: 'Stay Here',
+                    variant: 'warning',
+                  });
+                  if (!discard) return;
+                }
                 setSelectedKey(key as PromptKey);
                 setHasChanges(false);
               }}

@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
 
 interface Props {
@@ -23,6 +24,7 @@ const BUSINESS_TYPES = ['All', 'SaaS', 'Agency', 'Content', 'E-commerce', 'Platf
 
 export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: localProjects, onLoad, onDelete, user, onOpenLogin }) => {
   const { uiText } = usePreferences();
+  const { confirm } = useConfirm();
   const [activeTab, setActiveTab] = useState<'local' | 'cloud' | 'recent'>('local');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
@@ -65,7 +67,14 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
 
   const handleDeleteCloud = async (id: string) => {
     if (!user) return;
-    if (!window.confirm("Delete from cloud permanently?")) return;
+    const confirmed = await confirm({
+      title: 'Delete from Cloud?',
+      message: 'This project will be permanently deleted from the cloud. This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Keep',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     deleteMutation.mutate(id);
   };
 

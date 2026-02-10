@@ -5,6 +5,7 @@ import { getAIService } from '../services/aiRegistry';
 import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check, Copy } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { EmptyState } from './ui/EmptyState';
 
 interface Props {
@@ -20,6 +21,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
   const [selectedName, setSelectedName] = useState<string | null>(null);
   
   const { provider, language } = usePreferences();
+  const { confirm } = useConfirm();
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -36,8 +38,15 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
     }
   };
 
-  const handleApplyName = (name: string) => {
-    if (window.confirm(`Update business name to "${name}"? This will affect the entire blueprint.`)) {
+  const handleApplyName = async (name: string) => {
+    const confirmed = await confirm({
+      title: 'Update Business Name?',
+      message: `Update business name to "${name}"? This will affect the entire blueprint.`,
+      confirmText: 'Update',
+      cancelText: 'Cancel',
+      variant: 'warning',
+    });
+    if (confirmed) {
         setSelectedName(name);
         onUpdateIdea({ name });
         toast.info(`Selected "${name}" as preferred brand.`);

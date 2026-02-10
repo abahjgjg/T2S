@@ -8,6 +8,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell
 import { CHART_COLORS } from '../../constants/chartConfig';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
 import { DISPLAY_LIMITS } from '../../constants/displayLimits';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 interface Props {
   products: AffiliateProduct[];
@@ -25,6 +26,7 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
   });
   const [keywordInput, setKeywordInput] = useState('');
   const [urlError, setUrlError] = useState<string | null>(null);
+  const { confirm } = useConfirm();
 
   // --- Helpers ---
 
@@ -93,7 +95,14 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (window.confirm("Delete this product?")) {
+    const confirmed = await confirm({
+      title: 'Delete Product?',
+      message: 'Delete this product? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+    if (confirmed) {
       await supabaseService.deleteAffiliateProduct(id);
       await onRefresh();
       toast.success("Product deleted");
