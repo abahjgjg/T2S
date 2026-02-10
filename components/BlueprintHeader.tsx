@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Link as LinkIcon, CheckCircle2, BookmarkPlus, FileJso
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { copyWithFeedback } from '../utils/clipboardUtils';
+import { Tooltip } from './ui/Tooltip';
 
 interface Props {
   onBack: () => void;
@@ -78,27 +79,33 @@ export const BlueprintHeader: React.FC<Props> = ({
           {isSaved ? uiText.saved : uiText.saveToLib}
         </button>
         
-        <button 
-          onClick={onExportJSON}
-          className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
-          title={uiText.exportJson}
-        >
-          <FileJson className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={onExportMD}
-          className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
-          title={uiText.exportMd}
-        >
-          <FileText className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={onPrint}
-          className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
-          title={uiText.export}
-        >
-          <Printer className="w-4 h-4" />
-        </button>
+        <Tooltip content={uiText.exportJson || 'Export JSON'} position="bottom">
+          <button
+            onClick={onExportJSON}
+            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+            aria-label={uiText.exportJson || 'Export JSON'}
+          >
+            <FileJson className="w-4 h-4" />
+          </button>
+        </Tooltip>
+        <Tooltip content={uiText.exportMd || 'Export Markdown'} position="bottom">
+          <button
+            onClick={onExportMD}
+            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+            aria-label={uiText.exportMd || 'Export Markdown'}
+          >
+            <FileText className="w-4 h-4" />
+          </button>
+        </Tooltip>
+        <Tooltip content={uiText.export || 'Print'} position="bottom">
+          <button
+            onClick={onPrint}
+            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+            aria-label={uiText.export || 'Print'}
+          >
+            <Printer className="w-4 h-4" />
+          </button>
+        </Tooltip>
       </div>
     </div>
   );

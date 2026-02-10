@@ -4,6 +4,7 @@ import { TrendingUp, RotateCcw, BookMarked, Compass, LogIn, LayoutDashboard, Shi
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+import { Tooltip } from './ui/Tooltip';
 import { BRAND_CONFIG } from '../config';
 
 interface Props {
@@ -114,14 +115,15 @@ export const Header: React.FC<Props> = ({
           {/* User Controls Group */}
           <div className="flex items-center bg-slate-900/50 p-1 rounded-xl border border-white/5 gap-1">
             {/* Admin */}
-            <button
-              onClick={onOpenAdmin}
-              className="p-2 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
-              title="Admin Panel"
-              aria-label="Open Admin Panel"
-            >
-              <Shield className="w-3.5 h-3.5" />
-            </button>
+            <Tooltip content="Admin Panel" position="bottom">
+              <button
+                onClick={onOpenAdmin}
+                className="p-2 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
+                aria-label="Open Admin Panel"
+              >
+                <Shield className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
 
             {/* Auth / Dashboard */}
             <button 
@@ -160,14 +162,15 @@ export const Header: React.FC<Props> = ({
            </div>
 
           {/* Keyboard Shortcuts Button */}
-          <button
-            onClick={() => setShowShortcutsModal(true)}
-            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
-            title={language === 'id' ? 'Pintasan Keyboard (?)' : 'Keyboard Shortcuts (?)'}
-            aria-label={language === 'id' ? 'Buka bantuan pintasan keyboard' : 'Open keyboard shortcuts help'}
-          >
-            <Keyboard className="w-4 h-4" />
-          </button>
+          <Tooltip content={language === 'id' ? 'Pintasan Keyboard (?)' : 'Keyboard Shortcuts (?)'} position="bottom">
+            <button
+              onClick={() => setShowShortcutsModal(true)}
+              className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
+              aria-label={language === 'id' ? 'Buka bantuan pintasan keyboard' : 'Open keyboard shortcuts help'}
+            >
+              <Keyboard className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
 
       </div>
