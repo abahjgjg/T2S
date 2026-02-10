@@ -96,6 +96,12 @@
         background: #475569;
       }
 
+      /* Font display swap for non-blocking font loading */
+      @font-face {
+        font-family: 'Inter';
+        font-display: swap;
+      }
+
       /* Reduced motion preference support */
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
@@ -109,9 +115,16 @@
       }
     </style>
 
+    <!-- Google Fonts with display=swap for non-blocking loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap" rel="stylesheet"></noscript>
+
 </head>
   <body class="bg-slate-950">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <!-- Defer main script to prevent render-blocking -->
+    <script type="module" src="/index.tsx" defer></script>
   </body>
 </html>
