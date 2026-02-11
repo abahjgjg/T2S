@@ -6,6 +6,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { ANIMATION_CLASSES } from '../constants/animationConfig';
 import { SHADOWS } from '../constants/shadowConfig';
+import { DIRECTORY_CONFIG } from '../constants/displayConfig';
 
 interface Props {
   onViewBlueprint: (_id: string) => void;
@@ -18,7 +19,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'popular'>('newest');
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(DIRECTORY_CONFIG.DEFAULT_PAGE_SIZE);
   
   const [votingMap, setVotingMap] = useState<Record<string, boolean>>({}); // Track session votes
 
@@ -26,7 +27,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-      setLimit(20); // Reset pagination on search
+      setLimit(DIRECTORY_CONFIG.DEFAULT_PAGE_SIZE); // Reset pagination on search
     }, 500);
     return () => clearTimeout(handler);
   }, [searchTerm]);
