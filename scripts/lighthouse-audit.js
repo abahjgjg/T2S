@@ -1,7 +1,7 @@
 import lighthouse from 'lighthouse';
 import fs from 'fs';
 import { spawn } from 'child_process';
-import { SCRIPT_CONFIG } from './config.js';
+import { SCRIPT_CONFIG } from './config.ts';
 
 const { server, chrome, timeouts, thresholds, lighthouse: lhConfig } = SCRIPT_CONFIG;
 
