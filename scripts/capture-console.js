@@ -1,5 +1,8 @@
 import { chromium } from 'playwright';
 import { spawn } from 'child_process';
+import { SCRIPT_CONFIG } from './config.js';
+
+const { server, timeouts, interaction } = SCRIPT_CONFIG;
 
 const consoleErrors = [];
 const consoleWarnings = [];
@@ -28,17 +31,17 @@ async function captureConsoleErrors() {
       if (!output.includes('error')) {
         resolve();
       }
-    }, 8000);
+    }, timeouts.serverStartup);
     
     setTimeout(() => {
       reject(new Error('Server startup timeout'));
-    }, 30000);
+    }, timeouts.serverStartupMax);
   });
   
   console.log('✅ Preview server ready\n');
   
   // Wait a bit more for server to fully initialize
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  await new Promise(resolve => setTimeout(resolve, timeouts.serverReady));
   
   // Launch browser
   const browser = await chromium.launch({
@@ -78,10 +81,13 @@ async function captureConsoleErrors() {
   
   // Navigate to the app
   console.log('🌐 Navigating to application...\n');
-  await page.goto('http://localhost:4173/', { waitUntil: 'networkidle', timeout: 60000 });
+  await page.goto(server.baseUrl, {
+    waitUntil: 'networkidle',
+    timeout: timeouts.pageNavigation
+  });
   
   // Wait for app to fully load and settle
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(timeouts.pageSettle);
   
   // Try to interact with the app to trigger more console messages
   console.log('🖱️  Interacting with application...\n');
@@ -90,10 +96,10 @@ async function captureConsoleErrors() {
   try {
     // Try to find and click buttons
     const buttons = await page.locator('button').all();
-    for (let i = 0; i < Math.min(buttons.length, 3); i++) {
+    for (let i = 0; i < Math.min(buttons.length, interaction.maxButtonsToClick); i++) {
       try {
-        await buttons[i].click({ timeout: 2000 });
-        await page.waitForTimeout(500);
+        await buttons[i].click({ timeout: timeouts.clickTimeout });
+        await page.waitForTimeout(timeouts.afterClick);
       } catch (e) {
         // Ignore click errors
       }
@@ -102,7 +108,7 @@ async function captureConsoleErrors() {
     // Ignore
   }
   
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(timeouts.betweenRoutes);
   
   // Close browser
   await browser.close();

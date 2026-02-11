@@ -2,9 +2,9 @@ import { chromium } from 'playwright';
 import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
 import fs from 'fs';
+import { SCRIPT_CONFIG } from './config';
 
-const PORT = 4173;
-const BASE_URL = `http://localhost:${PORT}`;
+const { server, chrome, testRoutes, timeouts, thresholds } = SCRIPT_CONFIG;
 
 interface ConsoleLog {
   type: string;
@@ -46,14 +46,13 @@ async function checkConsoleErrors() {
   });
   
   try {
-    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
-    await page.waitForTimeout(5000);
+    await page.goto(server.baseUrl, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(timeouts.networkIdle);
     
     // Navigate to different routes to check for errors
-    const routes = ['/', '/directory'];
-    for (const route of routes) {
-      await page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+    for (const route of testRoutes) {
+      await page.goto(`${server.baseUrl}${route}`, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(timeouts.betweenRoutes);
     }
     
     console.log('\n📊 Console Analysis Summary:');
@@ -73,24 +72,21 @@ async function checkConsoleErrors() {
 async function runLighthouse() {
   console.log('\n🚀 BroCula running Lighthouse audit...\n');
   
-  // Use Playwright's Chromium for Lighthouse
-  const chromePath = process.env.HOME + '/.cache/ms-playwright/chromium-1208/chrome-linux/chrome';
-  
-  const chrome = await chromeLauncher.launch({
-    chromeFlags: ['--headless', '--no-sandbox', '--disable-gpu'],
-    chromePath,
+  const chromeInstance = await chromeLauncher.launch({
+    chromeFlags: chrome.flags,
+    chromePath: chrome.path,
   });
   
   const options = {
     logLevel: 'info' as const,
     output: 'json' as const,
     onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
-    port: chrome.port,
+    port: chromeInstance.port,
   };
   
-  const runnerResult = await lighthouse(BASE_URL, options);
+  const runnerResult = await lighthouse(server.baseUrl, options);
   
-  await chrome.kill();
+  await chromeInstance.kill();
   
   if (!runnerResult) {
     throw new Error('Lighthouse returned null');
@@ -105,7 +101,7 @@ async function runLighthouse() {
   const categories = report.categories;
   Object.entries(categories).forEach(([key, category]: [string, any]) => {
     const score = Math.round(category.score * 100);
-    const icon = score >= 90 ? '✅' : score >= 70 ? '⚠️' : '❌';
+    const icon = score >= thresholds.excellent ? '✅' : score >= thresholds.good ? '⚠️' : '❌';
     console.log(`${icon} ${category.title}: ${score}/100`);
   });
   
@@ -158,7 +154,7 @@ async function main() {
   // Check for low Lighthouse scores
   const categories = lighthouseReport.categories;
   const lowScores = Object.entries(categories).filter(([key, category]: [string, any]) => {
-    return category.score * 100 < 70;
+    return category.score * 100 < thresholds.good;
   });
   
   if (lowScores.length > 0) {
