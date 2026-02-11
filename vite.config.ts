@@ -2,6 +2,15 @@ import path from 'path';
 import { defineConfig, loadEnv, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import {
+  LAZY_LOADED_PATTERNS,
+  BUILD_OPTIMIZATION,
+  TERSER_OPTIONS,
+  FILE_NAMING,
+  SERVER_CONFIG,
+  HTML_ENV_DEFAULTS,
+  MANUAL_CHUNKS,
+} from './viteBuildConfig';
 
 // BroCula plugin: Transform CSS links to be non-render-blocking
 const nonBlockingCssPlugin = (): Plugin => ({
@@ -16,30 +25,16 @@ const nonBlockingCssPlugin = (): Plugin => ({
 });
 
 // BroCula plugin: Remove modulepreload for lazy-loaded chunks to prevent loading unused JavaScript
+// Flexy: Now uses configurable LAZY_LOADED_PATTERNS from viteBuildConfig!
 const removeLazyModulePreloadPlugin = (): Plugin => ({
   name: 'remove-lazy-module-preload',
   transformIndexHtml(html) {
     // Remove modulepreload links for lazy-loaded chunks
     // These chunks should only load when the component is actually needed
-    const lazyLoadedPatterns = [
-      'vendor-charts',
-      'vendor-markdown',
-      'feature-blueprint',
-      'feature-admin',
-      'feature-dashboard',
-      'TrendAnalysis',
-      'ResearchChat',
-      'TrendDeepDiveModal',
-      'PublicBlogView',
-      'Directory',
-      'AdminPanel',
-      'UserDashboard',
-      'ProjectLibrary',
-      'BlueprintView'
-    ];
+    // Flexy: No more hardcoded patterns - using LAZY_LOADED_PATTERNS from config!
     
     let result = html;
-    lazyLoadedPatterns.forEach(pattern => {
+    LAZY_LOADED_PATTERNS.forEach(pattern => {
       // Remove modulepreload links that match lazy-loaded chunk patterns
       const regex = new RegExp(`<link rel="modulepreload"[^>]*href="[^"]*${pattern}[^"]*"[^>]*>\\n?`, 'g');
       result = result.replace(regex, '');
@@ -50,28 +45,12 @@ const removeLazyModulePreloadPlugin = (): Plugin => ({
 });
 
 // Flexy plugin: Inject environment variables into index.html with defaults
+// Flexy: Now uses configurable HTML_ENV_DEFAULTS from viteBuildConfig!
 const htmlEnvPlugin = (env: Record<string, string>): Plugin => ({
   name: 'html-env',
   transformIndexHtml(html) {
-    // Define default values for HTML environment variables
-    const defaults: Record<string, string> = {
-      VITE_APP_NAME: 'TrendVentures AI',
-      VITE_APP_DEFAULT_TITLE: 'TrendVentures AI | Market Research Suite',
-      VITE_APP_DEFAULT_DESCRIPTION: 'Generate comprehensive business blueprints and revenue models with AI-powered market intelligence. Transform ideas into actionable strategies.',
-      VITE_OG_DESCRIPTION: 'AI-powered market intelligence suite that generates business blueprints.',
-      VITE_OG_IMAGE_WIDTH: '1200',
-      VITE_OG_IMAGE_HEIGHT: '630',
-      VITE_PLACEHOLDER_BASE_URL: 'https://placehold.co',
-      VITE_COLOR_SLATE_50: '#f8fafc',
-      VITE_COLOR_SLATE_600: '#475569',
-      VITE_COLOR_SLATE_700: '#334155',
-      VITE_COLOR_SLATE_800: '#1e293b',
-      VITE_COLOR_SLATE_900: '#0f172a',
-      VITE_COLOR_SLATE_950: '#020617',
-      VITE_COLOR_PRIMARY_EMERALD: '#10b981',
-      VITE_APP_BASE_URL: 'https://trendventures.ai',
-      VITE_GOOGLE_FONTS_URL: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap',
-    };
+    // Flexy: Using configurable defaults from viteBuildConfig!
+    const defaults = HTML_ENV_DEFAULTS;
 
     // Replace placeholders with env values or defaults
     let result = html;
@@ -86,59 +65,41 @@ const htmlEnvPlugin = (env: Record<string, string>): Plugin => ({
 });
 
 // Load configuration from environment variables with defaults
-const loadConfig = (env: Record<string, string>) => ({
-  // Server configuration
+// Flexy: Now uses modular configuration from viteBuildConfig!
+const loadConfig = () => ({
+  // Server configuration - from viteBuildConfig
   server: {
-    port: parseInt(env.VITE_DEV_DEFAULT_PORT || '3000', 10),
-    host: env.VITE_DEV_HOST || '0.0.0.0',
+    port: SERVER_CONFIG.port,
+    host: SERVER_CONFIG.host,
   },
-    // Build configuration - BroCula optimized
-    build: {
-        sourcemap: env.VITE_BUILD_SOURCEMAP !== 'false',
-        chunkSizeWarningLimit: parseInt(env.VITE_CHUNK_SIZE_WARNING_LIMIT || '1500', 10),
-        // CSS code splitting to prevent render-blocking
-        cssCodeSplit: true,
+  // Build configuration - BroCula optimized, Flexy modularized!
+  build: {
+    sourcemap: BUILD_OPTIMIZATION.sourcemap,
+    chunkSizeWarningLimit: BUILD_OPTIMIZATION.chunkSizeWarningLimit,
+    // CSS code splitting to prevent render-blocking
+    cssCodeSplit: BUILD_OPTIMIZATION.cssCodeSplit,
     rollupOptions: {
       output: {
-        // Optimize chunk loading with better naming
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
+        // Optimize chunk loading with better naming - from viteBuildConfig
+        entryFileNames: FILE_NAMING.entry,
+        chunkFileNames: FILE_NAMING.chunk,
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name ? assetInfo.name.split('.') : [];
           const ext = info[info.length - 1];
           if (/\.(css)$/i.test(assetInfo.name || '')) {
-            return 'assets/[name]-[hash][extname]';
+            return FILE_NAMING.css;
           }
-          return 'assets/[name]-[hash][extname]';
+          return FILE_NAMING.asset;
         },
-        manualChunks: {
-          // Vendor chunks - separate third-party libraries for better caching
-          'vendor-react': ['react', 'react-dom', '@tanstack/react-query'],
-          'vendor-charts': ['recharts'],
-          'vendor-markdown': ['react-markdown', 'remark-gfm'],
-          'vendor-ui': ['lucide-react'],
-          // Feature chunks - lazy loaded features (use lazy loading)
-          'feature-admin': ['./components/AdminPanel'],
-          'feature-dashboard': ['./components/UserDashboard'],
-          'feature-blueprint': ['./components/BlueprintView'],
-        }
+        // Flexy: No more hardcoded manual chunks - using configurable MANUAL_CHUNKS!
+        manualChunks: MANUAL_CHUNKS,
       }
     },
-    // Minification for production - BroCula optimized
-    minify: 'terser' as const,
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
-        passes: 2,
-      },
-      format: {
-        comments: false,
-      },
-    },
+    // Minification for production - BroCula optimized, Flexy modularized!
+    minify: BUILD_OPTIMIZATION.minify,
+    terserOptions: TERSER_OPTIONS,
     // Target modern browsers for smaller bundles
-    target: 'es2020',
+    target: BUILD_OPTIMIZATION.target,
   },
 });
 
@@ -164,7 +125,8 @@ const exposeEnvVars = (env: Record<string, string>): Record<string, string> => {
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
-    const config = loadConfig(env);
+    // Flexy: loadConfig now uses modular config - no need to pass env!
+    const config = loadConfig();
     
     return {
       server: config.server,
