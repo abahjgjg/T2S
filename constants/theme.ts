@@ -81,6 +81,8 @@ export const COLORS = {
   // Shadow colors (rgba)
   shadow: {
     emerald: getEnv('VITE_COLOR_SHADOW_EMERALD', 'rgba(16, 185, 129, 0.3)'),
+    emeraldLight: getEnv('VITE_COLOR_SHADOW_EMERALD_LIGHT', 'rgba(52, 211, 153, 0.5)'),
+    emeraldSubtle: getEnv('VITE_COLOR_SHADOW_EMERALD_SUBTLE', 'rgba(16, 185, 129, 0.2)'),
     blue: getEnv('VITE_COLOR_SHADOW_BLUE', 'rgba(59, 130, 246, 0.3)'),
     purple: getEnv('VITE_COLOR_SHADOW_PURPLE', 'rgba(139, 92, 246, 0.3)'),
     dark: getEnv('VITE_COLOR_SHADOW_DARK', 'rgba(0, 0, 0, 0.5)'),

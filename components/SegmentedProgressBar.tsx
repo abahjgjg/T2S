@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { COLORS } from '../constants/theme';
 
 interface SegmentedProgressBarProps {
   currentStep: number;
@@ -55,8 +56,8 @@ export const SegmentedProgressBar: React.FC<SegmentedProgressBarProps> = ({
                   className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
                     isCompleted 
                       ? 'bg-emerald-500 border-emerald-500' 
-                      : isCurrent 
-                        ? 'bg-emerald-400 border-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse'
+                        : isCurrent 
+                          ? `bg-emerald-400 border-emerald-400 shadow-[0_0_10px_${COLORS.shadow.emeraldLight}] animate-pulse`
                         : 'bg-slate-800 border-slate-600'
                   }`}
                 >

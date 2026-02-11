@@ -15,6 +15,40 @@ const nonBlockingCssPlugin = (): Plugin => ({
   },
 });
 
+// BroCula plugin: Remove modulepreload for lazy-loaded chunks to prevent loading unused JavaScript
+const removeLazyModulePreloadPlugin = (): Plugin => ({
+  name: 'remove-lazy-module-preload',
+  transformIndexHtml(html) {
+    // Remove modulepreload links for lazy-loaded chunks
+    // These chunks should only load when the component is actually needed
+    const lazyLoadedPatterns = [
+      'vendor-charts',
+      'vendor-markdown',
+      'feature-blueprint',
+      'feature-admin',
+      'feature-dashboard',
+      'TrendAnalysis',
+      'ResearchChat',
+      'TrendDeepDiveModal',
+      'PublicBlogView',
+      'Directory',
+      'AdminPanel',
+      'UserDashboard',
+      'ProjectLibrary',
+      'BlueprintView'
+    ];
+    
+    let result = html;
+    lazyLoadedPatterns.forEach(pattern => {
+      // Remove modulepreload links that match lazy-loaded chunk patterns
+      const regex = new RegExp(`<link rel="modulepreload"[^>]*href="[^"]*${pattern}[^"]*"[^>]*>\\n?`, 'g');
+      result = result.replace(regex, '');
+    });
+    
+    return result;
+  },
+});
+
 // Flexy plugin: Inject environment variables into index.html with defaults
 const htmlEnvPlugin = (env: Record<string, string>): Plugin => ({
   name: 'html-env',
@@ -134,7 +168,7 @@ export default defineConfig(({ mode }) => {
     
     return {
       server: config.server,
-      plugins: [react(), tailwindcss(), nonBlockingCssPlugin(), htmlEnvPlugin(env)],
+      plugins: [react(), tailwindcss(), nonBlockingCssPlugin(), removeLazyModulePreloadPlugin(), htmlEnvPlugin(env)],
       build: config.build,
       define: exposeEnvVars(env),
       resolve: {

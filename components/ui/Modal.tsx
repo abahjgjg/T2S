@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
 import { Z_INDEX } from '../../constants/zIndex';
+import { ANIMATION_DURATION } from '../../constants/animationConfig';
 
 interface ModalProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export const Modal: React.FC<ModalProps> = ({
         } else if (modalRef.current) {
           modalRef.current.focus();
         }
-      }, 0);
+      }, ANIMATION_DURATION.micro.fast);
     } else if (previousActiveElement.current) {
       // Restore focus when modal closes
       (previousActiveElement.current as HTMLElement)?.focus();
