@@ -43,10 +43,12 @@ export interface LocationAnalysis {
   places: PlaceInfo[];
 }
 
+import type { BusinessType } from './constants/businessTypes';
+
 export interface BusinessIdea {
   id: string;
   name: string;
-  type: 'SaaS' | 'Agency' | 'Content' | 'E-commerce' | 'Platform';
+  type: BusinessType;
   description: string;
   monetizationModel: string;
   difficulty: 'Low' | 'Medium' | 'High';
