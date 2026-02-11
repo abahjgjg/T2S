@@ -3,8 +3,10 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Header } from './components/Header';
 import { TrendSearch } from './components/TrendSearch';
 import { IdeaSelection } from './components/IdeaSelection';
-import { BlueprintView } from './components/BlueprintView';
 import { ToastNotifications } from './components/ToastNotifications';
+
+// Lazy load BlueprintView - only needed when viewing a blueprint
+const BlueprintView = React.lazy(() => import('./components/BlueprintView').then(module => ({ default: module.BlueprintView })));
 import { getAIService } from './services/aiRegistry';
 import { supabaseService } from './services/supabaseService';
 import { promptService } from './services/promptService';
@@ -431,16 +433,23 @@ const App: React.FC = () => {
         )}
 
         {rState.appState === 'VIEWING' && rState.selectedIdea && rState.blueprint && (
-          <BlueprintView 
-            idea={rState.selectedIdea} 
-            blueprint={rState.blueprint} 
-            onBack={handleBackToIdeasWrapper} 
-            onSaveToLibrary={handleSaveProject}
-            onUpdateBlueprint={rActions.updateBlueprint}
-            onUpdateIdea={rActions.updateIdea}
-            isSaved={savedProjects.some(p => p.id === rState.selectedIdea!.id)}
-            publishedUrl={rState.currentBlueprintId ? `${window.location.origin}/blueprint?id=${rState.currentBlueprintId}` : null}
-          />
+          <Suspense fallback={
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
+              <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
+              <p className="text-slate-400 font-medium animate-pulse">Loading Blueprint...</p>
+            </div>
+          }>
+            <BlueprintView 
+              idea={rState.selectedIdea} 
+              blueprint={rState.blueprint} 
+              onBack={handleBackToIdeasWrapper} 
+              onSaveToLibrary={handleSaveProject}
+              onUpdateBlueprint={rActions.updateBlueprint}
+              onUpdateIdea={rActions.updateIdea}
+              isSaved={savedProjects.some(p => p.id === rState.selectedIdea!.id)}
+              publishedUrl={rState.currentBlueprintId ? `${window.location.origin}/blueprint?id=${rState.currentBlueprintId}` : null}
+            />
+          </Suspense>
         )}
       </main>
 
