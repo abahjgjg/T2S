@@ -205,14 +205,15 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
                       >
                          <Share2 className="w-3 h-3" /> View Public
                       </a>
-                      <button 
-                        onClick={() => handleDelete(bp.id)}
-                        disabled={deleteMutation.isPending}
-                        className="p-2 bg-slate-800 hover:bg-red-900/20 text-slate-400 hover:text-red-400 rounded-lg transition-colors border border-slate-700 hover:border-red-500/30 disabled:opacity-50"
-                        title="Delete"
-                      >
-                        {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                      </button>
+                       <button 
+                         onClick={() => handleDelete(bp.id)}
+                         disabled={deleteMutation.isPending}
+                         className="p-2 bg-slate-800 hover:bg-red-900/20 text-slate-400 hover:text-red-400 rounded-lg transition-colors border border-slate-700 hover:border-red-500/30 disabled:opacity-50"
+                         title="Delete"
+                         aria-label="Delete blueprint"
+                       >
+                         {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                       </button>
                     </div>
                   </div>
                 ))

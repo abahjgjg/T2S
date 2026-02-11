@@ -86,7 +86,7 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
                 <p className="text-slate-300 text-sm mb-4 leading-relaxed">Analyze specific cities or regions to find competitors, assess market density, and identify the best spots for your <strong>{idea.type}</strong> business.</p>
                 <div className="flex gap-2">
                    <div className="relative flex-1"><MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-500" /><input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={uiText.locationPrompt} className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" onKeyDown={(e) => e.key === 'Enter' && handleScout()} /></div>
-                   <button onClick={handleUseMyLocation} className="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors" title={uiText.useMyLocation}><Navigation className="w-4 h-4" /></button>
+                    <button onClick={handleUseMyLocation} className="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors" title={uiText.useMyLocation} aria-label="Use my location"><Navigation className="w-4 h-4" /></button>
                    <button onClick={handleScout} disabled={loading || !location} className="px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : uiText.scoutLocation}</button>
                 </div>
              </div>

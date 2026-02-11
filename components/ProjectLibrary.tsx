@@ -268,16 +268,17 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
                      >
                        {uiText.load} <ArrowRight className="w-3 h-3" />
                      </button>
-                     <button 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          activeTab === 'local' ? onDelete(project.id) : handleDeleteCloud(project.id); 
-                        }}
-                        disabled={deleteMutation.isPending}
-                        className="p-2 text-slate-500 hover:text-red-400 transition-all duration-300 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 disabled:opacity-50 hover:scale-105 active:scale-95"
-                     >
-                       {activeTab === 'cloud' && deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                     </button>
+                      <button 
+                         onClick={(e) => { 
+                           e.stopPropagation(); 
+                           activeTab === 'local' ? onDelete(project.id) : handleDeleteCloud(project.id); 
+                         }}
+                         disabled={deleteMutation.isPending}
+                         className="p-2 text-slate-500 hover:text-red-400 transition-all duration-300 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 disabled:opacity-50 hover:scale-105 active:scale-95"
+                         aria-label="Delete project"
+                      >
+                        {activeTab === 'cloud' && deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
                   </div>
                 </div>
               </div>

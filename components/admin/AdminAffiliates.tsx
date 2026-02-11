@@ -300,18 +300,20 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
                      </a>
                    </div>
                    <div className="flex gap-2">
-                     <button 
-                       onClick={() => handleEditProduct(product)}
-                       className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
-                     >
-                       <Edit2 className="w-4 h-4" />
-                     </button>
-                     <button 
-                       onClick={() => handleDeleteProduct(product.id)}
-                       className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                     >
-                       <Trash2 className="w-4 h-4" />
-                     </button>
+                      <button 
+                        onClick={() => handleEditProduct(product)}
+                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
+                        aria-label="Edit product"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                        aria-label="Delete product"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                    </div>
                  </div>
                ))

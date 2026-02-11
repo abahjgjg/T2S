@@ -134,6 +134,7 @@ export const BlueprintVisuals: React.FC<Props> = ({
                           onClick={handleDownloadVideo}
                           className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-lg hover:bg-black/70 transition-colors"
                           title="Download Video"
+                          aria-label="Download video"
                       >
                         <Download className="w-4 h-4" />
                       </button>
