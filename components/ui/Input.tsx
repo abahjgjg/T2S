@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, AlertCircle, Check } from 'lucide-react';
+import { X, AlertCircle, Check, CornerDownLeft } from 'lucide-react';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -13,6 +13,10 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   maxLength?: number;
   containerClassName?: string;
   labelClassName?: string;
+  /** Show Enter key hint when focused and has value */
+  showEnterHint?: boolean;
+  /** Custom text for enter hint (default: "↵") */
+  enterHintText?: string;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -29,6 +33,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     containerClassName = '',
     labelClassName = '',
     className = '',
+    showEnterHint = false,
+    enterHintText = '↵',
     value,
     onChange,
     onFocus,
@@ -45,6 +51,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const hasSuccess = success && !hasError;
     const characterCount = typeof value === 'string' ? value.length : 0;
     const isClearable = clearable && !!value && !disabled;
+    const showEnterHintIndicator = showEnterHint && isFocused && !!value && !disabled;
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true);
@@ -86,13 +93,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       containerClassName,
     ].join(' ');
 
-    // Input styles
+    // Input styles - adjust padding when enter hint is shown
     const inputStyles = [
       'w-full bg-transparent text-white placeholder-slate-500',
       'focus:outline-none',
       'disabled:cursor-not-allowed',
       leftIcon ? 'pl-10' : 'pl-4',
-      (isClearable || rightIcon || hasSuccess) ? 'pr-10' : 'pr-4',
+      (isClearable || rightIcon || hasSuccess || showEnterHintIndicator) ? 'pr-10' : 'pr-4',
       'py-2.5 text-sm',
       className,
     ].join(' ');
@@ -161,6 +168,17 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {!hasSuccess && rightIcon && (
               <div className="text-slate-500">
                 {rightIcon}
+              </div>
+            )}
+
+            {/* Enter key hint - subtle micro-UX improvement */}
+            {showEnterHintIndicator && (
+              <div 
+                className="flex items-center gap-0.5 text-[10px] text-slate-500 font-mono animate-[fadeIn_0.2s_ease-out]"
+                aria-hidden="true"
+              >
+                <CornerDownLeft className="w-3 h-3" />
+                <span>{enterHintText}</span>
               </div>
             )}
             
