@@ -13,8 +13,8 @@
     "test": "vitest run",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",
-    "audit:console": "node scripts/capture-console.js",
-    "audit:lighthouse": "node scripts/lighthouse-audit.js",
+    "audit:console": "npx tsx scripts/capture-console.ts",
+    "audit:lighthouse": "npx tsx scripts/lighthouse-audit.ts",
     "audit:brocula": "npx tsx scripts/brocula-analysis.ts"
   },
   "dependencies": {
