@@ -39,16 +39,29 @@ The goal is to help users generate "Money-Making Systems" (Business Blueprints) 
   - The system now supports **Image Generation** (`gemini-2.5-flash-image` and DALL-E) to create brand concepts/logos.
   - Images are stored as Base64 within the Blueprint JSON to ensure portability, with safety checks for storage quotas.
 
-## Current State (Phase 6)
-The application is now a fully capable **Affiliate Marketing Generator** with **Real-time Training Capabilities**, **Cloud Sync**, and **Visual Branding Tools**.
-- **Admin Panel**: Accessible at `/admin`. Secured via Supabase Auth.
-- **Monetization**: Blueprints automatically recommend tools defined by the owner.
-- **Pitch Mode**: Users can practice pitching their generated ideas to an AI investor in real-time.
-- **Competitor Analysis**: Idea generation now includes a list of real-world competitors to help users understand the market landscape.
-- **Strategic Analysis**: The system now automatically generates a **SWOT Analysis** (Strengths, Weaknesses, Opportunities, Threats) for every new blueprint, providing deeper strategic value.
-- **Directory**: Serves as an SEO landing page for all generated content.
-- **User Accounts**: Users can sign up to save their blueprints to the cloud.
-- **Visuals**: Users can generate a unique logo concept for their business idea.
+## Current State (Phase 14)
+The application is a comprehensive **AI-Powered Market Intelligence Suite** with advanced features across all phases:
+
+### Core Features
+- **Admin Panel**: Accessible at `/admin`. Secured via Supabase Auth with Identity-Based Access.
+- **Monetization**: Blueprints automatically recommend tools via deterministic keyword matching (`affiliateService`).
+- **Pitch Mode**: Real-time voice roleplay with AI personas (VC, Customer, CTO) using WebSocket PCM streaming.
+- **Competitor Analysis**: Real-world competitor research with strategic positioning.
+- **Strategic Analysis**: Automatic **SWOT Analysis** generation for every blueprint.
+- **Directory**: SEO-optimized public showcase of generated blueprints with voting system.
+- **User Accounts**: Cloud sync via Supabase with hybrid LocalStorage + IndexedDB storage.
+
+### Advanced Features (Phases 7-14)
+- **Interactive Roadmap**: Track task completion with automatic progress saving.
+- **Revenue Simulator**: Interactive financial modeling with growth scenarios.
+- **One-Click Pivot**: Apply audit suggestions to automatically rewrite blueprints.
+- **Presentation Mode**: Auto-generated slide decks for investor pitching.
+- **Content Calendar**: 30-day AI-generated marketing plan with platform-specific posts.
+- **Brand Studio**: AI-powered business names, slogans, color palettes, and brand tone generation.
+- **Customer Personas**: Deep-dive ICP profiles with avatars, pain points, and goals.
+- **Prototype Coder**: Generate React/Tailwind code for landing pages.
+- **Professional Print Engine**: High-fidelity PDF exports (A4/Letter) with cover pages.
+- **Visual Branding**: AI-generated logos and brand identities (Gemini + DALL-E).
 
 ## Next Steps
 - **Security Hardening**: Migrate AI Service calls to Supabase Edge Functions.
