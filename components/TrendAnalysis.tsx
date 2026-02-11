@@ -1,12 +1,14 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense, lazy } from 'react';
 import { Trend } from '../types';
-import { 
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, 
-  ScatterChart, Scatter, ZAxis, ReferenceLine, Label, Cell 
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  ScatterChart, Scatter, ZAxis, ReferenceLine, Label, Cell
 } from 'recharts';
-import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock, Globe, Flame } from 'lucide-react';
-import { TrendDeepDiveModal } from './TrendDeepDiveModal';
+import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock, Globe, Flame, Loader2 } from 'lucide-react';
+
+// Lazy load modal to reduce initial chunk size
+const TrendDeepDiveModal = lazy(() => import('./TrendDeepDiveModal').then(m => ({ default: m.TrendDeepDiveModal })));
 import { usePreferences } from '../contexts/PreferencesContext';
 import { COLORS } from '../constants/theme';
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
@@ -93,12 +95,14 @@ export const TrendAnalysis: React.FC<Props> = ({
   return (
     <div className={`animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}]`}>
       {activeTrend && (
-        <TrendDeepDiveModal 
-          trend={activeTrend}
-          isLoading={isLoadingDeepDive}
-          onClose={() => onToggleExpand(activeTrend, expandedTrendIndex!)}
-          onAskQuestion={onAskQuestion}
-        />
+        <Suspense fallback={null}>
+          <TrendDeepDiveModal
+            trend={activeTrend}
+            isLoading={isLoadingDeepDive}
+            onClose={() => onToggleExpand(activeTrend, expandedTrendIndex!)}
+            onAskQuestion={onAskQuestion}
+          />
+        </Suspense>
       )}
 
       {/* Live News Ticker */}
