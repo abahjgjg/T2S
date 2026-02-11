@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { ImageOff, Loader2, RefreshCw } from 'lucide-react';
+import { MEDIA_CONFIG } from '../../constants/aiConfig';
 
 interface SmartImageProps {
   src: string;
@@ -20,7 +21,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
   fallbackIcon,
   onLoad,
   onError,
-  maxRetries = 3
+  maxRetries = MEDIA_CONFIG.RETRY.DEFAULT_MAX_RETRIES
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
