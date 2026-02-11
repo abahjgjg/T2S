@@ -8,6 +8,7 @@ import { useConfirm } from '../contexts/ConfirmContext';
 import { UI_TIMING } from '../constants/uiConfig';
 import { AgentChatModal } from './AgentChatModal';
 import { Z_INDEX } from '../constants/zIndex';
+import { EmptyState } from './ui/EmptyState';
 
 interface Props {
   agents: AgentProfile[];
@@ -135,12 +136,14 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
         <AgentChatModal agent={selectedAgent} isOpen={!!selectedAgent} onClose={() => { setSelectedAgent(null); setInitialTask(null); }} initialMessage={initialTask} />
       )}
       {isGenerating ? (
-        <div className="flex flex-col items-center justify-center py-12 bg-slate-950/30 rounded-lg border border-slate-800 border-dashed">
-          <Cpu className="w-8 h-8 text-pink-500 animate-spin mb-3" />
-          <p className="text-slate-400 text-sm animate-pulse">{uiText.generatingAgents}</p>
-        </div>
+        <EmptyState
+          variant="generating"
+          icon={<Cpu className="w-12 h-12 text-pink-500 animate-spin" />}
+          title="Architecting AI Team..."
+          description={uiText.generatingAgents}
+        />
       ) : agents.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-[fadeIn_0.3s_ease-out]">
           {agents.map((agent, index) => (
             <div key={index} className="bg-slate-950 border border-slate-800 rounded-xl p-5 hover:border-pink-500/30 transition-all flex flex-col group relative">
               <div className="flex justify-between items-start mb-3">
@@ -170,10 +173,25 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
           ))}
         </div>
       ) : (
-        <div className="text-center py-10 bg-slate-950/30 rounded-lg border border-slate-800 border-dashed">
-          <p className="text-slate-500 text-sm mb-4 max-w-md mx-auto">{uiText.agentsDesc}</p>
-          <button onClick={onGenerate} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm font-bold border border-slate-700"><Cpu className="w-4 h-4" /> {uiText.generateAgents}</button>
-        </div>
+        <EmptyState
+          variant="default"
+          icon={<Bot className="w-12 h-12 text-slate-500" />}
+          title="Autonomous AI Team"
+          description={uiText.agentsDesc}
+          action={
+            <button
+              onClick={onGenerate}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white rounded-xl transition-all hover:scale-105 shadow-lg shadow-pink-900/20 font-bold"
+            >
+              <Cpu className="w-5 h-5" /> {uiText.generateAgents}
+            </button>
+          }
+          tips={[
+            { text: "Agents are specialized with custom system prompts for your specific niche" },
+            { text: "Each agent comes with recommended tools and suggested tasks" },
+            { text: "Start a real-time chat with any agent to execute business operations" }
+          ]}
+        />
       )}
     </div>
   );

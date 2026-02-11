@@ -33,10 +33,10 @@ const ProjectLibrary = React.lazy(() => import('./components/ProjectLibrary').th
 
 const LIBRARY_KEY = STORAGE_KEYS.PROJECT_LIBRARY;
 
-const FullScreenLoader = () => (
+const FullScreenLoader = ({ text }: { text?: string }) => (
   <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
     <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
-    <p className="text-slate-400 font-medium animate-pulse">Loading Application Module...</p>
+    <p className="text-slate-400 font-medium animate-pulse">{text || "Loading..."}</p>
   </div>
 );
 
@@ -228,7 +228,7 @@ const App: React.FC = () => {
         const { error } = await supabaseService.saveCloudProject(newProject, user.id);
         if (error) {
            console.warn("Failed to save to cloud:", error);
-           rSetters.setError("Project saved locally, but cloud sync failed.");
+           rSetters.setError(uiText.cloudSyncFailed);
         }
       }
     } else {
@@ -259,7 +259,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mb-4" />
-        <h2 className="text-xl font-bold text-slate-900">Restoring Session...</h2>
+        <h2 className="text-xl font-bold text-slate-900">{uiText.restoringSession}</h2>
       </div>
     );
   }
@@ -267,7 +267,7 @@ const App: React.FC = () => {
   if (rState.appState === 'VIEWING_PUBLIC') {
     const sharedId = new URLSearchParams(window.location.search).get('id');
     return (
-      <Suspense fallback={<FullScreenLoader />}>
+      <Suspense fallback={<FullScreenLoader text={uiText.loadingModule} />}>
         <PublicBlogView 
           id={sharedId}
           onHome={() => {
@@ -282,7 +282,7 @@ const App: React.FC = () => {
 
   if (rState.appState === 'ADMIN') {
     return (
-      <Suspense fallback={<FullScreenLoader />}>
+      <Suspense fallback={<FullScreenLoader text={uiText.loadingModule} />}>
         <AdminPanel 
           onExit={() => {
             rSetters.setAppState('IDLE');
@@ -300,7 +300,7 @@ const App: React.FC = () => {
 
   if (rState.appState === 'DASHBOARD') {
     return (
-      <Suspense fallback={<FullScreenLoader />}>
+      <Suspense fallback={<FullScreenLoader text={uiText.loadingModule} />}>
         {user ? (
           <UserDashboard 
             user={user}
@@ -311,10 +311,10 @@ const App: React.FC = () => {
           />
         ) : (
           <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-            <h2 className="text-2xl font-bold text-white mb-4">Please Log In</h2>
-            <p className="text-slate-400 mb-6">You need to be signed in to view your dashboard.</p>
-            <button onClick={openAuthModal} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">Log In</button>
-            <button onClick={() => { rSetters.setAppState('IDLE'); pushState(ROUTES.HOME); }} className="mt-4 text-slate-500 hover:text-white">Go Home</button>
+            <h2 className="text-2xl font-bold text-white mb-4">{uiText.pleaseLogIn}</h2>
+            <p className="text-slate-400 mb-6">{uiText.loginRequiredDashboard}</p>
+            <button onClick={openAuthModal} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">{uiText.login}</button>
+            <button onClick={() => { rSetters.setAppState('IDLE'); pushState(ROUTES.HOME); }} className="mt-4 text-slate-500 hover:text-white">{uiText.back}</button>
           </div>
         )}
         <ToastNotifications />
@@ -357,7 +357,11 @@ const App: React.FC = () => {
         {rState.error && (
           <div className="max-w-2xl mx-auto mt-6 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg flex items-start justify-between gap-4 animate-[fadeIn_0.3s_ease-out]">
             <p className="font-semibold">{rState.error}</p>
-            <button onClick={rActions.dismissError} className="text-red-400 hover:text-white transition-colors">
+            <button
+              onClick={rActions.dismissError}
+              className="text-red-400 hover:text-white transition-colors"
+              aria-label="Dismiss error"
+            >
               <XCircle className="w-5 h-5" />
             </button>
           </div>

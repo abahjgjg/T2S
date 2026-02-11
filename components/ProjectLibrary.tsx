@@ -69,10 +69,10 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
   const handleDeleteCloud = async (id: string) => {
     if (!user) return;
     const confirmed = await confirm({
-      title: 'Delete from Cloud?',
-      message: 'This project will be permanently deleted from the cloud. This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Keep',
+      title: uiText.deleteCloudTitle || 'Delete from Cloud?',
+      message: uiText.deleteCloudMsg || 'This project will be permanently deleted from the cloud. This action cannot be undone.',
+      confirmText: uiText.delete || 'Delete',
+      cancelText: uiText.keep || 'Keep',
       variant: 'danger',
     });
     if (!confirmed) return;
@@ -114,19 +114,19 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           onClick={() => setActiveTab('local')}
           className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'local' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
         >
-          <HardDrive className="w-4 h-4" /> Local
+          <HardDrive className="w-4 h-4" /> {uiText.libraryTabs?.local || "Local"}
         </button>
         <button
           onClick={() => setActiveTab('cloud')}
           className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'cloud' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
         >
-          <Cloud className="w-4 h-4" /> Cloud
+          <Cloud className="w-4 h-4" /> {uiText.libraryTabs?.cloud || "Cloud"}
         </button>
         <button
           onClick={() => setActiveTab('recent')}
           className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'recent' ? 'border-orange-500 text-orange-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
         >
-          <History className="w-4 h-4" /> Recent
+          <History className="w-4 h-4" /> {uiText.libraryTabs?.recent || "Recent"}
         </button>
       </div>
 
@@ -135,7 +135,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
             <input 
               type="text" 
-              placeholder="Search projects..." 
+              placeholder={uiText.searchProjects || "Search projects..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
@@ -168,13 +168,13 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           {activeTab === 'cloud' && !user && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                <Cloud className="w-16 h-16 mb-4 opacity-20" />
-               <p className="text-lg font-medium mb-2">Sync Your Projects</p>
-               <p className="text-sm opacity-60 max-w-xs text-center mb-6">Log in to save your blueprints to the cloud.</p>
+               <p className="text-lg font-medium mb-2">{uiText.syncProjects || "Sync Your Projects"}</p>
+               <p className="text-sm opacity-60 max-w-xs text-center mb-6">{uiText.syncProjectsDesc || "Log in to save your blueprints to the cloud."}</p>
                <button 
                  onClick={onOpenLogin}
                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors"
                >
-                 <LogIn className="w-4 h-4" /> Log In
+                 <LogIn className="w-4 h-4" /> {uiText.login || "Log In"}
                </button>
             </div>
           )}
@@ -213,7 +213,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
                         }}
                         className="text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1"
                       >
-                         Re-scan <ArrowRight className="w-3 h-3" />
+                         {uiText.rescan || "Re-scan"} <ArrowRight className="w-3 h-3" />
                       </button>
                    </div>
                  ))
@@ -225,7 +225,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
             <div className="text-center py-12 text-slate-500">
               <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium">
-                {searchTerm || filterType !== 'All' ? "No matches found." : (activeTab === 'local' ? uiText.noProjects : "No cloud saves yet.")}
+                {searchTerm || filterType !== 'All' ? (uiText.noMatches || "No matches found.") : (activeTab === 'local' ? uiText.noProjects : (uiText.noCloudSaves || "No cloud saves yet."))}
               </p>
             </div>
           )}

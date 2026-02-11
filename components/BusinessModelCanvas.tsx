@@ -5,6 +5,7 @@ import { getAIService } from '../services/aiRegistry';
 import { Loader2, LayoutGrid, Users, Link, Activity, Box, Heart, Megaphone, Wallet, CreditCard } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { EmptyState } from './ui/EmptyState';
 
 interface Props {
   idea: BusinessIdea;
@@ -34,31 +35,38 @@ export const BusinessModelCanvas: React.FC<Props> = ({ idea, blueprint, bmc, onU
 
   if (isGenerating) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
-        <Loader2 className="w-12 h-12 text-indigo-400 animate-spin mb-6" />
-        <h3 className="text-xl font-bold text-white mb-2">Structuring Business Model...</h3>
-        <p className="text-slate-400">Mapping relationships, resources, and revenue streams.</p>
-      </div>
+      <EmptyState
+        variant="generating"
+        icon={<Loader2 className="w-12 h-12 text-indigo-400 animate-spin" />}
+        title="Structuring Business Model..."
+        description="Mapping relationships, resources, and revenue streams."
+        className="mb-8"
+      />
     );
   }
 
   if (!bmc) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center mb-8">
-        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
-          <LayoutGrid className="w-8 h-8 text-indigo-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">Business Model Canvas</h3>
-        <p className="text-slate-400 max-w-md mx-auto mb-6">
-          Generate a strategic 9-block visual overview of your entire business model.
-        </p>
-        <button 
-          onClick={handleGenerate}
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/20"
-        >
-          Generate Canvas
-        </button>
-      </div>
+      <EmptyState
+        variant="default"
+        icon={<LayoutGrid className="w-8 h-8 text-indigo-400" />}
+        title="Business Model Canvas"
+        description="Generate a strategic 9-block visual overview of your entire business model."
+        action={
+          <button
+            onClick={handleGenerate}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all hover:scale-105 shadow-lg shadow-indigo-500/20"
+          >
+            Generate Canvas
+          </button>
+        }
+        tips={[
+          { text: "Standard 9-block framework used by Fortune 500 companies" },
+          { text: "Clarifies your value proposition, customer segments, and cost structure" },
+          { text: "Helps identify critical assumptions and dependencies" }
+        ]}
+        className="mb-8"
+      />
     );
   }
 

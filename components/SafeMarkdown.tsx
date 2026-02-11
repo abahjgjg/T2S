@@ -18,6 +18,23 @@ interface Props {
 export const SafeMarkdown: React.FC<Props> = ({ content, className, components, onLinkClick }) => {
   const safeComponents: Components = {
     ...components,
+    table: ({ node, ...props }) => (
+      <div className="overflow-x-auto my-6 rounded-xl border border-slate-800">
+        <table className="w-full border-collapse text-sm text-left" {...props} />
+      </div>
+    ),
+    thead: ({ node, ...props }) => (
+      <thead className="bg-slate-800/50 text-slate-200 border-b border-slate-700" {...props} />
+    ),
+    th: ({ node, ...props }) => (
+      <th className="px-4 py-3 font-bold uppercase tracking-wider text-[10px]" {...props} />
+    ),
+    td: ({ node, ...props }) => (
+      <td className="px-4 py-3 border-b border-slate-800/50 text-slate-300" {...props} />
+    ),
+    tr: ({ node, ...props }) => (
+      <tr className="hover:bg-slate-800/30 transition-colors even:bg-slate-900/30" {...props} />
+    ),
     // Enforce safe link rendering, overriding any passed 'a' component if necessary
     a: ({ href, ...props }) => {
       // Whitelist allowed protocols
