@@ -15,6 +15,42 @@ const nonBlockingCssPlugin = (): Plugin => ({
   },
 });
 
+// Flexy plugin: Inject environment variables into index.html with defaults
+const htmlEnvPlugin = (env: Record<string, string>): Plugin => ({
+  name: 'html-env',
+  transformIndexHtml(html) {
+    // Define default values for HTML environment variables
+    const defaults: Record<string, string> = {
+      VITE_APP_NAME: 'TrendVentures AI',
+      VITE_APP_DEFAULT_TITLE: 'TrendVentures AI | Market Research Suite',
+      VITE_APP_DEFAULT_DESCRIPTION: 'Generate comprehensive business blueprints and revenue models with AI-powered market intelligence. Transform ideas into actionable strategies.',
+      VITE_OG_DESCRIPTION: 'AI-powered market intelligence suite that generates business blueprints.',
+      VITE_OG_IMAGE_WIDTH: '1200',
+      VITE_OG_IMAGE_HEIGHT: '630',
+      VITE_PLACEHOLDER_BASE_URL: 'https://placehold.co',
+      VITE_COLOR_SLATE_50: '#f8fafc',
+      VITE_COLOR_SLATE_600: '#475569',
+      VITE_COLOR_SLATE_700: '#334155',
+      VITE_COLOR_SLATE_800: '#1e293b',
+      VITE_COLOR_SLATE_900: '#0f172a',
+      VITE_COLOR_SLATE_950: '#020617',
+      VITE_COLOR_PRIMARY_EMERALD: '#10b981',
+      VITE_APP_BASE_URL: 'https://trendventures.ai',
+      VITE_GOOGLE_FONTS_URL: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap',
+    };
+
+    // Replace placeholders with env values or defaults
+    let result = html;
+    Object.entries(defaults).forEach(([key, defaultValue]) => {
+      const value = env[key] || defaultValue;
+      const placeholder = `%${key}%`;
+      result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
+    });
+
+    return result;
+  },
+});
+
 // Load configuration from environment variables with defaults
 const loadConfig = (env: Record<string, string>) => ({
   // Server configuration
@@ -98,7 +134,7 @@ export default defineConfig(({ mode }) => {
     
     return {
       server: config.server,
-      plugins: [react(), tailwindcss(), nonBlockingCssPlugin()],
+      plugins: [react(), tailwindcss(), nonBlockingCssPlugin(), htmlEnvPlugin(env)],
       build: config.build,
       define: exposeEnvVars(env),
       resolve: {
