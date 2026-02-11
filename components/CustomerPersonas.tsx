@@ -139,12 +139,26 @@ export const CustomerPersonas: React.FC<Props> = ({ idea, blueprint, personas, o
 
   if (!personas) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 mb-8 text-center animate-[fadeIn_0.3s_ease-out] print:break-inside-avoid">
-        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700"><Users className="w-8 h-8 text-blue-400" /></div>
-        <h3 className="text-2xl font-bold text-white mb-2">Customer Personas</h3>
-        <p className="text-slate-400 max-w-md mx-auto mb-6">Deep dive into your target audience. Generate detailed profiles to understand who you are building for.</p>
-        <button onClick={handleGenerate} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-blue-900/20"><Users className="w-5 h-5" /> Identify Personas</button>
-      </div>
+      <EmptyState
+        icon={<Users className="w-8 h-8 text-blue-400" />}
+        title="Customer Personas"
+        description="Deep dive into your target audience. Generate detailed profiles with demographics, psychographics, and pain points to understand who you are building for."
+        variant="default"
+        action={
+          <button 
+            onClick={handleGenerate} 
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-blue-900/20"
+          >
+            <Users className="w-5 h-5" /> Identify Personas
+          </button>
+        }
+        tips={[
+          { text: "AI creates 3 distinct personas representing different customer segments" },
+          { text: "Each persona includes age, occupation, pain points, goals, and preferred channels" },
+          { text: "Hover over avatars to generate AI images for your personas" }
+        ]}
+        className="mb-8 print:break-inside-avoid"
+      />
     );
   }
 
