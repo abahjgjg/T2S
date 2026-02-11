@@ -1,35 +1,11 @@
 /**
  * Audio Visualizer Configuration
  * Centralized configuration for audio visualizer settings
- * Flexy: Eliminating hardcoded visualizer values
+ * Flexy: Uses centralized env utilities for modularity
  * All values can be overridden via environment variables.
  */
 
-// Helper to safely get env var with fallback
-const getEnv = (key: string, defaultValue: string): string => {
-  const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key] 
-    ?? (typeof process !== 'undefined' ? process.env?.[key] : undefined);
-  return value || defaultValue;
-};
-
-const getEnvNumber = (key: string, defaultValue: number): number => {
-  const value = getEnv(key, String(defaultValue));
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? defaultValue : parsed;
-};
-
-// Parse array from env
-const parseArray = <T>(key: string, defaultValue: T[]): T[] => {
-  const envValue = getEnv(key, '');
-  if (envValue) {
-    try {
-      return JSON.parse(envValue);
-    } catch {
-      return defaultValue;
-    }
-  }
-  return defaultValue;
-};
+import { getEnv, getEnvNumber, getEnvJSON } from '../utils/envUtils';
 
 export const AUDIO_VISUALIZER_CONFIG = {
   // Number of bars in the visualizer
@@ -66,7 +42,7 @@ export const AUDIO_PROCESSING_CONFIG = {
 // Persona voice configuration
 export const PERSONA_VOICE_CONFIG = {
   // Voice names for alternation
-  VOICES: parseArray<string>('VITE_PERSONA_VOICE_NAMES', ['Puck', 'Zephyr']),
+  VOICES: getEnvJSON<string[]>('VITE_PERSONA_VOICE_NAMES', ['Puck', 'Zephyr']),
   // Default voice index (for alternation logic)
   DEFAULT_VOICE_INDEX: getEnvNumber('VITE_PERSONA_VOICE_DEFAULT_INDEX', 0),
 } as const;

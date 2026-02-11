@@ -6,7 +6,7 @@
  * Flexy: All external URLs are now configurable via environment variables
  */
 
-import { getEnv } from '../config';
+import { getEnv } from '../utils/envUtils';
 
 export const ROUTES = {
   // Main routes

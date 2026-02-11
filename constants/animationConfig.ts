@@ -1,22 +1,11 @@
 /**
  * Animation Timing Configuration
  * Centralized animation durations and timing functions
- * Flexy: Eliminating hardcoded animation values throughout the codebase
+ * Flexy: Uses centralized env utilities for modularity
  * All values can be overridden via environment variables.
  */
 
-// Helper to safely get env var with fallback
-const getEnv = (key: string, defaultValue: string): string => {
-  const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key] 
-    ?? (typeof process !== 'undefined' ? process.env?.[key] : undefined);
-  return value || defaultValue;
-};
-
-const getEnvNumber = (key: string, defaultValue: number): number => {
-  const value = getEnv(key, String(defaultValue));
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? defaultValue : parsed;
-};
+import { getEnv, getEnvNumber } from '../utils/envUtils';
 
 // Animation durations in milliseconds
 export const ANIMATION_DURATION = {

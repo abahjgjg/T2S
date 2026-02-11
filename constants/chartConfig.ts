@@ -1,50 +1,18 @@
 /**
  * Chart Configuration
  * Centralized configuration for chart defaults, ranges, and styling
- * Flexy: Eliminating hardcoded chart values throughout the application
+ * Flexy: Uses centralized env utilities for modularity
  * All values can be overridden via environment variables.
  */
 
 import { COLORS } from './theme';
-
-// Helper to safely get env var with fallback
-const getEnv = (key: string, defaultValue: string): string => {
-  const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key] 
-    ?? (typeof process !== 'undefined' ? process.env?.[key] : undefined);
-  return value || defaultValue;
-};
-
-const getEnvNumber = (key: string, defaultValue: number): number => {
-  const value = getEnv(key, String(defaultValue));
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? defaultValue : parsed;
-};
-
-// Parse array from env
-const parseArray = <T>(key: string, defaultValue: T[]): T[] => {
-  const envValue = getEnv(key, '');
-  if (envValue) {
-    try {
-      return JSON.parse(envValue);
-    } catch {
-      return defaultValue;
-    }
-  }
-  return defaultValue;
-};
+import { getEnv, getEnvNumber, getEnvJSON } from '../utils/envUtils';
 
 // Parse tuple from env for specific array shapes
 const parseTuple = (key: string, defaultValue: [number, number, number, number]): [number, number, number, number] => {
-  const envValue = getEnv(key, '');
-  if (envValue) {
-    try {
-      const parsed = JSON.parse(envValue);
-      if (Array.isArray(parsed) && parsed.length === 4 && parsed.every((n: unknown) => typeof n === 'number')) {
-        return parsed as [number, number, number, number];
-      }
-    } catch {
-      // Fall through to default
-    }
+  const result = getEnvJSON<[number, number, number, number]>(key, defaultValue);
+  if (Array.isArray(result) && result.length === 4 && result.every((n: unknown) => typeof n === 'number')) {
+    return result;
   }
   return defaultValue;
 };
