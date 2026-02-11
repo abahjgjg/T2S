@@ -59,6 +59,7 @@ export const TrendSearch: React.FC<Props> = ({
   
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [shakeInput, setShakeInput] = useState(false);
   const [focusedHistoryIndex, setFocusedHistoryIndex] = useState<number>(-1);
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
   
@@ -229,6 +230,8 @@ export const TrendSearch: React.FC<Props> = ({
     // Allow empty term ONLY if image is present
     if (!term.trim() && !img) {
       setValidationError(uiText.validationEmptySearch || "Please enter a topic or upload an image.");
+      setShakeInput(true);
+      setTimeout(() => setShakeInput(false), 500);
       inputRef.current?.focus();
       return;
     }
@@ -237,6 +240,8 @@ export const TrendSearch: React.FC<Props> = ({
       const validation = validateInput(term);
       if (!validation.isValid) {
         setValidationError(validation.error || uiText.invalidInput || "Invalid input");
+        setShakeInput(true);
+        setTimeout(() => setShakeInput(false), 500);
         inputRef.current?.focus();
         return;
       }
@@ -421,7 +426,7 @@ export const TrendSearch: React.FC<Props> = ({
          </button>
       </div>
 
-      <form onSubmit={handleSubmit} className={`relative group mb-12 max-w-2xl mx-auto ${Z_INDEX.CONTENT}`}>
+      <form onSubmit={handleSubmit} className={`relative group mb-12 max-w-2xl mx-auto ${Z_INDEX.CONTENT} ${shakeInput ? 'animate-shake' : ''}`}>
         <div className={`absolute -inset-0.5 bg-gradient-to-r ${validationError ? 'from-red-500 to-orange-500' : 'from-emerald-500 via-blue-500 to-purple-500'} rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500`}></div>
         <div className={`relative flex items-center bg-slate-950 rounded-2xl border ${validationError ? 'border-red-500/50' : 'border-slate-800'} p-2 shadow-2xl`}>
           <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-300'}`} aria-hidden="true" />
