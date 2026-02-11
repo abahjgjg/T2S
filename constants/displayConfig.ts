@@ -5,7 +5,7 @@
  * All values can be overridden via environment variables.
  */
 
-import { getEnv, getEnvNumber } from '../utils/envUtils';
+import { getEnv, getEnvNumber, getEnvArray } from '../utils/envUtils';
 
 // Text truncation lengths used across the application
 export const TEXT_TRUNCATION = {
@@ -77,6 +77,15 @@ export const BLUEPRINT_PREVIEW_CONFIG = {
   ROADMAP_ITEMS: getEnvNumber('VITE_DISPLAY_BLUEPRINT_ROADMAP_ITEMS', 3),
 } as const;
 
+// Ticker/Marquee fallback topics for when uiText.tickerTopics is not available
+// Flexy: No hardcoded strings! All configurable via environment variables
+export const TICKER_TOPICS = {
+  // Default fallback topics when uiText.tickerTopics is not provided
+  DEFAULT_TOPICS: getEnvArray('VITE_TICKER_DEFAULT_TOPICS', ['AI Trends', 'Market Shifts']),
+  // Animation speed in seconds for the marquee
+  ANIMATION_DURATION: getEnvNumber('VITE_TICKER_ANIMATION_DURATION_SECONDS', 30),
+} as const;
+
 export type TextTruncation = typeof TEXT_TRUNCATION;
 export type DisplayLimits = typeof DISPLAY_LIMITS;
 
@@ -87,4 +96,5 @@ export default {
   PAGINATION_CONFIG,
   DIRECTORY_CONFIG,
   BLUEPRINT_PREVIEW_CONFIG,
+  TICKER_TOPICS,
 };

@@ -51,10 +51,18 @@ export const STANDARD_SEARCH_CONFIG = {
   TIMEFRAME: getEnv('VITE_SEARCH_STANDARD_TIMEFRAME', '30d') as SearchTimeframe,
 } as const;
 
+// UI Text Fallbacks - Flexy: No hardcoded strings!
+// These are fallback values when uiText translations are not available
+export const UI_FALLBACKS = {
+  // Global pulse default search query
+  GLOBAL_PULSE_QUERY: getEnv('VITE_UI_FALLBACK_GLOBAL_PULSE_QUERY', 'Latest Breaking Business News'),
+} as const;
+
 // Default export for convenience
 export default {
   REGIONS,
   TIMEFRAMES,
   DEFAULT_SEARCH_CONFIG,
   STANDARD_SEARCH_CONFIG,
+  UI_FALLBACKS,
 };
