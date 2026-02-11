@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { ImageOff, Loader2, RefreshCw } from 'lucide-react';
 import { MEDIA_CONFIG } from '../../constants/aiConfig';
+import { ANIMATION_DURATION } from '../../constants/animationConfig';
 
 interface SmartImageProps {
   src: string;
@@ -55,7 +56,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
     // Force re-render by updating the key
     setTimeout(() => {
       setIsRetrying(false);
-    }, 100);
+    }, ANIMATION_DURATION.micro.fast);
   }, [retryCount, maxRetries]);
 
   if (hasError) {

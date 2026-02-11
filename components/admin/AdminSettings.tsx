@@ -6,6 +6,7 @@ import { indexedDBService } from '../../utils/storageUtils';
 import { AIProvider } from '../../types';
 import { DEV_CONFIG } from '../../constants/appConfig';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { COLORS } from '../../constants/theme';
 
 interface Props {
   provider: AIProvider;
@@ -77,7 +78,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
             onClick={() => setProvider('gemini')}
             className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-4 ${
               provider === 'gemini' 
-              ? 'bg-emerald-900/20 border-emerald-500/50 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]' 
+              ? `bg-emerald-900/20 border-emerald-500/50 shadow-[0_0_20px_-5px_${COLORS.shadow.emerald}]` 
               : 'bg-slate-950 border-slate-800 hover:border-slate-700'
             }`}
           >
@@ -94,7 +95,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
             onClick={() => setProvider('openai')}
             className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-4 ${
               provider === 'openai' 
-              ? 'bg-blue-900/20 border-blue-500/50 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)]' 
+              ? `bg-blue-900/20 border-blue-500/50 shadow-[0_0_20px_-5px_${COLORS.shadow.blue}]` 
               : 'bg-slate-950 border-slate-800 hover:border-slate-700'
             }`}
           >
