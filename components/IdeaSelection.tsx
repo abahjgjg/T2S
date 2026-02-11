@@ -1,11 +1,13 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Trend, BusinessIdea } from '../types';
 import { TrendingUp, BarChart3, Newspaper, Download, Headphones, StopCircle, Loader2, Sparkles } from 'lucide-react';
-import { TrendAnalysis } from './TrendAnalysis';
 import { NewsWire } from './NewsWire';
 import { BusinessOpportunities } from './BusinessOpportunities';
-import { ResearchChat } from './ResearchChat';
+
+// Lazy load heavy components to reduce initial bundle size
+const TrendAnalysis = lazy(() => import('./TrendAnalysis').then(m => ({ default: m.TrendAnalysis })));
+const ResearchChat = lazy(() => import('./ResearchChat').then(m => ({ default: m.ResearchChat })));
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { Z_INDEX } from '../constants/zIndex';
@@ -191,14 +193,16 @@ export const IdeaSelection: React.FC<Props> = ({
               </button>
             )}
 
-            <ResearchChat 
-                niche={niche} 
-                trends={trends} 
+            <Suspense fallback={null}>
+              <ResearchChat
+                niche={niche}
+                trends={trends}
                 isOpen={isChatOpen}
                 onClose={() => setIsChatOpen(false)}
                 externalMessage={chatTriggerMessage}
                 onClearExternalMessage={() => setChatTriggerMessage(null)}
-            />
+              />
+            </Suspense>
          </div>
       )}
 
@@ -255,20 +259,26 @@ export const IdeaSelection: React.FC<Props> = ({
         </div>
 
         {activeTab === 'trends' ? (
-          <TrendAnalysis 
-            trends={trends}
-            selectedTrendIndices={selectedTrendIndices}
-            expandedTrendIndex={expandedTrendIndex}
-            isLoadingDeepDive={isLoadingDeepDive}
-            ideasLength={ideas.length}
-            onToggleSelection={toggleTrendSelection}
-            onToggleExpand={handleDeepDive}
-            onAskQuestion={handleDeepDiveQuestion}
-          />
+          <Suspense fallback={
+            <div className="py-12 flex justify-center">
+              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+            </div>
+          }>
+            <TrendAnalysis
+              trends={trends}
+              selectedTrendIndices={selectedTrendIndices}
+              expandedTrendIndex={expandedTrendIndex}
+              isLoadingDeepDive={isLoadingDeepDive}
+              ideasLength={ideas.length}
+              onToggleSelection={toggleTrendSelection}
+              onToggleExpand={handleDeepDive}
+              onAskQuestion={handleDeepDiveQuestion}
+            />
+          </Suspense>
         ) : (
-          <NewsWire 
-            sources={allNewsSources} 
-            provider={provider} 
+          <NewsWire
+            sources={allNewsSources}
+            provider={provider}
           />
         )}
       </div>
