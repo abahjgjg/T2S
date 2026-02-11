@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { supabaseService } from '../services/supabaseService';
 import { Mail, Lock, LogIn, UserPlus, Loader2, AlertCircle } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import { Input } from './ui/Input';
 
 interface Props {
   isOpen: boolean;
@@ -80,52 +81,32 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
-                className={`w-full bg-slate-950 border rounded-lg pl-10 pr-4 py-2.5 text-white focus:outline-none transition-all text-sm ${
-                  emailError 
-                    ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
-                    : touched.email && !emailError
-                    ? 'border-emerald-500 focus:border-emerald-500'
-                    : 'border-slate-700 focus:border-emerald-500'
-                }`}
-                placeholder="you@example.com"
-                required
-              />
-              {touched.email && !emailError && email && (
-                <div className="absolute right-3 top-3 text-emerald-500">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                </div>
-              )}
-            </div>
-            {emailError && (
-              <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> {emailError}
-              </p>
-            )}
-          </div>
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+            error={emailError || undefined}
+            success={touched.email && !emailError && !!email}
+            leftIcon={<Mail className="w-4 h-4" />}
+            placeholder="you@example.com"
+            clearable
+            required
+          />
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition-colors text-sm"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+            <Input
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
+              leftIcon={<Lock className="w-4 h-4" />}
+              placeholder="••••••••"
+              clearable
+              required
+            />
             {/* Password Strength Indicator - Only show during signup */}
             {!isLogin && touched.password && password && (
               <div className="mt-2 space-y-1">
