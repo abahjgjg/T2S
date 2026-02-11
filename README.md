@@ -89,9 +89,11 @@ An AI-powered market intelligence suite that generates business blueprints from 
 │   ├── gemini/     # Gemini-specific implementation
 │   ├── openai/     # OpenAI-specific implementation
 │   └── supabase/   # Supabase service modules
-├── supabase/       # Supabase schema
+├── src/            # Source assets (CSS)
 ├── utils/          # Utility functions
-└── types.ts        # TypeScript type definitions
+├── types.ts        # TypeScript type definitions
+├── App.tsx         # Main application component
+└── index.tsx       # Application entry point
 ```
 
 ## Testing
