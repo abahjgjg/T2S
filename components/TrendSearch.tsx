@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit, Sparkles, Image as ImageIcon, ShoppingCart, Leaf, Smartphone, DollarSign, Heart, Trash2, Newspaper, AlertCircle } from 'lucide-react';
+import { Search, Loader2, Mic, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, BrainCircuit, Image as ImageIcon, Newspaper, AlertCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
 import { toast } from './ToastNotifications';
@@ -34,10 +35,18 @@ interface Props {
 
 const HISTORY_KEY = STORAGE_KEYS.SEARCH_HISTORY;
 
+// Dynamic icon loading for category icons - reduces initial bundle size
+const iconCache = new Map<string, React.ReactNode>();
+
 const getCategoryIcon = (category: string) => {
+  const cached = iconCache.get(category);
+  if (cached) return cached;
+  
   const config = getCategoryIconConfig(category);
   const IconComponent = config.icon;
-  return <IconComponent className={`w-5 h-5 ${config.color}`} />;
+  const iconElement = <IconComponent className={`w-5 h-5 ${config.color}`} />;
+  iconCache.set(category, iconElement);
+  return iconElement;
 };
 
 // Flexy hates hardcoded region detection! Using modular detectSearchRegion from dateTimeConfig
