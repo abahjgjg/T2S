@@ -71,21 +71,26 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
 
   if (!brandIdentity) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 mb-8 text-center animate-[fadeIn_0.3s_ease-out] print:break-inside-avoid">
-        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
-          <Palette className="w-8 h-8 text-pink-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">Brand Studio</h3>
-        <p className="text-slate-400 max-w-md mx-auto mb-6">
-          Establish a strong visual and verbal identity. Generate professional names, slogans, and color schemes.
-        </p>
-        <button 
-          onClick={handleGenerate}
-          className="px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-pink-900/20"
-        >
-          <Palette className="w-5 h-5" /> Generate Identity
-        </button>
-      </div>
+      <EmptyState
+        icon={<Palette className="w-8 h-8 text-pink-400" />}
+        title="Brand Studio"
+        description="Establish a strong visual and verbal identity. Generate professional names, slogans, and color schemes that resonate with your target audience."
+        variant="creative"
+        action={
+          <button 
+            onClick={handleGenerate}
+            className="px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-pink-900/20"
+          >
+            <Palette className="w-5 h-5" /> Generate Identity
+          </button>
+        }
+        tips={[
+          { text: "AI will suggest 3-5 unique brand names based on your business type and niche" },
+          { text: "Color palettes are chosen to evoke the right emotions for your target market" },
+          { text: "Click any name to instantly update your business name across the blueprint" }
+        ]}
+        className="mb-8 print:break-inside-avoid"
+      />
     );
   }
 

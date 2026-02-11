@@ -100,21 +100,26 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
 
   if (!assets) {
     return (
-      <div className={`bg-slate-900 border border-slate-800 rounded-xl p-8 mb-8 text-center ${ANIMATION_CLASSES.fadeIn.normal} print:break-inside-avoid`}>
-        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
-          <Megaphone className="w-8 h-8 text-indigo-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">{(uiText as any).launchpad.title}</h3>
-        <p className="text-slate-400 max-w-md mx-auto mb-6">
-          {(uiText as any).launchpad.desc}
-        </p>
-        <button 
-          onClick={handleGenerate}
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-indigo-900/20"
-        >
-          <Rocket className="w-5 h-5" /> {(uiText as any).launchpad.generateBtn}
-        </button>
-      </div>
+      <EmptyState
+        icon={<Megaphone className="w-8 h-8 text-indigo-400" />}
+        title={(uiText as any).launchpad.title}
+        description={(uiText as any).launchpad.desc}
+        variant="default"
+        action={
+          <button 
+            onClick={handleGenerate}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-indigo-900/20"
+          >
+            <Rocket className="w-5 h-5" /> {(uiText as any).launchpad.generateBtn}
+          </button>
+        }
+        tips={[
+          { text: "Generate complete launch assets: landing page copy, social posts, and email templates" },
+          { text: "Switch between tabs to preview different asset types" },
+          { text: "All content is tailored to your specific business idea and target audience" }
+        ]}
+        className={`mb-8 print:break-inside-avoid ${ANIMATION_CLASSES.fadeIn.normal}`}
+      />
     );
   }
 
