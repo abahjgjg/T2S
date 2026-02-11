@@ -161,6 +161,7 @@ export const AdminPrompts: React.FC = () => {
                  disabled={isSaving}
                  className="p-2 text-slate-500 hover:text-white bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
                  title="Reset to Default"
+                 aria-label="Reset to default"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>

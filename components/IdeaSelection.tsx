@@ -249,12 +249,13 @@ export const IdeaSelection: React.FC<Props> = ({
              >
                <Newspaper className="w-4 h-4" /> News Wire <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{allNewsSources.length}</span>
              </button>
-             <button
-               onClick={handleExportReport}
-               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 rounded-lg border border-slate-700 transition-colors ml-2"
-             >
-               <Download className="w-4 h-4" />
-             </button>
+              <button
+                onClick={handleExportReport}
+                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 rounded-lg border border-slate-700 transition-colors ml-2"
+                aria-label="Export report"
+              >
+                <Download className="w-4 h-4" />
+              </button>
            </div>
         </div>
 

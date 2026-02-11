@@ -151,13 +151,14 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
                            <p className="text-slate-500 text-xs font-mono uppercase">{color.hex}</p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => handleCopyHex(color.hex)}
-                        className="p-2 opacity-0 group-hover:opacity-100 hover:text-emerald-400 transition-all"
-                        title="Copy Hex Code"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
+                       <button
+                         onClick={() => handleCopyHex(color.hex)}
+                         className="p-2 opacity-0 group-hover:opacity-100 hover:text-emerald-400 transition-all"
+                         title="Copy Hex Code"
+                         aria-label="Copy hex code"
+                       >
+                         <Copy className="w-4 h-4" />
+                       </button>
                    </div>
                  ))}
               </div>

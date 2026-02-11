@@ -148,7 +148,7 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
                     <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-pink-500/50 transition-colors"><Bot className="w-5 h-5 text-pink-500" /></div>
                     <div><h4 className="font-bold text-white text-sm">{agent.name}</h4><p className="text-xs text-slate-500 font-mono">{agent.role}</p></div>
                  </div>
-                 <div className="flex gap-1"><button onClick={() => handleStartEdit(agent, index)} className="p-1.5 text-slate-500 hover:text-blue-400 transition-colors"><Edit2 className="w-3 h-3" /></button><button onClick={() => handleDeleteAgent(index)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="w-3 h-3" /></button></div>
+                  <div className="flex gap-1"><button onClick={() => handleStartEdit(agent, index)} className="p-1.5 text-slate-500 hover:text-blue-400 transition-colors" aria-label="Edit agent"><Edit2 className="w-3 h-3" /></button><button onClick={() => handleDeleteAgent(index)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors" aria-label="Delete agent"><Trash2 className="w-3 h-3" /></button></div>
               </div>
               <p className="text-sm text-slate-400 mb-4 line-clamp-2 min-h-[40px]">{agent.objective}</p>
               {agent.suggestedTasks && agent.suggestedTasks.length > 0 && (

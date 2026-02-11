@@ -43,14 +43,15 @@ const PersonaCard: React.FC<{
               <User className="w-8 h-8 text-slate-600" />
             )}
            {!avatarUrl && !isLoading && (
-             <button 
-               onClick={() => onGenerateAvatar(persona.name, persona.bio, idx)}
-               disabled={isGeneratingAvatar}
-               className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
-               title="Generate AI Avatar"
-             >
-               {isGeneratingAvatar ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <ImageIcon className="w-4 h-4 text-white" />}
-             </button>
+              <button 
+                onClick={() => onGenerateAvatar(persona.name, persona.bio, idx)}
+                disabled={isGeneratingAvatar}
+                className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
+                title="Generate AI Avatar"
+                aria-label="Generate AI avatar"
+              >
+                {isGeneratingAvatar ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <ImageIcon className="w-4 h-4 text-white" />}
+              </button>
            )}
         </div>
         <div>
