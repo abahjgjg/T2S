@@ -18,6 +18,8 @@ import { SPEECH_CONFIG } from '../constants/apiConfig';
 import { STORAGE_CONFIG, ASSET_ID_PREFIX } from '../constants/appConfig';
 import { DATE_FORMATS, formatDate } from '../constants/dateTimeConfig';
 import { DISPLAY_LIMITS } from '../constants/displayConfig';
+import { COLORS } from '../constants/theme';
+import { ANIMATION_DURATION } from '../constants/animationConfig';
 
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
@@ -231,7 +233,7 @@ export const TrendSearch: React.FC<Props> = ({
     if (!term.trim() && !img) {
       setValidationError(uiText.validationEmptySearch || "Please enter a topic or upload an image.");
       setShakeInput(true);
-      setTimeout(() => setShakeInput(false), 500);
+      setTimeout(() => setShakeInput(false), ANIMATION_DURATION.standard.slow);
       inputRef.current?.focus();
       return;
     }
@@ -241,7 +243,7 @@ export const TrendSearch: React.FC<Props> = ({
       if (!validation.isValid) {
         setValidationError(validation.error || uiText.invalidInput || "Invalid input");
         setShakeInput(true);
-        setTimeout(() => setShakeInput(false), 500);
+        setTimeout(() => setShakeInput(false), ANIMATION_DURATION.standard.slow);
         inputRef.current?.focus();
         return;
       }
@@ -343,7 +345,7 @@ export const TrendSearch: React.FC<Props> = ({
 
       {/* Live Data Badge */}
        <div className={`inline-flex flex-wrap justify-center items-center gap-2 mb-6 animate-[fadeIn_${ANIMATION_TIMING.TREND_FADE}_${ANIMATION_EASING.DEFAULT}] relative ${Z_INDEX.CONTENT}`}>
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)] backdrop-blur-sm">
+        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_-5px_${COLORS.shadow.emerald}] backdrop-blur-sm`}>
            <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>

@@ -230,10 +230,17 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           )}
 
           {(activeTab === 'local' || (activeTab === 'cloud' && user)) && filteredProjects.map((project) => (
-              <div key={project.id} className="bg-slate-950 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-4 transition-all group relative">
+              <div 
+                key={project.id} 
+                className="bg-slate-950 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-4 transition-all duration-300 ease-out group relative cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/10"
+                role="button"
+                tabIndex={0}
+                onClick={() => onLoad(project)}
+                onKeyDown={(e) => e.key === 'Enter' && onLoad(project)}
+              >
                 <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1 cursor-pointer" onClick={() => onLoad(project)}>
-                    <h3 className="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mb-1.5 text-lg">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors duration-300 mb-1.5 text-lg">
                       {project.idea.name}
                     </h3>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -252,8 +259,11 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
                   
                   <div className="flex items-center gap-2 shrink-0">
                      <button 
-                        onClick={() => onLoad(project)}
-                        className="flex items-center gap-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-lg transition-colors border border-emerald-500/20"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onLoad(project);
+                        }}
+                        className="flex items-center gap-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-lg transition-all duration-300 border border-emerald-500/20 hover:scale-105 active:scale-95"
                      >
                        {uiText.load} <ArrowRight className="w-3 h-3" />
                      </button>
@@ -263,7 +273,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
                           activeTab === 'local' ? onDelete(project.id) : handleDeleteCloud(project.id); 
                         }}
                         disabled={deleteMutation.isPending}
-                        className="p-2 text-slate-500 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 disabled:opacity-50"
+                        className="p-2 text-slate-500 hover:text-red-400 transition-all duration-300 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 disabled:opacity-50 hover:scale-105 active:scale-95"
                      >
                        {activeTab === 'cloud' && deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                      </button>
