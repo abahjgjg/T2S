@@ -40,6 +40,7 @@ export const safeLocalStorage = {
 
 // --- IndexedDB (Async, Large Data like Blueprints/Images/Videos) ---
 import { DATABASE_CONFIG } from '../config';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
 const DB_NAME = DATABASE_CONFIG.DB_NAME;
 const DB_VERSION = DATABASE_CONFIG.DB_VERSION;
@@ -192,7 +193,7 @@ export const indexedDBService = {
       const finalize = () => {
         const exportData = keys.map((key, i) => ({ key, value: items[i] }));
         // Also capture LocalStorage prompts
-        const prompts = localStorage.getItem('trendventures_prompts_v1');
+        const prompts = localStorage.getItem(STORAGE_KEYS.PROMPTS);
         const payload = {
           version: 1,
           timestamp: Date.now(),
@@ -213,7 +214,7 @@ export const indexedDBService = {
 
       // Restore Prompts
       if (payload.prompts) {
-        localStorage.setItem('trendventures_prompts_v1', JSON.stringify(payload.prompts));
+        localStorage.setItem(STORAGE_KEYS.PROMPTS, JSON.stringify(payload.prompts));
       }
 
       // Restore DB

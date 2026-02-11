@@ -9,6 +9,7 @@ import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
 interface Props {
   isOpen: boolean;
@@ -81,7 +82,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
   const recentSearches = useMemo(() => {
     if (!isOpen) return [];
     try {
-      const saved = localStorage.getItem('trendventures_search_history');
+      const saved = localStorage.getItem(STORAGE_KEYS.SEARCH_HISTORY);
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
