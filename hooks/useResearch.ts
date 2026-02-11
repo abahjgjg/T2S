@@ -9,6 +9,7 @@ import { useBlueprintEngine } from './useBlueprintEngine';
 import { useResearchPersistence } from './useResearchPersistence';
 import { STORAGE_KEYS } from '../constants/storageConfig';
 import { DEFAULT_SEARCH_CONFIG, STANDARD_SEARCH_CONFIG } from '../constants/searchConfig';
+import { CHART_RANGES } from '../constants/chartConfig';
 
 export const useResearch = (aiService: AIService, language: Language, userId?: string) => {
   // --- Engines ---
@@ -123,7 +124,7 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
         trendEngine.setTrends([{
           title: "Community Data",
           description: `Found ${cachedIdeas.length} existing business blueprints for '${searchTerm}'.`,
-          relevanceScore: 100,
+          relevanceScore: CHART_RANGES.SCORE.max,
           triggerEvent: "Community Database Match",
           sources: []
         }]);
