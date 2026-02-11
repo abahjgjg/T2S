@@ -214,7 +214,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
   const renderActiveSession = () => (
     <div className="flex flex-col h-full animate-[fadeIn_0.3s_ease-out]">
         <div className="flex flex-col items-center mb-6 shrink-0">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-500 ${status === 'connected' ? 'bg-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'bg-slate-800'}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-500 ${status === 'connected' ? `bg-emerald-500/20 shadow-[0_0_30px_${COLORS.shadow.emerald}]` : 'bg-slate-800'}`}>
              {status === 'connecting' ? <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" /> : status === 'error' ? <MicOff className="w-6 h-6 text-red-500" /> : <Mic className="w-6 h-6 text-emerald-400" />}
           </div>
           <h2 className="text-xl font-bold text-white mb-1">{status === 'connecting' ? 'Connecting...' : status === 'error' ? 'Connection Failed' : `Speaking with ${selectedPersona.name}`}</h2>

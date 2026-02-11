@@ -7,6 +7,7 @@ import { SafeMarkdown } from './SafeMarkdown';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { DISPLAY_LIMITS } from '../constants/displayConfig';
+import { COLORS } from '../constants/theme';
 
 interface Props {
   trend: Trend;
@@ -67,7 +68,7 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> {uiText.keyEvents}</h3>
-              <div className="relative pl-4 space-y-8"><div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-500/50 via-slate-700 to-transparent"></div>{deepDive.keyEvents.map((event, idx) => (<div key={idx} className="relative pl-6 group"><div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-blue-500 group-hover:bg-blue-500 transition-colors z-10 shadow-[0_0_10px_rgba(59,130,246,0.3)]"></div><span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-blue-900/20 text-blue-400 border border-blue-500/20 mb-1">{event.date}</span><h4 className="text-white font-medium text-base mb-1 group-hover:text-blue-300 transition-colors">{event.title}</h4>{event.url && (<a href={event.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-400 transition-colors">Read Source <ExternalLink className="w-3 h-3" /></a>)}</div>))}</div>
+              <div className="relative pl-4 space-y-8"><div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-500/50 via-slate-700 to-transparent"></div>{deepDive.keyEvents.map((event, idx) => (<div key={idx} className="relative pl-6 group"><div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-blue-500 group-hover:bg-blue-500 transition-colors z-10 shadow-[0_0_10px_${COLORS.shadow.blue}]`}></div><span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-blue-900/20 text-blue-400 border border-blue-500/20 mb-1">{event.date}</span><h4 className="text-white font-medium text-base mb-1 group-hover:text-blue-300 transition-colors">{event.title}</h4>{event.url && (<a href={event.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-400 transition-colors">Read Source <ExternalLink className="w-3 h-3" /></a>)}</div>))}</div>
             </div>
           </div>
         ) : (

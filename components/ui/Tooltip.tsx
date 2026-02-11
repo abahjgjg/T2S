@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
+import { ANIMATION_DURATION } from '../../constants/animationConfig';
 
 interface TooltipProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   children,
   content,
   position = 'top',
-  delay = 100, // Faster than native title (which is ~500ms)
+  delay = ANIMATION_DURATION.micro.fast, // Faster than native title (which is ~500ms)
   className = '',
 }) => {
   const [isVisible, setIsVisible] = useState(false);
