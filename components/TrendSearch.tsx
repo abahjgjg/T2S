@@ -450,6 +450,7 @@ export const TrendSearch: React.FC<Props> = ({
                 type="button"
                 onClick={clearImage}
                 className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover/img:opacity-100 transition-opacity"
+                aria-label="Remove image"
               >
                 <X className="w-2 h-2" />
               </button>
