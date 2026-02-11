@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Share2, CheckSquare, Square, CheckCircle2 } from 'lucide-react';
 import { Blueprint } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { CopyButton } from './ui/CopyButton';
 
 interface Props {
   roadmap: Blueprint['roadmap'];
@@ -25,12 +26,28 @@ export const BlueprintRoadmap: React.FC<Props> = ({ roadmap, progress = {}, onTo
     return { total, completed, percentage: total === 0 ? 0 : Math.round((completed / total) * 100) };
   }, [roadmap, progress]);
 
+  const roadmapText = useMemo(() => {
+    return roadmap.map(phase => {
+      return `${phase.phase}:\n${phase.tasks.map(t => `- [${progress[t] ? 'x' : ' '}] ${t}`).join('\n')}`;
+    }).join('\n\n');
+  }, [roadmap, progress]);
+
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid">
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid relative group">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <Share2 className="w-5 h-5 text-orange-400" /> {uiText.roadmap}
-        </h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-orange-400" /> {uiText.roadmap}
+          </h3>
+          <CopyButton
+            text={roadmapText}
+            ariaLabel="Copy Roadmap"
+            tooltip="Copy Roadmap to Clipboard"
+            variant="subtle"
+            size="sm"
+            revealOnHover
+          />
+        </div>
         
         {/* Progress Bar */}
         {onToggleTask && (
