@@ -40,10 +40,12 @@ Create a `.env` file in the root (though currently, the app expects keys via `pr
 
 **Critical Variables:**
 ```env
-API_KEY=your_google_gemini_key
+GEMINI_API_KEY=your_google_gemini_key
 SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+**Note:** `API_KEY` is deprecated. Use `GEMINI_API_KEY` instead.
 
 ### Installation
 ```bash
@@ -122,4 +124,4 @@ The app is built as a static SPA.
 npm run build
 ```
 Deploy the `dist/` folder to Vercel, Netlify, or any static host.
-**Note**: Ensure environment variables (`API_KEY`, `SUPABASE_*`) are configured in your hosting provider.
+**Note**: Ensure environment variables (`GEMINI_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`) are configured in your hosting provider.

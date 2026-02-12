@@ -100,7 +100,9 @@ An AI-powered market intelligence suite that generates business blueprints from 
 ├── src/            # CSS assets only
 ├── types.ts        # TypeScript type definitions
 ├── App.tsx         # Main application component
-└── index.tsx       # Application entry point
+├── index.tsx       # Application entry point
+├── vite.config.ts  # Vite configuration
+└── viteBuildConfig.ts  # Build optimization settings
 ```
 
 ## Testing
