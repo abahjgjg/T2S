@@ -142,6 +142,7 @@ export const ResearchChat: React.FC<Props> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask a question..."
+            aria-label="Ask a research question"
             className="w-full bg-slate-900 border border-slate-700 text-white pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm"
             autoFocus
           />
