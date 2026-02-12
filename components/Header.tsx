@@ -5,7 +5,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { Tooltip } from './ui/Tooltip';
-import { BRAND_CONFIG } from '../config';
+import { BRAND_CONFIG, KEYBOARD_SHORTCUTS, matchesShortcut, isInputElement } from '../config';
 
 interface Props {
   onReset: () => void;
@@ -23,22 +23,17 @@ export const Header: React.FC<Props> = ({
   const { user } = useAuth();
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
-  // Keyboard shortcuts handler
+  // Keyboard shortcuts handler - Flexy loves modular shortcuts!
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Ctrl/Cmd + R for New Research
-    if ((e.ctrlKey || e.metaKey) && e.key === 'r' && showReset) {
+    // New Research shortcut (Ctrl/Cmd + R)
+    if (matchesShortcut(e, KEYBOARD_SHORTCUTS.navigation.newResearch) && showReset) {
       e.preventDefault();
       onReset();
     }
     
-    // ? key for keyboard shortcuts help (not when typing in inputs)
-    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      const activeElement = document.activeElement;
-      const isInputFocused = activeElement instanceof HTMLInputElement || 
-                             activeElement instanceof HTMLTextAreaElement ||
-                             activeElement?.getAttribute('contenteditable') === 'true';
-      
-      if (!isInputFocused) {
+    // Show keyboard shortcuts help (not when typing in inputs)
+    if (matchesShortcut(e, KEYBOARD_SHORTCUTS.help.showShortcuts)) {
+      if (!isInputElement(document.activeElement)) {
         e.preventDefault();
         setShowShortcutsModal(prev => !prev);
       }

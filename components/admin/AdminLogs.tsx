@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { telemetryService, SystemLog } from '../../services/telemetryService';
 import { Trash2, RefreshCcw, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { ICON_SIZES } from '../../constants/designTokens';
 
 export const AdminLogs: React.FC = () => {
   const [logs, setLogs] = useState<SystemLog[]>([]);
@@ -32,9 +33,9 @@ export const AdminLogs: React.FC = () => {
 
   const getLevelIcon = (level: string) => {
     switch (level) {
-      case 'ERROR': return <AlertCircle className="w-4 h-4 text-red-500" />;
-      case 'WARN': return <AlertTriangle className="w-4 h-4 text-amber-500" />;
-      default: return <Info className="w-4 h-4 text-blue-500" />;
+      case 'ERROR': return <AlertCircle className={`${ICON_SIZES.md} text-red-500`} />;
+      case 'WARN': return <AlertTriangle className={`${ICON_SIZES.md} text-amber-500`} />;
+      default: return <Info className={`${ICON_SIZES.md} text-blue-500`} />;
     }
   };
 
@@ -50,13 +51,13 @@ export const AdminLogs: React.FC = () => {
             onClick={loadLogs}
             className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-colors"
           >
-            <RefreshCcw className="w-4 h-4" /> Refresh
+            <RefreshCcw className={ICON_SIZES.md} /> Refresh
           </button>
           <button 
             onClick={handleClear}
             className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-red-900/30 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold transition-colors"
           >
-            <Trash2 className="w-4 h-4" /> Clear
+            <Trash2 className={ICON_SIZES.md} /> Clear
           </button>
         </div>
       </div>
