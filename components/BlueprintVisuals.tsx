@@ -174,9 +174,10 @@ export const BlueprintVisuals: React.FC<Props> = ({
                 <p>Media assets are saved locally. Clearing browser data will remove them.</p>
              </div>
           ) : (
-             <input 
-               type="text" 
+             <input
+               type="text"
                placeholder={uiText.logoPrompt}
+               aria-label={uiText.logoPrompt}
                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white mb-2 focus:border-pink-500 outline-none"
                value={logoStyle}
                onChange={(e) => setLogoStyle(e.target.value)}
