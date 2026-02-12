@@ -1,12 +1,18 @@
-
-import React, { useMemo } from 'react';
+import React, { useMemo, Suspense, lazy } from 'react';
 import { Lead } from '../../types';
 import { TrendingUp, Mail, Download } from 'lucide-react';
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from '../ToastNotifications';
-import { CHART_COLORS } from '../../constants/chartConfig';
 import { COLORS } from '../../constants/theme';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
+
+// Lazy load chart component to reduce initial bundle
+const LeadsAreaChart = lazy(() => import('./LeadsAreaChart'));
+
+const ChartFallback = () => (
+  <div className="h-32 w-full flex items-center justify-center">
+    <div className="animate-pulse text-slate-500 text-xs">Loading...</div>
+  </div>
+);
 
 interface Props {
   leads: Lead[];
@@ -70,26 +76,11 @@ export const AdminLeads: React.FC<Props> = ({ leads }) => {
            <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
              <TrendingUp className="w-4 h-4" /> Growth Over Time
            </h4>
-           <div className="h-32 w-full">
-             <ResponsiveContainer width="100%" height="100%">
-               <AreaChart data={leadGrowthData}>
-                   <defs>
-                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                       <stop offset="5%" stopColor={CHART_COLORS.area.stroke} stopOpacity={CHART_COLORS.area.fillOpacity.start}/>
-                       <stop offset="95%" stopColor={CHART_COLORS.area.stroke} stopOpacity={CHART_COLORS.area.fillOpacity.end}/>
-                     </linearGradient>
-                   </defs>
-                   <Tooltip 
-                     contentStyle={{ 
-                       backgroundColor: CHART_COLORS.elements.tooltipBg, 
-                       borderColor: CHART_COLORS.elements.tooltipBorder, 
-                       color: CHART_COLORS.elements.tooltipText 
-                     }} 
-                   />
-                   <Area type="monotone" dataKey="count" stroke={CHART_COLORS.area.stroke} fillOpacity={1} fill="url(#colorCount)" />
-               </AreaChart>
-             </ResponsiveContainer>
-           </div>
+            <div className="h-32 w-full">
+              <Suspense fallback={<ChartFallback />}>
+                <LeadsAreaChart data={leadGrowthData} />
+              </Suspense>
+            </div>
          </div>
       </div>
 
