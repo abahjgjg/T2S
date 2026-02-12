@@ -42,7 +42,14 @@ An AI-powered market intelligence suite that generates business blueprints from 
    ```
 
 2. **Set up environment variables**:
-   Create `.env.local` file:
+
+   The project uses two environment files:
+
+   **`.env`** - Public configuration (already committed)
+   - Contains SEO settings, URLs, and theme colors
+   - Already configured with sensible defaults
+
+   **`.env.local`** - Private secrets (create this file):
    ```env
    GEMINI_API_KEY=your_gemini_api_key
    SUPABASE_URL=your_supabase_url
@@ -89,8 +96,8 @@ An AI-powered market intelligence suite that generates business blueprints from 
 │   ├── gemini/     # Gemini-specific implementation
 │   ├── openai/     # OpenAI-specific implementation
 │   └── supabase/   # Supabase service modules
-├── src/            # Source assets (CSS)
 ├── utils/          # Utility functions
+├── src/            # CSS assets only
 ├── types.ts        # TypeScript type definitions
 ├── App.tsx         # Main application component
 └── index.tsx       # Application entry point
