@@ -89,7 +89,7 @@ export const BusinessModelCanvas: React.FC<Props> = ({ idea, blueprint, bmc, onU
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
           <LayoutGrid className="w-5 h-5 text-indigo-400" /> Strategic Canvas
         </h3>
-        <button onClick={handleGenerate} className="text-xs text-slate-400 hover:text-white underline">Regenerate</button>
+        <button onClick={handleGenerate} aria-label="Regenerate" className="text-xs text-slate-400 hover:text-white underline">Regenerate</button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-0 rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900">

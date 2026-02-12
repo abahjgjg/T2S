@@ -228,7 +228,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
         </div>
         <div className="flex gap-3 w-full shrink-0">
            <button onClick={handleEndAndAnalyze} disabled={status !== 'connected' || transcripts.length < 2} className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"><Zap className="w-4 h-4" /> End & Analyze</button>
-           {(status === 'disconnected' || status === 'error') && (<button onClick={handleConnect} className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors">Retry</button>)}
+           {(status === 'disconnected' || status === 'error') && (<button onClick={handleConnect} aria-label="Retry" className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors">Retry</button>)}
         </div>
     </div>
   );
