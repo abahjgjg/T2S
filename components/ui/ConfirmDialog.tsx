@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AlertTriangle, Trash2, RefreshCw, LogOut, UserX, Save } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
+import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
 
 export type ConfirmVariant = 'danger' | 'warning' | 'info' | 'success';
 
@@ -66,6 +67,27 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 }) => {
   const config = variantConfig[variant];
   const Icon = config.icon;
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const iconContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-focus cancel button for destructive actions (prevents accidental confirmations)
+  // This is a critical accessibility feature for dangerous operations
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to ensure modal is mounted and focus trap is set up
+      const focusTimer = setTimeout(() => {
+        // For danger/warning variants, focus cancel button to prevent accidental confirms
+        // For info/success variants, focus the confirm button as these are safe actions
+        const buttonToFocus = (variant === 'danger' || variant === 'warning') 
+          ? cancelButtonRef.current 
+          : document.querySelector('[data-confirm-button]') as HTMLButtonElement;
+        
+        buttonToFocus?.focus();
+      }, 100);
+
+      return () => clearTimeout(focusTimer);
+    }
+  }, [isOpen, variant]);
 
   return (
     <Modal
@@ -76,9 +98,15 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     >
       <div className="p-6">
         <div className="flex flex-col items-center text-center">
-          {/* Icon */}
-          <div className={`w-16 h-16 rounded-full ${config.iconBg} flex items-center justify-center mb-4`}>
-            <Icon className={`w-8 h-8 ${config.iconColor}`} aria-hidden="true" />
+          {/* Icon with subtle entrance animation */}
+          <div 
+            ref={iconContainerRef}
+            className={`w-16 h-16 rounded-full ${config.iconBg} flex items-center justify-center mb-4 animate-[scaleIn_${ANIMATION_TIMING.FADE_FAST}s_${ANIMATION_EASING.DEFAULT}]`}
+          >
+            <Icon 
+              className={`w-8 h-8 ${config.iconColor} animate-[fadeIn_${ANIMATION_TIMING.FADE_FAST}s_${ANIMATION_EASING.DEFAULT}]`} 
+              aria-hidden="true" 
+            />
           </div>
 
           {/* Title */}
@@ -99,6 +127,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row gap-3 w-full">
             <Button
+              ref={cancelButtonRef}
               variant="outline"
               onClick={onCancel}
               fullWidth
@@ -111,6 +140,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               onClick={onConfirm}
               fullWidth
               className="order-1 sm:order-2"
+              data-confirm-button
             >
               {confirmText}
             </Button>
