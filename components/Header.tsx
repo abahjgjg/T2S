@@ -5,7 +5,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { Tooltip } from './ui/Tooltip';
-import { BRAND_CONFIG, KEYBOARD_SHORTCUTS, matchesShortcut, isInputElement } from '../config';
+import { BRAND_CONFIG, KEYBOARD_SHORTCUTS, matchesShortcut, isInputElement, formatShortcut } from '../config';
 
 interface Props {
   onReset: () => void;
@@ -31,6 +31,18 @@ export const Header: React.FC<Props> = ({
       onReset();
     }
     
+    // Open Library shortcut (Ctrl/Cmd + L)
+    if (matchesShortcut(e, KEYBOARD_SHORTCUTS.navigation.openLibrary)) {
+      e.preventDefault();
+      onOpenLibrary();
+    }
+    
+    // Open Directory shortcut (Ctrl/Cmd + D)
+    if (matchesShortcut(e, KEYBOARD_SHORTCUTS.navigation.openDirectory)) {
+      e.preventDefault();
+      onOpenDirectory();
+    }
+    
     // Show keyboard shortcuts help (not when typing in inputs)
     if (matchesShortcut(e, KEYBOARD_SHORTCUTS.help.showShortcuts)) {
       if (!isInputElement(document.activeElement)) {
@@ -38,7 +50,7 @@ export const Header: React.FC<Props> = ({
         setShowShortcutsModal(prev => !prev);
       }
     }
-  }, [onReset, showReset]);
+  }, [onReset, showReset, onOpenLibrary, onOpenDirectory]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -70,23 +82,27 @@ export const Header: React.FC<Props> = ({
         
         {/* Group 1: Core Navigation */}
         <nav className="flex items-center gap-1 bg-slate-900/50 p-1 rounded-xl border border-white/5">
-          <button 
-            onClick={onOpenDirectory}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-blue-400 transition-all text-xs font-bold"
-            aria-label="Discover Blueprints"
-          >
-            <Compass className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{uiText.discover || "Discover"}</span>
-          </button>
+          <Tooltip content={`${uiText.discover || "Discover"} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openDirectory)})`} position="bottom">
+            <button
+              onClick={onOpenDirectory}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-blue-400 transition-all text-xs font-bold"
+              aria-label={`${uiText.discover || "Discover Blueprints"} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openDirectory)})`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{uiText.discover || "Discover"}</span>
+            </button>
+          </Tooltip>
 
-          <button 
-            onClick={onOpenLibrary}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-emerald-400 transition-all text-xs font-bold"
-            aria-label="Open Library"
-          >
-            <BookMarked className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{uiText.library}</span>
-          </button>
+          <Tooltip content={`${uiText.library} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openLibrary)})`} position="bottom">
+            <button
+              onClick={onOpenLibrary}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-emerald-400 transition-all text-xs font-bold"
+              aria-label={`${uiText.library} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openLibrary)})`}
+            >
+              <BookMarked className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{uiText.library}</span>
+            </button>
+          </Tooltip>
         </nav>
 
         {/* Group 2: Actions & User */}
