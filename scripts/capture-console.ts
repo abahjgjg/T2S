@@ -1,26 +1,41 @@
-import { chromium } from 'playwright';
-import { spawn } from 'child_process';
-import { SCRIPT_CONFIG } from './config.ts';
+import { chromium, Browser, BrowserContext, Page, ConsoleMessage } from 'playwright';
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { SCRIPT_CONFIG } from './config.js';
 
 const { server, timeouts, interaction } = SCRIPT_CONFIG;
 
-const consoleErrors = [];
-const consoleWarnings = [];
+interface ConsoleEntry {
+  text: string;
+  location: {
+    url?: string;
+    lineNumber?: number;
+  };
+}
 
-async function captureConsoleErrors() {
+interface CaptureResults {
+  errors: ConsoleEntry[];
+  warnings: ConsoleEntry[];
+  hasErrors: boolean;
+  hasWarnings: boolean;
+}
+
+const consoleErrors: ConsoleEntry[] = [];
+const consoleWarnings: ConsoleEntry[] = [];
+
+async function captureConsoleErrors(): Promise<CaptureResults> {
   console.log('🔍 BroCula starting browser console monitoring...\n');
   
   // Start preview server
   console.log('🚀 Starting preview server...');
-  const previewServer = spawn('npm', ['run', 'preview'], {
+  const previewServer: ChildProcessWithoutNullStreams = spawn('npm', ['run', 'preview'], {
     stdio: 'pipe',
     detached: true
   });
   
   // Wait for server to be ready
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     let output = '';
-    previewServer.stdout.on('data', (data) => {
+    previewServer.stdout.on('data', (data: Buffer) => {
       output += data.toString();
       if (output.includes('Local:') || output.includes('http://localhost:')) {
         resolve();
@@ -44,16 +59,16 @@ async function captureConsoleErrors() {
   await new Promise(resolve => setTimeout(resolve, timeouts.serverReady));
   
   // Launch browser
-  const browser = await chromium.launch({
+  const browser: Browser = await chromium.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  const context: BrowserContext = await browser.newContext();
+  const page: Page = await context.newPage();
   
   // Capture console messages
-  page.on('console', msg => {
+  page.on('console', (msg: ConsoleMessage) => {
     const type = msg.type();
     const text = msg.text();
     const location = msg.location();
@@ -74,7 +89,7 @@ async function captureConsoleErrors() {
   });
   
   // Capture page errors
-  page.on('pageerror', error => {
+  page.on('pageerror', (error: Error) => {
     consoleErrors.push({ text: error.message, location: { url: 'page' } });
     console.log(`❌ Page Error: ${error.message}`);
   });
@@ -115,7 +130,9 @@ async function captureConsoleErrors() {
   
   // Kill preview server
   try {
-    process.kill(-previewServer.pid);
+    if (previewServer.pid) {
+      process.kill(-previewServer.pid);
+    }
   } catch (e) {
     // Ignore kill errors
   }
@@ -163,7 +180,7 @@ async function captureConsoleErrors() {
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   captureConsoleErrors()
-    .then(results => {
+    .then((results: CaptureResults) => {
       if (results.hasErrors) {
         console.log('\n🚨 FATAL: Console errors detected!');
         process.exit(1);
@@ -175,10 +192,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         process.exit(0);
       }
     })
-    .catch(error => {
+    .catch((error: Error) => {
       console.error('❌ Console monitoring failed:', error.message);
       process.exit(1);
     });
 }
 
 export { captureConsoleErrors };
+export type { CaptureResults, ConsoleEntry };

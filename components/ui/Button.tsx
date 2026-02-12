@@ -12,20 +12,21 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   enablePressFeedback?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  loadingText,
-  leftIcon,
-  rightIcon,
-  fullWidth = false,
-  enablePressFeedback = true,
-  className = '',
-  disabled,
-  ...props
-}) => {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({
+    children,
+    variant = 'primary',
+    size = 'md',
+    isLoading = false,
+    loadingText,
+    leftIcon,
+    rightIcon,
+    fullWidth = false,
+    enablePressFeedback = true,
+    className = '',
+    disabled,
+    ...props
+  }, ref) => {
   const baseStyles = 'inline-flex items-center justify-center font-bold transition-all duration-150 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed';
   
   // Add press feedback animation class
@@ -60,6 +61,7 @@ export const Button: React.FC<ButtonProps> = ({
   
   return (
     <button
+      ref={ref}
       className={combinedClasses}
       disabled={disabled || isLoading}
       aria-busy={isLoading}
@@ -81,6 +83,8 @@ export const Button: React.FC<ButtonProps> = ({
       )}
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;

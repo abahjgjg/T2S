@@ -5,16 +5,16 @@
  */
 
 // Helper to get env var with default
-const getEnv = (key: string, defaultValue: string): string => {
+const getEnv = (key, defaultValue) => {
   return process.env[key] || defaultValue;
 };
 
-const getEnvNumber = (key: string, defaultValue: number): number => {
+const getEnvNumber = (key, defaultValue) => {
   const value = process.env[key];
   return value ? parseInt(value, 10) : defaultValue;
 };
 
-const getEnvArray = (key: string, defaultValue: string[]): string[] => {
+const getEnvArray = (key, defaultValue) => {
   const value = process.env[key];
   return value ? value.split(',').map(s => s.trim()) : defaultValue;
 };
@@ -95,6 +95,6 @@ export const SCRIPT_CONFIG = {
     good: getEnvNumber('VITE_SCORE_GOOD', 70),
     poor: getEnvNumber('VITE_SCORE_POOR', 50),
   },
-} as const;
+};
 
 export default SCRIPT_CONFIG;
