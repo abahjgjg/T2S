@@ -81,6 +81,7 @@
   --animate-spin-slow: spin-slow var(--animation-duration-spin-slow) linear infinite;
   --animate-float: float var(--animation-duration-float) ease-in-out infinite;
   --animate-shake: shake var(--animation-duration-shake) cubic-bezier(0.36, 0, 0.66, -0.56);
+  --animate-ripple: ripple 300ms ease-out forwards;
   
   @keyframes shimmer {
     0% { transform: translateX(-100%); }
@@ -106,6 +107,17 @@
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
     20%, 40%, 60%, 80% { transform: translateX(4px); }
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
   }
 }
 
