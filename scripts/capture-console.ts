@@ -1,6 +1,6 @@
 import { chromium, Browser, BrowserContext, Page, ConsoleMessage } from 'playwright';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { SCRIPT_CONFIG } from './config.ts';
+import { SCRIPT_CONFIG } from './config.js';
 
 const { server, timeouts, interaction } = SCRIPT_CONFIG;
 
