@@ -133,13 +133,14 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
       <div className="flex flex-col gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder={uiText.searchProjects || "Search projects..."}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
-            />
+             <input
+               type="text"
+               placeholder={uiText.searchProjects || "Search projects..."}
+               aria-label={uiText.searchProjects || "Search projects"}
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+               className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+             />
           </div>
           
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">

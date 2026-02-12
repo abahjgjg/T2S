@@ -69,8 +69,8 @@ export const BusinessOpportunities: React.FC<Props> = ({
              <h3 className="text-3xl font-bold text-white">{uiText.opportunities}</h3>
              {!isGeneratingBlueprint && (
                <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800">
-                  <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-all ${viewMode === 'grid' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`} title="Grid View" aria-label="Grid view"><LayoutGrid className="w-4 h-4" /></button>
-                  <button onClick={() => setViewMode('compare')} className={`p-2 rounded-md transition-all ${viewMode === 'compare' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`} title="Comparison Table" aria-label="Comparison table"><Table className="w-4 h-4" /></button>
+                  <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-all ${viewMode === 'grid' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`} title="Grid view" aria-label="Grid view"><LayoutGrid className="w-4 h-4" /></button>
+                   <button onClick={() => setViewMode('compare')} className={`p-2 rounded-md transition-all ${viewMode === 'compare' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`} title="Comparison table" aria-label="Comparison table"><Table className="w-4 h-4" /></button>
                </div>
              )}
           </div>
