@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { BrandIdentity, Blueprint, BusinessIdea } from '../types';
 import { getAIService } from '../services/aiRegistry';
-import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check, Copy } from 'lucide-react';
+import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { EmptyState } from './ui/EmptyState';
+import { CopyButton } from './ui/CopyButton';
 
 interface Props {
   idea: BusinessIdea;
@@ -51,11 +52,6 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
         onUpdateIdea({ name });
         toast.info(`Selected "${name}" as preferred brand.`);
     }
-  };
-
-  const handleCopyHex = (hex: string) => {
-    navigator.clipboard.writeText(hex);
-    toast.success(`Hex code ${hex} copied!`);
   };
 
   if (isGenerating) {
@@ -151,14 +147,15 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
                            <p className="text-slate-500 text-xs font-mono uppercase">{color.hex}</p>
                         </div>
                       </div>
-                       <button
-                         onClick={() => handleCopyHex(color.hex)}
-                         className="p-2 opacity-0 group-hover:opacity-100 hover:text-emerald-400 transition-all"
-                         title="Copy Hex Code"
-                         aria-label="Copy hex code"
-                       >
-                         <Copy className="w-4 h-4" />
-                       </button>
+                       <CopyButton
+                          text={color.hex}
+                          size="sm"
+                          variant="ghost"
+                          revealOnHover={true}
+                          ariaLabel={`Copy hex code ${color.hex}`}
+                          onCopy={() => toast.success(`Hex code ${color.hex} copied!`)}
+                          className="opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        />
                    </div>
                  ))}
               </div>
