@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, AlertCircle, Check, CornerDownLeft } from 'lucide-react';
+import { ICON_SIZES } from '../../constants/designTokens';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -162,7 +163,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {/* Right side icons */}
           <div className="absolute right-3 flex items-center gap-1.5">
             {hasSuccess && (
-              <Check className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+              <Check className={`${ICON_SIZES.md} text-emerald-500`} aria-hidden="true" />
             )}
             
             {!hasSuccess && rightIcon && (
@@ -177,7 +178,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 className="flex items-center gap-0.5 text-[10px] text-slate-500 font-mono animate-[fadeIn_0.2s_ease-out]"
                 aria-hidden="true"
               >
-                <CornerDownLeft className="w-3 h-3" />
+                <CornerDownLeft className={ICON_SIZES.xs} />
                 <span>{enterHintText}</span>
               </div>
             )}
@@ -190,7 +191,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 aria-label="Clear input"
                 tabIndex={-1}
               >
-                <X className="w-3.5 h-3.5" />
+                <X className={ICON_SIZES.sm} />
               </button>
             )}
           </div>
@@ -205,7 +206,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 className="text-xs text-red-400 flex items-center gap-1"
                 role="alert"
               >
-                <AlertCircle className="w-3 h-3 shrink-0" />
+                <AlertCircle className={`${ICON_SIZES.xs} shrink-0`} />
                 {error}
               </p>
             ) : helperText ? (
