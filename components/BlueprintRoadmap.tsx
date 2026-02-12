@@ -88,13 +88,24 @@ export const BlueprintRoadmap: React.FC<Props> = ({ roadmap, progress = {}, onTo
                 {phase.tasks.map((task, t) => {
                   const isDone = !!progress[task];
                   
+                  const handleKeyDown = (e: React.KeyboardEvent) => {
+                    if (onToggleTask && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      onToggleTask(task);
+                    }
+                  };
+
                   return (
                     <li 
                       key={t} 
                       className={`group flex items-start gap-3 text-sm transition-all ${
                         isDone ? 'text-slate-500' : 'text-slate-300'
-                      } ${onToggleTask ? 'cursor-pointer hover:bg-slate-800/50 p-2 rounded-lg -ml-2' : ''}`}
+                      } ${onToggleTask ? 'cursor-pointer hover:bg-slate-800/50 focus:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 p-2 rounded-lg -ml-2' : ''}`}
                       onClick={() => onToggleTask && onToggleTask(task)}
+                      onKeyDown={handleKeyDown}
+                      tabIndex={onToggleTask ? 0 : -1}
+                      role={onToggleTask ? 'checkbox' : undefined}
+                      aria-checked={onToggleTask ? isDone : undefined}
                     >
                       {onToggleTask ? (
                         <div className={`mt-0.5 shrink-0 transition-colors ${isDone ? 'text-emerald-500' : 'text-slate-600 group-hover:text-emerald-400'}`}>

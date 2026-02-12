@@ -82,6 +82,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
             type="text"
             className="block w-full pl-10 pr-3 py-3 border border-slate-800 rounded-xl leading-5 bg-slate-900 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
             placeholder={uiText.directorySearch || "Search niches or titles..."}
+            aria-label={uiText.directorySearch || "Search niches or titles"}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

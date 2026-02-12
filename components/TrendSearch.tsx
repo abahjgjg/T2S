@@ -488,7 +488,7 @@ export const TrendSearch: React.FC<Props> = ({
                 inputRef.current?.focus();
               }}
               className="mr-2 p-2 hover:bg-slate-800 text-slate-400 hover:text-white rounded-full transition-all"
-              title="Clear search"
+              title="Clear search input"
               aria-label="Clear search input"
             >
               <X className="w-4 h-4" />
@@ -502,8 +502,8 @@ export const TrendSearch: React.FC<Props> = ({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="mr-2 p-2 hover:bg-slate-800 text-slate-300 hover:text-blue-400 rounded-full transition-all"
-                title="Search with Image (Visual Intelligence)"
-                aria-label="Upload Image"
+                title="Upload image for visual search"
+                aria-label="Upload image for visual search"
               >
                 <ImageIcon className="w-5 h-5" />
               </button>
