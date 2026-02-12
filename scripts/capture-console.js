@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import { spawn } from 'child_process';
-import { SCRIPT_CONFIG } from './config.ts';
+import { SCRIPT_CONFIG } from './config.js';
 
 const { server, timeouts, interaction } = SCRIPT_CONFIG;
 
