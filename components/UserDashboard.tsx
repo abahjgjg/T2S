@@ -1,16 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, Suspense, lazy } from 'react';
 import { UserProfile, PublishedBlueprint } from '../types';
 import { supabaseService } from '../services/supabaseService';
 import { LayoutDashboard, ArrowLeft, Heart, FileText, Loader2, Share2, BarChart2, Trash2 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
-import { CHART_COLORS, CHART_RANGES } from '../constants/chartConfig';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../constants/animationConfig';
+
+// Lazy load chart component to reduce initial bundle size
+const DashboardChart = lazy(() => import('./DashboardChart'));
+
+const ChartFallback = () => (
+  <div className="h-[250px] w-full flex items-center justify-center">
+    <div className="animate-pulse text-slate-500">Loading chart...</div>
+  </div>
+);
 
 interface Props {
   user: UserProfile;
@@ -134,30 +141,13 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
                 <h3 className="font-bold text-white">Top Performing Ideas</h3>
               </div>
               
-              {topBlueprints.length > 0 && topBlueprints.some(b => b.votes > 0) ? (
-                 <div className="h-[250px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                     <BarChart data={topBlueprints} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-                         <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.elements.grid} horizontal={true} vertical={false} />
-                         <XAxis type="number" stroke={CHART_COLORS.elements.axis} fontSize={12} tickLine={false} axisLine={false} />
-                         <YAxis dataKey="name" type="category" width={100} stroke={CHART_COLORS.elements.axis} fontSize={12} tickLine={false} axisLine={false} />
-                         <Tooltip 
-                           contentStyle={{ 
-                             backgroundColor: CHART_COLORS.elements.tooltipBg, 
-                             borderColor: CHART_COLORS.elements.tooltipBorder, 
-                             color: CHART_COLORS.elements.tooltipText 
-                           }}
-                           cursor={{ fill: CHART_COLORS.elements.cursor }}
-                         />
-                         <Bar dataKey="votes" radius={[0, 4, 4, 0]} barSize={CHART_RANGES.BAR_SIZE}>
-                           {topBlueprints.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={CHART_COLORS.cells.primary} />
-                           ))}
-                         </Bar>
-                       </BarChart>
-                    </ResponsiveContainer>
-                 </div>
-              ) : (
+               {topBlueprints.length > 0 && topBlueprints.some(b => b.votes > 0) ? (
+                  <div className="h-[250px] w-full">
+                     <Suspense fallback={<ChartFallback />}>
+                        <DashboardChart data={topBlueprints} />
+                     </Suspense>
+                  </div>
+               ) : (
                 <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm italic">
                   Not enough data to display chart.
                 </div>

@@ -1,7 +1,8 @@
+import React, { Suspense, lazy, useState, useEffect } from 'react';
+import type { Components } from 'react-markdown';
 
-import React from 'react';
-import ReactMarkdown, { Components } from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+// Lazy load ReactMarkdown to reduce initial bundle size
+const ReactMarkdown = lazy(() => import('react-markdown'));
 
 interface Props {
   content: string;
@@ -10,12 +11,34 @@ interface Props {
   onLinkClick?: (href: string) => void;
 }
 
+// Simple loading fallback that doesn't add visual clutter
+const MarkdownFallback = () => (
+  <div className="animate-pulse space-y-2">
+    <div className="h-4 bg-slate-800/50 rounded w-3/4"></div>
+    <div className="h-4 bg-slate-800/50 rounded w-full"></div>
+    <div className="h-4 bg-slate-800/50 rounded w-5/6"></div>
+  </div>
+);
+
 /**
  * A security-hardened wrapper for ReactMarkdown.
  * Automatically sanitizes links to prevent XSS (javascript: protocols).
- * Allows other components to be overridden via props, but enforces safety on <a> tags.
+ * Uses dynamic imports to reduce initial bundle size.
  */
 export const SafeMarkdown: React.FC<Props> = ({ content, className, components, onLinkClick }) => {
+  const [remarkPlugins, setRemarkPlugins] = useState<any[]>([]);
+
+  // Dynamically load remark-gfm plugin
+  useEffect(() => {
+    let isMounted = true;
+    import('remark-gfm').then((mod) => {
+      if (isMounted) {
+        setRemarkPlugins([mod.default]);
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
+
   const safeComponents: Components = {
     ...components,
     table: ({ node, ...props }) => (
@@ -71,12 +94,14 @@ export const SafeMarkdown: React.FC<Props> = ({ content, className, components, 
 
   return (
     <div className={className}>
-      <ReactMarkdown
-        components={safeComponents}
-        remarkPlugins={[remarkGfm]}
-      >
-        {content}
-      </ReactMarkdown>
+      <Suspense fallback={<MarkdownFallback />}>
+        <ReactMarkdown
+          components={safeComponents}
+          remarkPlugins={remarkPlugins}
+        >
+          {content}
+        </ReactMarkdown>
+      </Suspense>
     </div>
   );
 };

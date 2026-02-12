@@ -1,14 +1,20 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense, lazy } from 'react';
 import { AffiliateProduct } from '../../types';
 import { supabaseService } from '../../services/supabaseService';
 import { toast } from '../ToastNotifications';
 import { Plus, Edit2, Save, AlertCircle, BarChart3, Package, MousePointerClick, Tag, Link, Trash2, Download } from 'lucide-react';
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
-import { CHART_COLORS } from '../../constants/chartConfig';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
 import { DISPLAY_LIMITS } from '../../constants/displayLimits';
 import { useConfirm } from '../../contexts/ConfirmContext';
+
+// Lazy load chart component to reduce initial bundle
+const AffiliatesBarChart = lazy(() => import('./AffiliatesBarChart'));
+
+const ChartFallback = () => (
+  <div className="h-48 w-full flex items-center justify-center">
+    <div className="animate-pulse text-slate-500 text-xs">Loading...</div>
+  </div>
+);
 
 interface Props {
   products: AffiliateProduct[];
@@ -244,21 +250,9 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
              <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                <BarChart3 className="w-4 h-4" /> Performance (Clicks)
              </h4>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={clickData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.elements.grid} vertical={false} />
-                  <XAxis dataKey="name" stroke={CHART_COLORS.elements.axis} fontSize={10} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: CHART_COLORS.elements.tooltipBg, 
-                      borderColor: CHART_COLORS.elements.tooltipBorder, 
-                      color: CHART_COLORS.elements.tooltipText 
-                    }}
-                    cursor={{ fill: CHART_COLORS.elements.cursor }}
-                  />
-                  <Bar dataKey="clicks" fill={CHART_COLORS.bars.secondary} radius={[4, 4, 0, 0]} barSize={30} />
-                </BarChart>
-              </ResponsiveContainer>
+               <Suspense fallback={<ChartFallback />}>
+                 <AffiliatesBarChart data={clickData} />
+               </Suspense>
           </div>
         )}
 
