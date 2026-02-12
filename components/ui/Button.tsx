@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { ICON_SIZES, BUTTON_PADDING, GAP_CLASSES, RADIUS_CLASSES } from '../../constants/designTokens';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -27,7 +28,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     disabled,
     ...props
   }, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center font-bold transition-all duration-150 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = `inline-flex items-center justify-center font-bold transition-all duration-150 ${RADIUS_CLASSES.lg} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed`;
   
   // Add press feedback animation class
   const pressFeedbackClass = enablePressFeedback && !disabled && !isLoading
@@ -43,9 +44,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   };
   
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs gap-1.5',
-    md: 'px-4 py-2.5 text-sm gap-2',
-    lg: 'px-6 py-3 text-base gap-2.5',
+    sm: `${BUTTON_PADDING.xs} text-xs ${GAP_CLASSES.xs}`,
+    md: `${BUTTON_PADDING.sm} text-sm ${GAP_CLASSES.sm}`,
+    lg: `${BUTTON_PADDING.md} text-base gap-2.5`,
   };
   
   const widthClass = fullWidth ? 'w-full' : '';
@@ -71,7 +72,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     >
       {isLoading ? (
         <>
-          <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+          <Loader2 className={`${ICON_SIZES.md} animate-spin`} aria-hidden="true" />
           {loadingText && <span>{loadingText}</span>}
         </>
       ) : (
