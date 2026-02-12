@@ -5,7 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
 import { toast } from './ToastNotifications';
-import { REGIONS, TIMEFRAMES } from '../constants/searchConfig';
+import { REGIONS, TIMEFRAMES, DEFAULT_SEARCH_CONFIG, UI_FALLBACKS } from '../constants/searchConfig';
 import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { indexedDBService } from '../utils/storageUtils';
@@ -18,7 +18,7 @@ import { Z_INDEX } from '../constants/zIndex';
 import { SPEECH_CONFIG } from '../constants/apiConfig';
 import { STORAGE_CONFIG, ASSET_ID_PREFIX } from '../constants/appConfig';
 import { DATE_FORMATS, formatDate } from '../constants/dateTimeConfig';
-import { DISPLAY_LIMITS } from '../constants/displayConfig';
+import { DISPLAY_LIMITS, TICKER_TOPICS } from '../constants/displayConfig';
 import { COLORS } from '../constants/theme';
 import { ANIMATION_DURATION } from '../constants/animationConfig';
 
@@ -57,7 +57,7 @@ export const TrendSearch: React.FC<Props> = ({
   isLoading,
   initialNiche = '',
   initialRegion,
-  initialTimeframe = '7d', // Default to 7 days for better news currency
+  initialTimeframe = DEFAULT_SEARCH_CONFIG.TIMEFRAME, // Flexy: Using modular config instead of hardcoded value
   initialDeepMode = false,
   initialImage,
   savedNiches = []
@@ -129,7 +129,8 @@ export const TrendSearch: React.FC<Props> = ({
     setCurrentDate(formatDate(new Date(), 'COMPACT'));
 
     // Initialize Ticker (Default Topics + Recent History + Saved Niches)
-    const dynamicPool = uiText.tickerTopics || ["AI Trends", "Market Shifts"];
+    // Flexy: Using modular TICKER_TOPICS config instead of hardcoded values
+    const dynamicPool = uiText.tickerTopics || TICKER_TOPICS.DEFAULT_TOPICS;
     // Prioritize recent searches and saved projects in the ticker to make it feel personalized
     const combinedTopics = [...new Set([...loadedHistory, ...savedNiches, ...dynamicPool])];
     setAllTickerTopics([...combinedTopics, ...combinedTopics]); // Duplicate for seamless marquee
@@ -274,7 +275,8 @@ export const TrendSearch: React.FC<Props> = ({
   };
 
   const handleGlobalPulse = () => {
-    const topic = uiText.globalPulseQuery || "Latest Breaking Business News";
+    // Flexy: Using modular UI_FALLBACKS config instead of hardcoded value
+    const topic = uiText.globalPulseQuery || UI_FALLBACKS.GLOBAL_PULSE_QUERY;
     setInput(topic);
     handleSearchTrigger(topic, undefined);
   };
