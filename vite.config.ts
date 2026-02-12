@@ -103,9 +103,36 @@ const loadConfig = () => ({
   },
 });
 
+// Flexy: Track deprecation warnings to avoid spam
+let deprecationWarningsShown = false;
+
+// Flexy: Show deprecation warnings for legacy env vars
+const showDeprecationWarnings = (env: Record<string, string>) => {
+  if (deprecationWarningsShown) return;
+  
+  const legacyVars = [
+    { old: 'API_KEY', new: 'GEMINI_API_KEY', used: !!env.API_KEY && !env.GEMINI_API_KEY },
+  ];
+  
+  const usedLegacy = legacyVars.filter(v => v.used);
+  if (usedLegacy.length > 0) {
+    console.warn('\n⚠️  Flexy Warning: Legacy environment variables detected!\n');
+    usedLegacy.forEach(v => {
+      console.warn(`   ${v.old} is deprecated. Please use ${v.new} instead.`);
+    });
+    console.warn('\n   These legacy variables will be removed in a future version.\n');
+  }
+  
+  deprecationWarningsShown = true;
+};
+
 // Expose all VITE_ prefixed env vars to the browser
+// Flexy: Added deprecation warnings for legacy env var names!
 const exposeEnvVars = (env: Record<string, string>): Record<string, string> => {
   const exposed: Record<string, string> = {};
+  
+  // Show deprecation warnings
+  showDeprecationWarnings(env);
   
   // Automatically expose all VITE_ prefixed variables
   Object.keys(env).forEach(key => {
@@ -114,8 +141,9 @@ const exposeEnvVars = (env: Record<string, string>): Record<string, string> => {
     }
   });
   
-  // Legacy support for old env var names
-  exposed['process.env.API_KEY'] = JSON.stringify(env.GEMINI_API_KEY || '');
+  // Legacy support for old env var names - Flexy: Marked for deprecation
+  // TODO: Remove these in v2.0
+  exposed['process.env.API_KEY'] = JSON.stringify(env.GEMINI_API_KEY || env.API_KEY || '');
   exposed['process.env.GEMINI_API_KEY'] = JSON.stringify(env.GEMINI_API_KEY || '');
   exposed['process.env.SUPABASE_URL'] = JSON.stringify(env.SUPABASE_URL || '');
   exposed['process.env.SUPABASE_KEY'] = JSON.stringify(env.SUPABASE_KEY || '');

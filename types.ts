@@ -243,9 +243,12 @@ export type Language = 'id' | 'en';
 
 export type AIProvider = 'gemini' | 'openai';
 
-export type SearchRegion = 'Global' | 'Indonesia' | 'USA' | 'Europe' | 'Asia';
+// Flexy: SearchRegion and SearchTimeframe are now configurable!
+// Previously hardcoded union types have been replaced with string types
+// Use runtime validation functions from searchConstants.ts to ensure valid values
+export type SearchRegion = string;
 
-export type SearchTimeframe = '24h' | '7d' | '30d' | '90d';
+export type SearchTimeframe = string;
 
 // --- Speech Recognition Types ---
 export interface IWindow extends Window {
