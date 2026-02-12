@@ -1,18 +1,26 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, Mic, Activity, Radio, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, Hash, BrainCircuit, Sparkles, Image as ImageIcon, ShoppingCart, Leaf, Smartphone, DollarSign, Heart, Trash2, Newspaper, AlertCircle } from 'lucide-react';
+import { Search, Loader2, Mic, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, BrainCircuit, Image as ImageIcon, Newspaper, AlertCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
 import { toast } from './ToastNotifications';
-import { REGIONS, TIMEFRAMES } from '../constants/searchConfig';
+import { REGIONS, TIMEFRAMES, DEFAULT_SEARCH_CONFIG, UI_FALLBACKS } from '../constants/searchConfig';
 import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { indexedDBService } from '../utils/storageUtils';
 import { useAsset } from '../hooks/useAsset';
-import { STORAGE_KEYS } from '../constants/storageConfig';
-import { UI_TIMING } from '../constants/uiConfig';
+import { STORAGE_KEYS, ASSET_CONFIG } from '../constants/storageConfig';
+import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
+import { getCategoryIconConfig } from '../constants/iconConfig';
+import { detectSearchRegion } from '../constants/dateTimeConfig';
+import { Z_INDEX } from '../constants/zIndex';
 import { SPEECH_CONFIG } from '../constants/apiConfig';
-import { STORAGE_CONFIG } from '../constants/appConfig';
+import { STORAGE_CONFIG, ASSET_ID_PREFIX } from '../constants/appConfig';
+import { DATE_FORMATS, formatDate } from '../constants/dateTimeConfig';
+import { DISPLAY_LIMITS, TICKER_TOPICS } from '../constants/displayConfig';
+import { COLORS } from '../constants/theme';
+import { ANIMATION_DURATION } from '../constants/animationConfig';
 
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
@@ -27,36 +35,29 @@ interface Props {
 
 const HISTORY_KEY = STORAGE_KEYS.SEARCH_HISTORY;
 
+// Dynamic icon loading for category icons - reduces initial bundle size
+const iconCache = new Map<string, React.ReactNode>();
+
 const getCategoryIcon = (category: string) => {
-  const lower = category.toLowerCase();
-  if (lower.includes('tech') || lower.includes('teknologi')) return <Cpu className="w-5 h-5 text-blue-400" />;
-  if (lower.includes('health') || lower.includes('kesehatan')) return <Heart className="w-5 h-5 text-red-400" />;
-  if (lower.includes('finance') || lower.includes('keuangan')) return <DollarSign className="w-5 h-5 text-emerald-400" />;
-  if (lower.includes('green') || lower.includes('energi')) return <Leaf className="w-5 h-5 text-green-400" />;
-  if (lower.includes('commerce')) return <ShoppingCart className="w-5 h-5 text-orange-400" />;
-  if (lower.includes('saas') || lower.includes('digital')) return <Smartphone className="w-5 h-5 text-purple-400" />;
-  return <Activity className="w-5 h-5 text-slate-400" />;
+  const cached = iconCache.get(category);
+  if (cached) return cached;
+  
+  const config = getCategoryIconConfig(category);
+  const IconComponent = config.icon;
+  const iconElement = <IconComponent className={`w-5 h-5 ${config.color}`} />;
+  iconCache.set(category, iconElement);
+  return iconElement;
 };
 
-const detectRegion = (): SearchRegion => {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz.includes('Jakarta') || tz.includes('Makassar') || tz.includes('Pontianak') || tz.includes('Jayapura')) return 'Indonesia';
-    if (tz.includes('America')) return 'USA';
-    if (tz.includes('Europe') || tz.includes('London') || tz.includes('Berlin') || tz.includes('Paris')) return 'Europe';
-    if (tz.includes('Asia') || tz.includes('Tokyo') || tz.includes('Seoul') || tz.includes('Singapore')) return 'Asia';
-  } catch (e) {
-    console.warn("Timezone detection failed", e);
-  }
-  return 'Global';
-};
+// Flexy hates hardcoded region detection! Using modular detectSearchRegion from dateTimeConfig
+const detectRegion = detectSearchRegion;
 
 export const TrendSearch: React.FC<Props> = ({ 
   onSearch, 
   isLoading,
   initialNiche = '',
   initialRegion,
-  initialTimeframe = '7d', // Default to 7 days for better news currency
+  initialTimeframe = DEFAULT_SEARCH_CONFIG.TIMEFRAME, // Flexy: Using modular config instead of hardcoded value
   initialDeepMode = false,
   initialImage,
   savedNiches = []
@@ -69,6 +70,9 @@ export const TrendSearch: React.FC<Props> = ({
   
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [shakeInput, setShakeInput] = useState(false);
+  const [focusedHistoryIndex, setFocusedHistoryIndex] = useState<number>(-1);
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
   
   const { language, uiText, provider } = usePreferences();
   
@@ -81,6 +85,8 @@ export const TrendSearch: React.FC<Props> = ({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const historyItemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const historyContainerRef = useRef<HTMLDivElement>(null);
   
   // Sync state if props change (e.g. from engine restoration)
   useEffect(() => {
@@ -90,6 +96,21 @@ export const TrendSearch: React.FC<Props> = ({
     if (initialDeepMode !== undefined) setDeepMode(initialDeepMode);
     if (initialImage) setSelectedImage(initialImage);
   }, [initialNiche, initialRegion, initialTimeframe, initialDeepMode, initialImage]);
+
+  // Close history when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (historyContainerRef.current && !historyContainerRef.current.contains(event.target as Node)) {
+        setIsHistoryVisible(false);
+        setFocusedHistoryIndex(-1);
+      }
+    };
+
+    if (isHistoryVisible) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isHistoryVisible]);
 
   useEffect(() => {
     // Load History
@@ -105,11 +126,11 @@ export const TrendSearch: React.FC<Props> = ({
     }
     
     // Set Date
-    const now = new Date();
-    setCurrentDate(now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }));
+    setCurrentDate(formatDate(new Date(), 'COMPACT'));
 
     // Initialize Ticker (Default Topics + Recent History + Saved Niches)
-    const dynamicPool = uiText.tickerTopics || ["AI Trends", "Market Shifts"];
+    // Flexy: Using modular TICKER_TOPICS config instead of hardcoded values
+    const dynamicPool = uiText.tickerTopics || TICKER_TOPICS.DEFAULT_TOPICS;
     // Prioritize recent searches and saved projects in the ticker to make it feel personalized
     const combinedTopics = [...new Set([...loadedHistory, ...savedNiches, ...dynamicPool])];
     setAllTickerTopics([...combinedTopics, ...combinedTopics]); // Duplicate for seamless marquee
@@ -140,8 +161,8 @@ export const TrendSearch: React.FC<Props> = ({
     const cleanTerm = term.trim();
     if (!cleanTerm) return;
     
-    // Add to front, remove duplicates, limit to 5
-    const updated = [cleanTerm, ...recentSearches.filter(s => s !== cleanTerm)].slice(0, 5);
+    // Add to front, remove duplicates, limit to max history
+    const updated = [cleanTerm, ...recentSearches.filter(s => s !== cleanTerm)].slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_MAX);
     setRecentSearches(updated);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   };
@@ -149,24 +170,98 @@ export const TrendSearch: React.FC<Props> = ({
   const clearHistory = () => {
     setRecentSearches([]);
     localStorage.removeItem(HISTORY_KEY);
+    setFocusedHistoryIndex(-1);
+  };
+
+  const handleHistoryKeyDown = (e: React.KeyboardEvent, currentIndex: number) => {
+    const visibleItems = recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN);
+    
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        const nextIndex = currentIndex < visibleItems.length - 1 ? currentIndex + 1 : 0;
+        setFocusedHistoryIndex(nextIndex);
+        historyItemRefs.current[nextIndex]?.focus();
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        if (currentIndex === 0) {
+          setFocusedHistoryIndex(-1);
+          inputRef.current?.focus();
+        } else {
+          const prevIndex = currentIndex - 1;
+          setFocusedHistoryIndex(prevIndex);
+          historyItemRefs.current[prevIndex]?.focus();
+        }
+        break;
+      }
+      case 'Home': {
+        e.preventDefault();
+        setFocusedHistoryIndex(0);
+        historyItemRefs.current[0]?.focus();
+        break;
+      }
+      case 'End': {
+        e.preventDefault();
+        const lastIndex = visibleItems.length - 1;
+        setFocusedHistoryIndex(lastIndex);
+        historyItemRefs.current[lastIndex]?.focus();
+        break;
+      }
+      case 'Escape': {
+        e.preventDefault();
+        setFocusedHistoryIndex(-1);
+        setIsHistoryVisible(false);
+        inputRef.current?.focus();
+        break;
+      }
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent) => {
+    const visibleItems = recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN);
+    
+    if (recentSearches.length > 0 && isHistoryVisible) {
+      switch (e.key) {
+        case 'ArrowDown': {
+          e.preventDefault();
+          setFocusedHistoryIndex(0);
+          historyItemRefs.current[0]?.focus();
+          break;
+        }
+        case 'Escape': {
+          setIsHistoryVisible(false);
+          break;
+        }
+      }
+    }
   };
 
   const handleSearchTrigger = (term: string, img?: string) => {
     // Allow empty term ONLY if image is present
     if (!term.trim() && !img) {
-      setValidationError("Please enter a topic or upload an image.");
+      setValidationError(uiText.validationEmptySearch || "Please enter a topic or upload an image.");
+      setShakeInput(true);
+      setTimeout(() => setShakeInput(false), ANIMATION_DURATION.standard.slow);
+      inputRef.current?.focus();
       return;
     }
 
     if (term.trim()) {
       const validation = validateInput(term);
       if (!validation.isValid) {
-        setValidationError(validation.error || "Invalid input");
+        setValidationError(validation.error || uiText.invalidInput || "Invalid input");
+        setShakeInput(true);
+        setTimeout(() => setShakeInput(false), ANIMATION_DURATION.standard.slow);
+        inputRef.current?.focus();
         return;
       }
     }
     
     setValidationError(null);
+    setIsHistoryVisible(false);
+    setFocusedHistoryIndex(-1);
 
     const cleanTerm = sanitizeInput(term);
     if (cleanTerm) addToHistory(cleanTerm);
@@ -180,7 +275,8 @@ export const TrendSearch: React.FC<Props> = ({
   };
 
   const handleGlobalPulse = () => {
-    const topic = uiText.globalPulseQuery || "Latest Breaking Business News";
+    // Flexy: Using modular UI_FALLBACKS config instead of hardcoded value
+    const topic = uiText.globalPulseQuery || UI_FALLBACKS.GLOBAL_PULSE_QUERY;
     setInput(topic);
     handleSearchTrigger(topic, undefined);
   };
@@ -202,7 +298,7 @@ export const TrendSearch: React.FC<Props> = ({
       recognition.onerror = () => setIsListening(false);
       recognition.onend = () => setIsListening(false);
     } else {
-      toast.info("Voice search is not supported in this browser. Try Chrome or Edge.");
+      toast.info(uiText.voiceSearchNotSupported || "Voice search is not supported in this browser. Try Chrome or Edge.");
     }
   };
 
@@ -210,15 +306,15 @@ export const TrendSearch: React.FC<Props> = ({
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > STORAGE_CONFIG.MAX_FILE_SIZE_BYTES) {
-        toast.error("Image too large (max 5MB)");
+        toast.error((uiText.imageTooLarge || "Image too large (max {size}MB)").replace('{size}', String(ASSET_CONFIG.MAX_SIZE_MB)));
         return;
       }
 
       try {
-        const assetId = `search-${Date.now()}`;
+        const assetId = `${ASSET_ID_PREFIX.SEARCH}${Date.now()}`;
         await indexedDBService.saveAsset(assetId, file);
         setSelectedImage(`asset://${assetId}`);
-        toast.success("Image attached");
+        toast.success(uiText.imageAttached || "Image attached");
       } catch (err) {
         console.error("Failed to save image asset", err);
         // Fallback to base64 if IDB fails for some reason
@@ -237,7 +333,7 @@ export const TrendSearch: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto text-center mt-8 md:mt-12 px-4 animate-[fadeIn_0.5s_ease-out]">
+    <div className={`w-full max-w-5xl mx-auto text-center mt-8 md:mt-12 px-4`}>
       
       {/* Background Market Ticker (Subtle) */}
       {!isLoading && (
@@ -246,7 +342,7 @@ export const TrendSearch: React.FC<Props> = ({
              <div className="flex animate-marquee whitespace-nowrap gap-12">
                 {allTickerTopics.map((topic, i) => (
                    <span key={i} className="text-[10px] font-mono text-slate-400 flex items-center gap-2 uppercase tracking-wider">
-                      <TrendingUp className="w-3 h-3 text-emerald-500/70" /> {topic}
+                       <TrendingUp className="w-3 h-3 text-emerald-400" /> {topic}
                    </span>
                 ))}
              </div>
@@ -259,8 +355,8 @@ export const TrendSearch: React.FC<Props> = ({
       )}
 
       {/* Live Data Badge */}
-      <div className="inline-flex flex-wrap justify-center items-center gap-2 mb-6 animate-[fadeIn_1s_ease-out] relative z-10">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)] backdrop-blur-sm">
+       <div className={`inline-flex flex-wrap justify-center items-center gap-2 mb-6 animate-[fadeIn_${ANIMATION_TIMING.TREND_FADE}_${ANIMATION_EASING.DEFAULT}] relative ${Z_INDEX.CONTENT}`}>
+        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_-5px_${COLORS.shadow.emerald}] backdrop-blur-sm`}>
            <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -268,12 +364,12 @@ export const TrendSearch: React.FC<Props> = ({
            <Globe className="w-3 h-3" />
            Live Intelligence
            <span className="w-px h-3 bg-emerald-500/30 mx-1"></span>
-           <span className="text-[10px] text-emerald-500/70 font-mono flex items-center gap-1">
-             {currentDate}
-           </span>
+            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+              {currentDate}
+            </span>
         </div>
         
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-300 text-[10px] font-bold uppercase tracking-wider">
            <Cpu className="w-3 h-3" />
            {uiText.modelDisplay?.[provider] || (provider === 'gemini' ? 'Gemini 3' : 'OpenAI GPT-4o')}
         </div>
@@ -282,14 +378,14 @@ export const TrendSearch: React.FC<Props> = ({
       <h2 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 mb-6 leading-tight tracking-tight relative z-10">
         {uiText.heroTitle}
       </h2>
-      <p className="text-slate-400 text-base md:text-lg mb-10 max-w-lg mx-auto leading-relaxed relative z-10">
+      <p className="text-slate-300 text-base md:text-lg mb-10 max-w-lg mx-auto leading-relaxed relative z-10">
         {uiText.heroDesc}
       </p>
       
       {/* Search Configuration */}
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-6 relative z-10">
+      <div className={`flex flex-col sm:flex-row justify-center items-center gap-3 mb-6 relative ${Z_INDEX.CONTENT}`}>
          {/* Region Selector */}
-         <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative z-10 shrink-0" role="group" aria-label="Select Region">
+         <div className={`bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative ${Z_INDEX.CONTENT} shrink-0`} role="group" aria-label="Select Region">
             {REGIONS.map(r => (
               <button
                 key={r}
@@ -297,9 +393,9 @@ export const TrendSearch: React.FC<Props> = ({
                 onClick={() => setRegion(r)}
                 aria-pressed={region === r}
                 className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  region === r 
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' 
-                  : 'text-slate-500 hover:text-white hover:bg-slate-800'
+                  region === r
+                  ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-900/50'
+                  : 'bg-slate-800/50 text-slate-100 hover:text-white hover:bg-slate-700'
                 }`}
               >
                 {region === r && <MapPin className="w-3 h-3" />}
@@ -309,7 +405,7 @@ export const TrendSearch: React.FC<Props> = ({
          </div>
 
          {/* Timeframe Selector */}
-         <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative z-10 shrink-0" role="group" aria-label="Select Timeframe">
+         <div className={`bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl flex gap-1 shadow-xl overflow-x-auto no-scrollbar relative ${Z_INDEX.CONTENT} shrink-0`} role="group" aria-label="Select Timeframe">
             {TIMEFRAMES.map(t => (
               <button
                 key={t.value}
@@ -317,9 +413,9 @@ export const TrendSearch: React.FC<Props> = ({
                 onClick={() => setTimeframe(t.value)}
                 aria-pressed={timeframe === t.value}
                 className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                  timeframe === t.value 
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' 
-                  : 'text-slate-500 hover:text-white hover:bg-slate-800'
+                  timeframe === t.value
+                  ? 'bg-blue-700 text-white shadow-lg shadow-blue-900/50'
+                  : 'bg-slate-800/50 text-slate-100 hover:text-white hover:bg-slate-700'
                 }`}
               >
                 {timeframe === t.value && <Clock4 className="w-3 h-3" />}
@@ -329,24 +425,24 @@ export const TrendSearch: React.FC<Props> = ({
          </div>
 
          {/* Deep Mode Toggle */}
-         <button 
-           onClick={() => setDeepMode(!deepMode)}
-           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all shadow-xl ${
-             deepMode 
-             ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-900/50' 
-             : 'bg-slate-900/80 border-slate-800 text-slate-500 hover:text-white hover:border-slate-600'
-           }`}
-           title="Deep Research Mode: Uses Reasoning Model (Slower but detailed)"
-         >
+          <button 
+            onClick={() => setDeepMode(!deepMode)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all shadow-xl ${
+              deepMode 
+              ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-900/50' 
+              : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-slate-600'
+            }`}
+            title="Deep Research Mode: Uses Reasoning Model (Slower but detailed)"
+          >
            {deepMode ? <BrainCircuit className="w-4 h-4 animate-pulse" /> : <Zap className="w-4 h-4" />}
            {deepMode ? "Deep Research" : "Fast Scan"}
          </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="relative group mb-12 max-w-2xl mx-auto z-10">
+      <form onSubmit={handleSubmit} className={`relative group mb-12 max-w-2xl mx-auto ${Z_INDEX.CONTENT} ${shakeInput ? 'animate-shake' : ''}`}>
         <div className={`absolute -inset-0.5 bg-gradient-to-r ${validationError ? 'from-red-500 to-orange-500' : 'from-emerald-500 via-blue-500 to-purple-500'} rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500`}></div>
         <div className={`relative flex items-center bg-slate-950 rounded-2xl border ${validationError ? 'border-red-500/50' : 'border-slate-800'} p-2 shadow-2xl`}>
-          <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-400'}`} aria-hidden="true" />
+          <Search className={`w-6 h-6 ml-3 shrink-0 ${validationError ? 'text-red-400' : 'text-slate-300'}`} aria-hidden="true" />
           
           {/* Attached Image Preview */}
           {previewUrl && (
@@ -356,6 +452,7 @@ export const TrendSearch: React.FC<Props> = ({
                 type="button"
                 onClick={clearImage}
                 className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover/img:opacity-100 transition-opacity"
+                aria-label="Remove image"
               >
                 <X className="w-2 h-2" />
               </button>
@@ -365,6 +462,7 @@ export const TrendSearch: React.FC<Props> = ({
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
             className="flex-1 bg-transparent border-none outline-none text-white px-4 py-3 placeholder:text-slate-600 text-base md:text-lg w-full min-w-0"
             placeholder={selectedImage ? "Describe what to look for in this image..." : uiText.placeholder}
             value={input}
@@ -372,9 +470,30 @@ export const TrendSearch: React.FC<Props> = ({
               setInput(e.target.value);
               if (validationError) setValidationError(null);
             }}
+            onFocus={() => setIsHistoryVisible(true)}
+            onKeyDown={handleInputKeyDown}
             disabled={isLoading}
             aria-label="Search topics"
+            aria-expanded={isHistoryVisible && recentSearches.length > 0}
+            aria-controls="search-history-list"
+            aria-activedescendant={focusedHistoryIndex >= 0 ? `history-item-${focusedHistoryIndex}` : undefined}
           />
+
+          {/* Clear Input Button */}
+          {input && !isLoading && (
+            <button
+              type="button"
+              onClick={() => {
+                setInput('');
+                inputRef.current?.focus();
+              }}
+              className="mr-2 p-2 hover:bg-slate-800 text-slate-400 hover:text-white rounded-full transition-all"
+              title="Clear search input"
+              aria-label="Clear search input"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
           
           {/* Visual Search (Image Attachment) */}
           {!isLoading && !selectedImage && (
@@ -382,9 +501,9 @@ export const TrendSearch: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="mr-2 p-2 hover:bg-slate-800 text-slate-500 hover:text-blue-400 rounded-full transition-all"
-                title="Search with Image (Visual Intelligence)"
-                aria-label="Upload Image"
+                className="mr-2 p-2 hover:bg-slate-800 text-slate-300 hover:text-blue-400 rounded-full transition-all"
+                title="Upload image for visual search"
+                aria-label="Upload image for visual search"
               >
                 <ImageIcon className="w-5 h-5" />
               </button>
@@ -403,7 +522,7 @@ export const TrendSearch: React.FC<Props> = ({
             <button
               type="button"
               onClick={startListening}
-              className={`mr-2 p-2 rounded-full transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'hover:bg-slate-800 text-slate-500 hover:text-white'}`}
+              className={`mr-2 p-2 rounded-full transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}
               title="Voice Search"
               aria-label="Start Voice Search"
             >
@@ -427,7 +546,7 @@ export const TrendSearch: React.FC<Props> = ({
       </form>
 
       {validationError && (
-        <div className="flex items-center justify-center gap-2 text-red-400 text-sm mb-6 animate-[fadeIn_0.3s_ease-out]" role="alert">
+        <div className={`flex items-center justify-center gap-2 text-red-400 text-sm mb-6 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}]`} role="alert">
           <AlertCircle className="w-4 h-4" aria-hidden="true" />
           <span>{validationError}</span>
         </div>
@@ -435,7 +554,7 @@ export const TrendSearch: React.FC<Props> = ({
 
       {/* Discovery Grid Categories (Localized) */}
       {!isLoading && !selectedImage && uiText.searchCategories && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-10 relative z-10 animate-[fadeIn_0.5s_ease-out]">
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-10 relative ${Z_INDEX.CONTENT} animate-[fadeIn_${ANIMATION_TIMING.FADE_SLOW}s_${ANIMATION_EASING.DEFAULT}]`}>
           {/* Main "Headlines" Card */}
           <button 
              onClick={handleGlobalPulse}
@@ -450,7 +569,7 @@ export const TrendSearch: React.FC<Props> = ({
           </button>
           
           {/* Category Cards */}
-          {uiText.searchCategories.slice(0, 6).map((cat: string, i: number) => (
+          {uiText.searchCategories.slice(0, DISPLAY_LIMITS.CATEGORY_GRID_MAX).map((cat: string, i: number) => (
              <button
                key={i}
                onClick={() => {
@@ -463,44 +582,72 @@ export const TrendSearch: React.FC<Props> = ({
                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform group-hover:bg-emerald-900/20">
                   {getCategoryIcon(cat)}
                </div>
-               <span className="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider text-center">{cat}</span>
+                <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase tracking-wider text-center">{cat}</span>
              </button>
           ))}
         </div>
       )}
 
       {/* Recent Searches */}
-      {!isLoading && !selectedImage && recentSearches.length > 0 && (
-        <div className="flex flex-col items-center gap-3 animate-[fadeIn_0.3s_ease-out] border-t border-slate-900 pt-6 max-w-sm mx-auto relative z-10">
-          <div className="flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2">
-             <span>{uiText.recent}</span>
-             <button onClick={clearHistory} className="hover:text-red-400 transition-colors flex items-center gap-1" title={uiText.clearHistory} aria-label="Clear history">
-               <X className="w-3 h-3" /> Clear
-             </button>
-          </div>
-          <div className="flex flex-col gap-2 w-full">
-            {recentSearches.slice(0, 3).map((term, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setInput(term);
-                  handleSearchTrigger(term, undefined);
-                }}
-                className="flex items-center justify-between px-4 py-2 bg-slate-900/50 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg text-sm font-medium border border-transparent hover:border-slate-700 transition-all group w-full text-left"
+      {!isLoading && !selectedImage && recentSearches.length > 0 && isHistoryVisible && (
+        <div 
+          ref={historyContainerRef}
+          id="search-history-list"
+          role="listbox"
+          aria-label="Recent searches"
+          className={`flex flex-col items-center gap-3 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}] border-t border-slate-900 pt-6 max-w-sm mx-auto relative ${Z_INDEX.CONTENT}`}
+        >
+           <div className="flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2">
+              <span>{uiText.recent}</span>
+              <button 
+                onClick={clearHistory} 
+                className="hover:text-red-400 transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-red-400/50 rounded px-1" 
+                title={uiText.clearHistory} 
+                aria-label="Clear history"
               >
-                <div className="flex items-center gap-2">
-                  <Clock className="w-3 h-3 text-slate-600 group-hover:text-emerald-500 transition-colors" />
-                  {term}
-                </div>
-                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0" />
+                 <X className="w-3 h-3" /> {uiText.clear || "Clear"}
               </button>
-            ))}
-          </div>
-        </div>
-      )}
+           </div>
+           <div className="flex flex-col gap-2 w-full">
+             {recentSearches.slice(0, DISPLAY_LIMITS.SEARCH_HISTORY_DROPDOWN).map((term, idx) => (
+               <button
+                 key={idx}
+                 ref={(el) => { historyItemRefs.current[idx] = el; }}
+                 id={`history-item-${idx}`}
+                 role="option"
+                 aria-selected={focusedHistoryIndex === idx}
+                 tabIndex={-1}
+                 onClick={() => {
+                   setInput(term);
+                   handleSearchTrigger(term, undefined);
+                 }}
+                 onKeyDown={(e) => handleHistoryKeyDown(e, idx)}
+                 className={`flex items-center justify-between px-4 py-2 bg-slate-900/50 text-slate-300 rounded-lg text-sm font-medium border transition-all group w-full text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:bg-slate-800 focus:text-white hover:bg-slate-800 hover:text-white hover:border-slate-700 ${
+                   focusedHistoryIndex === idx ? 'bg-slate-800 text-white border-slate-700 ring-2 ring-emerald-500/30' : 'border-transparent'
+                 }`}
+               >
+                 <div className="flex items-center gap-2">
+                   <Clock className="w-3 h-3 text-slate-600 group-hover:text-emerald-500 transition-colors" />
+                   {term}
+                 </div>
+                 <ArrowRight className={`w-3 h-3 transition-all -translate-x-2 ${focusedHistoryIndex === idx ? 'opacity-100 translate-x-0' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-0'}`} />
+               </button>
+             ))}
+           </div>
+              <div className="text-[10px] text-slate-600 flex items-center gap-1">
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">↑</span>
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">↓</span>
+             <span>to navigate</span>
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300 ml-1">Enter</span>
+              <span>to select</span>
+              <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300 ml-1">Esc</span>
+             <span>to close</span>
+           </div>
+         </div>
+       )}
       
       {(isLoading) && (
-        <div className="mt-8 flex flex-col items-center animate-[fadeIn_0.5s_ease-in] relative z-10" role="status">
+        <div className={`mt-8 flex flex-col items-center animate-[fadeIn_${ANIMATION_TIMING.FADE_SLOW}s_${ANIMATION_EASING.EXIT}] relative ${Z_INDEX.CONTENT}`} role="status">
           <div className={`text-sm font-bold font-mono mb-3 flex items-center gap-2 px-4 py-1.5 rounded-full border ${
             deepMode 
             ? 'text-indigo-400 bg-indigo-950/30 border-indigo-500/20' 

@@ -5,14 +5,15 @@ import { getAIService } from '../services/aiRegistry';
 import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check, Copy } from 'lucide-react';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { EmptyState } from './ui/EmptyState';
 
 interface Props {
   idea: BusinessIdea;
   blueprint: Blueprint;
   brandIdentity?: BrandIdentity;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
-  onUpdateIdea: (updates: Partial<BusinessIdea>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
+  onUpdateIdea: (_updates: Partial<BusinessIdea>) => void;
 }
 
 export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, onUpdateBlueprint, onUpdateIdea }) => {
@@ -20,6 +21,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
   const [selectedName, setSelectedName] = useState<string | null>(null);
   
   const { provider, language } = usePreferences();
+  const { confirm } = useConfirm();
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -36,8 +38,15 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
     }
   };
 
-  const handleApplyName = (name: string) => {
-    if (window.confirm(`Update business name to "${name}"? This will affect the entire blueprint.`)) {
+  const handleApplyName = async (name: string) => {
+    const confirmed = await confirm({
+      title: 'Update Business Name?',
+      message: `Update business name to "${name}"? This will affect the entire blueprint.`,
+      confirmText: 'Update',
+      cancelText: 'Cancel',
+      variant: 'warning',
+    });
+    if (confirmed) {
         setSelectedName(name);
         onUpdateIdea({ name });
         toast.info(`Selected "${name}" as preferred brand.`);
@@ -62,21 +71,26 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
 
   if (!brandIdentity) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 mb-8 text-center animate-[fadeIn_0.3s_ease-out] print:break-inside-avoid">
-        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
-          <Palette className="w-8 h-8 text-pink-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">Brand Studio</h3>
-        <p className="text-slate-400 max-w-md mx-auto mb-6">
-          Establish a strong visual and verbal identity. Generate professional names, slogans, and color schemes.
-        </p>
-        <button 
-          onClick={handleGenerate}
-          className="px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-pink-900/20"
-        >
-          <Palette className="w-5 h-5" /> Generate Identity
-        </button>
-      </div>
+      <EmptyState
+        icon={<Palette className="w-8 h-8 text-pink-400" />}
+        title="Brand Studio"
+        description="Establish a strong visual and verbal identity. Generate professional names, slogans, and color schemes that resonate with your target audience."
+        variant="creative"
+        action={
+          <button 
+            onClick={handleGenerate}
+            className="px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-pink-900/20"
+          >
+            <Palette className="w-5 h-5" /> Generate Identity
+          </button>
+        }
+        tips={[
+          { text: "AI will suggest 3-5 unique brand names based on your business type and niche" },
+          { text: "Color palettes are chosen to evoke the right emotions for your target market" },
+          { text: "Click any name to instantly update your business name across the blueprint" }
+        ]}
+        className="mb-8 print:break-inside-avoid"
+      />
     );
   }
 
@@ -137,13 +151,14 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
                            <p className="text-slate-500 text-xs font-mono uppercase">{color.hex}</p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => handleCopyHex(color.hex)}
-                        className="p-2 opacity-0 group-hover:opacity-100 hover:text-emerald-400 transition-all"
-                        title="Copy Hex Code"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
+                       <button
+                         onClick={() => handleCopyHex(color.hex)}
+                         className="p-2 opacity-0 group-hover:opacity-100 hover:text-emerald-400 transition-all"
+                         title="Copy Hex Code"
+                         aria-label="Copy hex code"
+                       >
+                         <Copy className="w-4 h-4" />
+                       </button>
                    </div>
                  ))}
               </div>

@@ -39,10 +39,13 @@ export const safeLocalStorage = {
 };
 
 // --- IndexedDB (Async, Large Data like Blueprints/Images/Videos) ---
-const DB_NAME = 'TrendVenturesDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'keyval';
-const ASSETS_STORE_NAME = 'assets'; // New store for raw Blobs
+import { DATABASE_CONFIG } from '../config';
+import { STORAGE_KEYS } from '../constants/storageConfig';
+
+const DB_NAME = DATABASE_CONFIG.DB_NAME;
+const DB_VERSION = DATABASE_CONFIG.DB_VERSION;
+const STORE_NAME = DATABASE_CONFIG.STORE_NAME;
+const ASSETS_STORE_NAME = DATABASE_CONFIG.ASSETS_STORE_NAME;
 
 export const indexedDBService = {
   db: null as IDBDatabase | null,
@@ -190,7 +193,7 @@ export const indexedDBService = {
       const finalize = () => {
         const exportData = keys.map((key, i) => ({ key, value: items[i] }));
         // Also capture LocalStorage prompts
-        const prompts = localStorage.getItem('trendventures_prompts_v1');
+        const prompts = localStorage.getItem(STORAGE_KEYS.PROMPTS);
         const payload = {
           version: 1,
           timestamp: Date.now(),
@@ -211,7 +214,7 @@ export const indexedDBService = {
 
       // Restore Prompts
       if (payload.prompts) {
-        localStorage.setItem('trendventures_prompts_v1', JSON.stringify(payload.prompts));
+        localStorage.setItem(STORAGE_KEYS.PROMPTS, JSON.stringify(payload.prompts));
       }
 
       // Restore DB

@@ -6,9 +6,10 @@ import { retryOperation } from "../../utils/retryUtils";
 import { getLanguageInstruction } from "../../utils/promptUtils";
 import { getGeminiClient } from "./shared";
 import { GEMINI_MODELS, MEDIA_CONFIG, QUERY_LIMITS } from "../../constants/aiConfig";
-import { TOKEN_LIMITS, THINKING_BUDGETS } from "../../constants/apiConfig";
+import { TOKEN_LIMITS, THINKING_BUDGETS, AI_TEMPERATURES } from "../../constants/apiConfig";
 import { BusinessIdeaListSchema, BlueprintSchema, AgentProfileListSchema, ViabilityAuditSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
+import { AI_INSTRUCTIONS } from "../../constants/contentConfig";
 
 // Tool Definition for Blueprint Updates
 const updateBlueprintTool: FunctionDeclaration = {
@@ -79,7 +80,7 @@ export const generateBusinessIdeas = async (niche: string, trends: any[], lang: 
         config: {
           responseMimeType: "application/json",
           responseSchema: ideaSchema,
-          temperature: 0.7,
+          temperature: AI_TEMPERATURES.DEFAULT,
         },
       });
 
@@ -188,7 +189,7 @@ export const sendBlueprintChat = async (history: ChatMessage[], newMessage: stri
   return retryOperation(async () => {
     try {
       const ai = getGeminiClient();
-      const langInstruction = lang === 'id' ? "Reply in Indonesian." : "Reply in English.";
+      const langInstruction = lang === 'id' ? AI_INSTRUCTIONS.CHAT_LANGUAGE.id : AI_INSTRUCTIONS.CHAT_LANGUAGE.en;
       
       const systemInstruction = promptService.build('CHAT_SYSTEM', {
         executiveSummary: context.executiveSummary,
@@ -220,9 +221,7 @@ export const sendBlueprintChat = async (history: ChatMessage[], newMessage: stri
         if (call.name === 'update_blueprint') {
           updates = call.args as Partial<Blueprint>;
           if (!responseText) {
-             responseText = lang === 'id' 
-               ? "Saya telah memperbarui blueprint sesuai permintaan Anda." 
-               : "I have updated the blueprint with your changes.";
+             responseText = AI_INSTRUCTIONS.CHAT_UPDATE_MESSAGES[lang];
           }
         }
       }
@@ -327,7 +326,7 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
         config: {
           responseMimeType: "application/json",
           responseSchema: agentSchema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 
@@ -384,7 +383,7 @@ export const generateLaunchAssets = async (idea: BusinessIdea, blueprint: Bluepr
         config: {
           responseMimeType: "application/json",
           responseSchema: assetsSchema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 
@@ -493,7 +492,7 @@ export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang
         config: {
           responseMimeType: "application/json",
           responseSchema: bmcSchema,
-          temperature: 0.5,
+          temperature: AI_TEMPERATURES.BALANCED,
         },
       });
 
@@ -531,7 +530,7 @@ export const generateLandingPageCode = async (idea: BusinessIdea, assets: Launch
         contents: prompt,
         config: {
           // No schema, we want raw text (TSX)
-          temperature: 0.2,
+          temperature: AI_TEMPERATURES.PRECISE,
         },
       });
 
@@ -590,7 +589,7 @@ export const generateContentCalendar = async (idea: BusinessIdea, blueprint: Blu
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,
-          temperature: 0.7
+          temperature: MEDIA_CONFIG.TEMPERATURES.BALANCED
         },
       });
 
@@ -648,7 +647,7 @@ export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Bluep
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 
@@ -701,7 +700,7 @@ export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint,
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,
-          temperature: 0.8
+          temperature: AI_TEMPERATURES.CREATIVE
         },
       });
 

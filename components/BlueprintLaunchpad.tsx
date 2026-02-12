@@ -8,12 +8,13 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
 import { EmptyState } from './ui/EmptyState';
 import { copyWithFeedback } from '../utils/clipboardUtils';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   idea: BusinessIdea;
   blueprint: Blueprint;
   assets?: LaunchAssets;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, onUpdateBlueprint }) => {
@@ -99,26 +100,31 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
 
   if (!assets) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 mb-8 text-center animate-[fadeIn_0.3s_ease-out] print:break-inside-avoid">
-        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
-          <Megaphone className="w-8 h-8 text-indigo-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">{(uiText as any).launchpad.title}</h3>
-        <p className="text-slate-400 max-w-md mx-auto mb-6">
-          {(uiText as any).launchpad.desc}
-        </p>
-        <button 
-          onClick={handleGenerate}
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-indigo-900/20"
-        >
-          <Rocket className="w-5 h-5" /> {(uiText as any).launchpad.generateBtn}
-        </button>
-      </div>
+      <EmptyState
+        icon={<Megaphone className="w-8 h-8 text-indigo-400" />}
+        title={(uiText as any).launchpad.title}
+        description={(uiText as any).launchpad.desc}
+        variant="default"
+        action={
+          <button 
+            onClick={handleGenerate}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto shadow-lg shadow-indigo-900/20"
+          >
+            <Rocket className="w-5 h-5" /> {(uiText as any).launchpad.generateBtn}
+          </button>
+        }
+        tips={[
+          { text: "Generate complete launch assets: landing page copy, social posts, and email templates" },
+          { text: "Switch between tabs to preview different asset types" },
+          { text: "All content is tailored to your specific business idea and target audience" }
+        ]}
+        className={`mb-8 print:break-inside-avoid ${ANIMATION_CLASSES.fadeIn.normal}`}
+      />
     );
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid animate-[fadeIn_0.3s_ease-out]">
+    <div className={`bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid ${ANIMATION_CLASSES.fadeIn.normal}`}>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
           <Rocket className="w-5 h-5 text-indigo-400" /> {(uiText as any).launchpad.title}
@@ -176,17 +182,18 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
 
       <div className="min-h-[250px]">
         {activeTab === 'landing' && (
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 relative group animate-[fadeIn_0.2s_ease-out]">
+          <div className={`bg-slate-950 border border-slate-800 rounded-xl p-6 relative group ${ANIMATION_CLASSES.fadeIn.fast}`}>
              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
-                  onClick={() => handleCopy(
-                    `${assets.landingPage.headline}\n${assets.landingPage.subheadline}\n${assets.landingPage.cta}\n${assets.landingPage.benefits.join('\n')}`, 
-                    'landing'
-                  )}
-                  className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
-                >
-                  {copiedField === 'landing' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
+                 <button 
+                   onClick={() => handleCopy(
+                     `${assets.landingPage.headline}\n${assets.landingPage.subheadline}\n${assets.landingPage.cta}\n${assets.landingPage.benefits.join('\n')}`, 
+                     'landing'
+                   )}
+                   className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
+                   aria-label="Copy landing page content"
+                 >
+                   {copiedField === 'landing' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                 </button>
              </div>
              
              <div className="text-center max-w-2xl mx-auto space-y-6">
@@ -213,14 +220,15 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'social' && (
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 max-w-lg mx-auto relative group animate-[fadeIn_0.2s_ease-out]">
+          <div className={`bg-slate-950 border border-slate-800 rounded-xl p-6 max-w-lg mx-auto relative group ${ANIMATION_CLASSES.fadeIn.fast}`}>
              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
-                  onClick={() => handleCopy(assets.socialPost, 'social')}
-                  className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
-                >
-                  {copiedField === 'social' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
+                 <button 
+                   onClick={() => handleCopy(assets.socialPost, 'social')}
+                   className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
+                   aria-label="Copy social post"
+                 >
+                   {copiedField === 'social' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                 </button>
              </div>
              
              <div className="flex gap-4">
@@ -244,14 +252,15 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'email' && (
-          <div className="bg-white text-slate-900 rounded-xl p-8 max-w-2xl mx-auto shadow-xl relative group animate-[fadeIn_0.2s_ease-out]">
+          <div className={`bg-white text-slate-900 rounded-xl p-8 max-w-2xl mx-auto shadow-xl relative group ${ANIMATION_CLASSES.fadeIn.fast}`}>
              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
-                  onClick={() => handleCopy(assets.emailPitch, 'email')}
-                  className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors"
-                >
-                  {copiedField === 'email' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
+                 <button 
+                   onClick={() => handleCopy(assets.emailPitch, 'email')}
+                   className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors"
+                   aria-label="Copy email pitch"
+                 >
+                   {copiedField === 'email' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                 </button>
              </div>
              
              <div className="border-b border-slate-200 pb-4 mb-4">
@@ -272,7 +281,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'code' && (
-          <div className="animate-[fadeIn_0.2s_ease-out]">
+          <div className={`${ANIMATION_CLASSES.fadeIn.fast}`}>
              {!assets.landingPageCode ? (
                 <div className="text-center py-12 border border-slate-800 border-dashed rounded-xl">
                    <Code className="w-8 h-8 text-orange-400 mx-auto mb-3" />
@@ -289,12 +298,13 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
              ) : (
                 <div className="relative group">
                    <div className="absolute top-4 right-4 z-10">
-                      <button 
-                        onClick={() => handleCopy(assets.landingPageCode!, 'code')}
-                        className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors shadow-lg"
-                      >
-                        {copiedField === 'code' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      </button>
+                       <button 
+                         onClick={() => handleCopy(assets.landingPageCode!, 'code')}
+                         className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors shadow-lg"
+                         aria-label="Copy landing page code"
+                       >
+                         {copiedField === 'code' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                       </button>
                    </div>
                    <div className="bg-slate-950 rounded-xl border border-slate-800 p-4 max-h-[400px] overflow-auto custom-scrollbar">
                       <pre className="text-xs font-mono text-blue-300 whitespace-pre-wrap">{assets.landingPageCode}</pre>
@@ -314,7 +324,7 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
         )}
 
         {activeTab === 'calendar' && (
-          <div className="animate-[fadeIn_0.2s_ease-out]">
+          <div className={`${ANIMATION_CLASSES.fadeIn.fast}`}>
              {!assets.contentCalendar ? (
                 <div className="text-center py-12 border border-slate-800 border-dashed rounded-xl">
                    <Calendar className="w-8 h-8 text-purple-400 mx-auto mb-3" />
@@ -340,12 +350,13 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
                            {week.posts.map((post, idx) => (
                              <div key={idx} className="bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-purple-500/30 transition-colors group relative">
                                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                   <button 
-                                     onClick={() => handleCopy(post.content, `post-${week.weekNumber}-${idx}`)}
-                                     className="p-1.5 bg-slate-800 text-slate-400 hover:text-white rounded-md"
-                                   >
-                                     {copiedField === `post-${week.weekNumber}-${idx}` ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                   </button>
+                                    <button 
+                                      onClick={() => handleCopy(post.content, `post-${week.weekNumber}-${idx}`)}
+                                      className="p-1.5 bg-slate-800 text-slate-400 hover:text-white rounded-md"
+                                      aria-label="Copy post content"
+                                    >
+                                      {copiedField === `post-${week.weekNumber}-${idx}` ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                    </button>
                                 </div>
                                 <div className="flex items-center gap-2 mb-2">
                                    {post.platform === 'Twitter' ? <Twitter className="w-4 h-4 text-blue-400" /> : 

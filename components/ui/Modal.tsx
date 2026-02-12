@@ -2,6 +2,8 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
+import { Z_INDEX } from '../../constants/zIndex';
+import { ANIMATION_DURATION } from '../../constants/animationConfig';
 
 interface ModalProps {
   isOpen: boolean;
@@ -39,7 +41,7 @@ export const Modal: React.FC<ModalProps> = ({
         } else if (modalRef.current) {
           modalRef.current.focus();
         }
-      }, 0);
+      }, ANIMATION_DURATION.micro.fast);
     } else if (previousActiveElement.current) {
       // Restore focus when modal closes
       (previousActiveElement.current as HTMLElement)?.focus();
@@ -78,7 +80,7 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-[fadeIn_${ANIMATION_TIMING.FADE_FAST}s_${ANIMATION_EASING.DEFAULT}]`}>
+    <div className={`fixed inset-0 ${Z_INDEX.MODAL} flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-[fadeIn_${ANIMATION_TIMING.FADE_FAST}s_${ANIMATION_EASING.DEFAULT}]`}>
       <div 
         ref={modalRef}
         tabIndex={-1}
@@ -93,9 +95,9 @@ export const Modal: React.FC<ModalProps> = ({
               {title}
             </div>
             {!hideCloseButton && (
-              <button 
-                onClick={onClose} 
-                className="text-slate-500 hover:text-white p-2 hover:bg-slate-800 rounded-full transition-colors"
+              <button
+                onClick={onClose}
+                className="text-slate-300 hover:text-white p-2 hover:bg-slate-800 rounded-full transition-colors"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />

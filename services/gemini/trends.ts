@@ -10,6 +10,7 @@ import { TrendListSchema, TrendDeepDiveSchema } from "../../utils/schemas";
 import { promptService } from "../promptService";
 import { Type } from "@google/genai";
 import { indexedDBService } from "../../utils/storageUtils";
+import { DATE_CONFIG, AI_INSTRUCTIONS, MIME_TYPES, CONTENT_LIMITS } from "../../constants/contentConfig";
 
 export const fetchMarketTrends = async (niche: string, lang: Language, region: SearchRegion = 'Global', timeframe: SearchTimeframe = '30d', deepMode: boolean = false, image?: string): Promise<Trend[]> => {
   return retryOperation(async () => {
@@ -19,11 +20,11 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
       
       // Reinforce "Latest" context if timeframe is short
       const urgencyInstruction = (timeframe === '24h' || timeframe === '7d')
-        ? "CRITICAL PRIORITY: YOU ARE A REAL-TIME NEWS SCANNER. The user wants to know what is happening RIGHT NOW. Prioritize BREAKING NEWS, LIVE EVENTS, and DEVELOPING STORIES from the last 24-48 hours. IGNORE general knowledge or outdated trends. If no breaking news exists for this niche, find the most recent relevant update from this week. Do not hallucinate dates."
-        : "Focus on established market shifts and emerging patterns from the last month.";
+        ? AI_INSTRUCTIONS.URGENCY_SHORT_TIMEFRAME
+        : AI_INSTRUCTIONS.URGENCY_STANDARD_TIMEFRAME;
 
       const visualContext = image 
-        ? "VISUAL CONTEXT PROVIDED: An image has been attached. Analyze the image contents and identify trends related to the objects, style, or data visible in the image. Combine this visual insight with the search query."
+        ? AI_INSTRUCTIONS.VISUAL_CONTEXT
         : "";
 
       const prompt = promptService.build('FETCH_TRENDS', {
@@ -32,7 +33,7 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
         region,
         timeframe,
         visualContext,
-        currentDate: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        currentDate: new Date().toLocaleDateString(DATE_CONFIG.DEFAULT_LOCALE, DATE_CONFIG.FORMAT_OPTIONS.fullWithTime)
       });
 
       // Select Model based on mode
@@ -73,10 +74,10 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
       // Add image part if present (Multimodal)
       if (image) {
         let cleanBase64 = "";
-        let mimeType = "image/jpeg";
+        let mimeType = MIME_TYPES.DEFAULT_IMAGE;
 
         if (image.startsWith('asset://')) {
-           const assetId = image.replace('asset://', '');
+           const assetId = image.replace(MIME_TYPES.PATTERNS.ASSET_PROTOCOL, '');
            const blob = await indexedDBService.getAsset(assetId);
            if (blob) {
               mimeType = blob.type;
@@ -84,7 +85,7 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
                 const reader = new FileReader();
                 reader.onloadend = () => {
                   const base64 = reader.result as string;
-                  resolve(base64.replace(/^data:image\/\w+;base64,/, ""));
+                  resolve(base64.replace(MIME_TYPES.PATTERNS.BASE64_HEADER, ""));
                 };
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
@@ -92,9 +93,9 @@ export const fetchMarketTrends = async (niche: string, lang: Language, region: S
            }
         } else {
            // Simple MIME type detection from base64 header
-           const mimeMatch = image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
-           mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-           cleanBase64 = image.replace(/^data:image\/\w+;base64,/, "");
+           const mimeMatch = image.match(MIME_TYPES.PATTERNS.BASE64_HEADER);
+           mimeType = mimeMatch ? mimeMatch[1] : MIME_TYPES.DEFAULT_IMAGE;
+           cleanBase64 = image.replace(MIME_TYPES.PATTERNS.BASE64_HEADER, "");
         }
         
         if (cleanBase64) {
@@ -215,10 +216,10 @@ export const extractTopicFromImage = async (base64Image: string, lang: Language)
       const ai = getGeminiClient();
       
       let cleanBase64 = "";
-      let mimeType = "image/png";
+      let mimeType = MIME_TYPES.DEFAULT_IMAGE;
 
       if (base64Image.startsWith('asset://')) {
-         const assetId = base64Image.replace('asset://', '');
+         const assetId = base64Image.replace(MIME_TYPES.PATTERNS.ASSET_PROTOCOL, '');
          const blob = await indexedDBService.getAsset(assetId);
          if (blob) {
             mimeType = blob.type;
@@ -226,7 +227,7 @@ export const extractTopicFromImage = async (base64Image: string, lang: Language)
               const reader = new FileReader();
               reader.onloadend = () => {
                 const base64 = reader.result as string;
-                resolve(base64.replace(/^data:image\/\w+;base64,/, ""));
+                resolve(base64.replace(MIME_TYPES.PATTERNS.BASE64_HEADER, ""));
               };
               reader.onerror = reject;
               reader.readAsDataURL(blob);
@@ -234,19 +235,15 @@ export const extractTopicFromImage = async (base64Image: string, lang: Language)
          }
       } else {
          // Remove header if present
-         const mimeMatch = base64Image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
-         mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
-         cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
+         const mimeMatch = base64Image.match(MIME_TYPES.PATTERNS.BASE64_HEADER);
+         mimeType = mimeMatch ? mimeMatch[1] : MIME_TYPES.DEFAULT_IMAGE;
+         cleanBase64 = base64Image.replace(MIME_TYPES.PATTERNS.BASE64_HEADER, "");
       }
       
-      const prompt = `
-        Analyze this image. It could be a chart, a product photo, a screenshot of a news article, or a real-world scene.
-        Identify the MAIN SUBJECT, NICHE, or TREND topic represented in this image.
-        Return ONLY a short, searchable string (max 5 words) describing this topic.
-        Example: "AI Semiconductor Market", "Sustainable Sneaker Trends", "EV Battery Tech".
-        Do not explain. Just return the topic string.
-        ${lang === 'id' ? 'Output in Indonesian.' : 'Output in English.'}
-      `;
+      const langInstruction = lang === 'id' ? AI_INSTRUCTIONS.LANGUAGE_OUTPUT.id : AI_INSTRUCTIONS.LANGUAGE_OUTPUT.en;
+      const prompt = AI_INSTRUCTIONS.TOPIC_EXTRACTION
+        .replace('{{maxWords}}', String(CONTENT_LIMITS.TOPIC_EXTRACTION_MAX_WORDS))
+        .replace('{{langInstruction}}', langInstruction);
 
       const response = await ai.models.generateContent({
         model: GEMINI_MODELS.BASIC, // Flash supports vision

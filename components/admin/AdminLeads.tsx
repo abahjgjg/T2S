@@ -1,9 +1,18 @@
-
-import React, { useMemo } from 'react';
+import React, { useMemo, Suspense, lazy } from 'react';
 import { Lead } from '../../types';
 import { TrendingUp, Mail, Download } from 'lucide-react';
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from '../ToastNotifications';
+import { COLORS } from '../../constants/theme';
+import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
+
+// Lazy load chart component to reduce initial bundle
+const LeadsAreaChart = lazy(() => import('./LeadsAreaChart'));
+
+const ChartFallback = () => (
+  <div className="h-32 w-full flex items-center justify-center">
+    <div className="animate-pulse text-slate-500 text-xs">Loading...</div>
+  </div>
+);
 
 interface Props {
   leads: Lead[];
@@ -57,7 +66,7 @@ export const AdminLeads: React.FC<Props> = ({ leads }) => {
   };
 
   return (
-    <div className="space-y-8 animate-[fadeIn_0.3s_ease-out]">
+    <div className={`space-y-8 animate-[fadeIn_${ANIMATION_DURATION.standard.normal}ms_${ANIMATION_EASING.default}]`}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
            <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Total Leads</h4>
@@ -67,22 +76,11 @@ export const AdminLeads: React.FC<Props> = ({ leads }) => {
            <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
              <TrendingUp className="w-4 h-4" /> Growth Over Time
            </h4>
-           <div className="h-32 w-full">
-             <ResponsiveContainer width="100%" height="100%">
-               <AreaChart data={leadGrowthData}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }} 
-                  />
-                  <Area type="monotone" dataKey="count" stroke="#10b981" fillOpacity={1} fill="url(#colorCount)" />
-               </AreaChart>
-             </ResponsiveContainer>
-           </div>
+            <div className="h-32 w-full">
+              <Suspense fallback={<ChartFallback />}>
+                <LeadsAreaChart data={leadGrowthData} />
+              </Suspense>
+            </div>
          </div>
       </div>
 

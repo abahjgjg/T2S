@@ -1,14 +1,21 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense, lazy } from 'react';
 import { Trend } from '../types';
-import { 
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, 
-  ScatterChart, Scatter, ZAxis, ReferenceLine, Label, Cell 
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  ScatterChart, Scatter, ZAxis, ReferenceLine, Label, Cell
 } from 'recharts';
-import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock, Globe, Flame } from 'lucide-react';
-import { TrendDeepDiveModal } from './TrendDeepDiveModal';
+import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock, Globe, Flame, Loader2 } from 'lucide-react';
+
+// Lazy load modal to reduce initial chunk size
+const TrendDeepDiveModal = lazy(() => import('./TrendDeepDiveModal').then(m => ({ default: m.TrendDeepDiveModal })));
 import { usePreferences } from '../contexts/PreferencesContext';
 import { COLORS } from '../constants/theme';
+import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
+import { getSentimentStyle, getSentimentIconConfig, SENTIMENT_COLORS } from '../constants/sentimentConfig';
+import { CHART_RANGES, CHART_MARGINS, CHART_AXIS, CHART_GRID, CHART_HEIGHTS } from '../constants/chartConfig';
+import { isHotTrend } from '../constants/thresholds';
+import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 
 interface Props {
   trends: Trend[];
@@ -21,19 +28,17 @@ interface Props {
   onAskQuestion?: (question: string) => void;
 }
 
-const getSentimentColor = (sentiment?: string) => {
-  switch(sentiment) {
-    case 'Positive': return COLORS.sentiment.positive;
-    case 'Negative': return COLORS.sentiment.negative;
-    default: return COLORS.sentiment.neutral;
-  }
+const SentimentIconComponent: React.FC<{ sentiment?: string }> = ({ sentiment }) => {
+  const config = getSentimentIconConfig(sentiment);
+  const Icon = config.icon;
+  return <Icon className={`w-3.5 h-3.5 ${config.color}`} />;
 };
 
-const getSentimentIcon = (sentiment?: string) => {
+const getSentimentColorForChart = (sentiment?: string): string => {
   switch(sentiment) {
-    case 'Positive': return <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />;
-    case 'Negative': return <TrendingDown className="w-3.5 h-3.5 text-red-400" />;
-    default: return <Minus className="w-3.5 h-3.5 text-blue-400" />;
+    case 'Positive': return SENTIMENT_COLORS.Positive.hex;
+    case 'Negative': return SENTIMENT_COLORS.Negative.hex;
+    default: return SENTIMENT_COLORS.Neutral.hex;
   }
 };
 
@@ -53,9 +58,9 @@ export const TrendAnalysis: React.FC<Props> = ({
   const chartData = useMemo(() => {
     return [...trends]
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
-      .slice(0, 5)
+      .slice(0, DISPLAY_LIMITS.TRENDS_MAX_ITEMS)
       .map(t => ({
-        name: t.title.length > 15 ? t.title.slice(0, 15) + '...' : t.title,
+        name: t.title.length > TEXT_TRUNCATION.TITLE_SHORT ? t.title.slice(0, TEXT_TRUNCATION.TITLE_SHORT) + '...' : t.title,
         fullName: t.title,
         score: t.relevanceScore,
         sentiment: t.sentiment
@@ -88,14 +93,16 @@ export const TrendAnalysis: React.FC<Props> = ({
   const activeTrend = expandedTrendIndex !== null ? trends[expandedTrendIndex] : null;
 
   return (
-    <div className="animate-[fadeIn_0.3s_ease-out]">
+    <div className={`animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}]`}>
       {activeTrend && (
-        <TrendDeepDiveModal 
-          trend={activeTrend}
-          isLoading={isLoadingDeepDive}
-          onClose={() => onToggleExpand(activeTrend, expandedTrendIndex!)}
-          onAskQuestion={onAskQuestion}
-        />
+        <Suspense fallback={null}>
+          <TrendDeepDiveModal
+            trend={activeTrend}
+            isLoading={isLoadingDeepDive}
+            onClose={() => onToggleExpand(activeTrend, expandedTrendIndex!)}
+            onAskQuestion={onAskQuestion}
+          />
+        </Suspense>
       )}
 
       {/* Live News Ticker */}
@@ -160,32 +167,32 @@ export const TrendAnalysis: React.FC<Props> = ({
             </div>
          </div>
          
-          <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 h-[300px] relative overflow-hidden">
-             {viewMode === 'list' && (
-               <ResponsiveContainer width="100%" height="100%">
-                 <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                   <CartesianGrid strokeDasharray="3 3" stroke={COLORS.chart.grid} horizontal={true} vertical={false} />
-                   <XAxis type="number" domain={[0, 100]} stroke={COLORS.chart.axis} fontSize={12} tickLine={false} axisLine={false} />
-                   <YAxis dataKey="name" type="category" width={120} stroke={COLORS.slate[400]} fontSize={12} tickLine={false} axisLine={false} />
+          <div className={`lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 h-[${CHART_HEIGHTS.TREND_ANALYSIS}px] relative overflow-hidden`}>
+              {viewMode === 'list' && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} layout="vertical" margin={CHART_MARGINS.DEFAULT}>
+                    <CartesianGrid strokeDasharray={CHART_GRID.strokeDasharray} stroke={COLORS.chart.grid} horizontal={CHART_GRID.horizontal} vertical={CHART_GRID.vertical} />
+                    <XAxis type="number" domain={[CHART_RANGES.SCORE.min, CHART_RANGES.SCORE.max]} stroke={COLORS.chart.axis} fontSize={CHART_AXIS.fontSize} tickLine={CHART_AXIS.tickLine} axisLine={CHART_AXIS.axisLine} />
+                    <YAxis dataKey="name" type="category" width={120} stroke={COLORS.slate[400]} fontSize={CHART_AXIS.fontSize} tickLine={CHART_AXIS.tickLine} axisLine={CHART_AXIS.axisLine} />
                    <Tooltip contentStyle={{ backgroundColor: COLORS.chart.tooltipBg, borderColor: COLORS.chart.tooltipBorder, color: COLORS.chart.tooltipText }} />
-                   <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={20}>
-                     {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColor(entry.sentiment)} />)}
-                   </Bar>
+                    <Bar dataKey="score" radius={CHART_RANGES.BAR_RADIUS} barSize={CHART_RANGES.BAR_SIZE}>
+                      {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColorForChart(entry.sentiment)} />)}
+                    </Bar>
                  </BarChart>
                </ResponsiveContainer>
              )}
              
-             {viewMode === 'matrix' && (
-               <ResponsiveContainer width="100%" height="100%">
-                 <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                   <CartesianGrid strokeDasharray="3 3" stroke={COLORS.chart.grid} />
-                   <XAxis type="number" dataKey="x" name="Relevance" unit="%" stroke={COLORS.chart.axis} domain={[0, 100]}><Label value="Relevance" offset={-10} position="insideBottom" fill={COLORS.chart.axisLabel} fontSize={10} /></XAxis>
-                   <YAxis type="number" dataKey="y" name="Growth" unit="%" stroke={COLORS.chart.axis} domain={[0, 100]}><Label value="Growth/Hype" angle={-90} position="insideLeft" fill={COLORS.chart.axisLabel} fontSize={10} /></YAxis>
-                   <ZAxis type="number" dataKey="z" range={[50, 400]} name="Impact" />
+              {viewMode === 'matrix' && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart margin={CHART_MARGINS.SCATTER}>
+                    <CartesianGrid strokeDasharray={CHART_GRID.strokeDasharray} stroke={COLORS.chart.grid} />
+                    <XAxis type="number" dataKey="x" name="Relevance" unit="%" stroke={COLORS.chart.axis} domain={[CHART_RANGES.SCORE.min, CHART_RANGES.SCORE.max]}><Label value="Relevance" offset={-10} position="insideBottom" fill={COLORS.chart.axisLabel} fontSize={10} /></XAxis>
+                    <YAxis type="number" dataKey="y" name="Growth" unit="%" stroke={COLORS.chart.axis} domain={[CHART_RANGES.GROWTH.min, CHART_RANGES.GROWTH.max]}><Label value="Growth/Hype" angle={-90} position="insideLeft" fill={COLORS.chart.axisLabel} fontSize={10} /></YAxis>
+                    <ZAxis type="number" dataKey="z" range={[CHART_RANGES.IMPACT_SIZE.min, CHART_RANGES.IMPACT_SIZE.max]} name="Impact" />
                    <Tooltip contentStyle={{ backgroundColor: COLORS.chart.tooltipBg, borderColor: COLORS.chart.tooltipBorder, color: COLORS.chart.tooltipText }} />
-                   <Scatter name="Trends" data={scatterData} fill={COLORS.sentiment.positive}>
-                     {scatterData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColor(entry.sentiment)} />)}
-                   </Scatter>
+                    <Scatter name="Trends" data={scatterData} fill={COLORS.sentiment.positive}>
+                      {scatterData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColorForChart(entry.sentiment)} />)}
+                    </Scatter>
                  </ScatterChart>
                </ResponsiveContainer>
              )}
@@ -195,7 +202,7 @@ export const TrendAnalysis: React.FC<Props> = ({
                  <div className="relative pl-4 space-y-4">
                     <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-500/20 via-slate-800 to-transparent"></div>
                     {timelineData.map((trend, i) => (
-                      <div key={i} className="relative pl-6 group cursor-pointer animate-[fadeIn_0.3s_ease-out]" onClick={() => { const originalIdx = trends.findIndex(t => t.title === trend.title); onToggleExpand(trend, originalIdx); }}>
+                       <div key={i} className={`relative pl-6 group cursor-pointer animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}]`} onClick={() => { const originalIdx = trends.findIndex(t => t.title === trend.title); onToggleExpand(trend, originalIdx); }}>
                          <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-slate-900 border-2 border-slate-700 group-hover:border-blue-400 group-hover:bg-blue-900/30 transition-colors z-10"></div>
                          <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-800 group-hover:border-blue-500/30 hover:bg-slate-800/50 transition-all">
                             <div className="flex justify-between items-start mb-1">
@@ -215,7 +222,7 @@ export const TrendAnalysis: React.FC<Props> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {trends.map((trend, idx) => {
-          const isHot = (trend.growthScore || 0) > 80;
+           const hot = isHotTrend(trend.growthScore);
           const sourceCount = trend.sources?.length || 0;
           
           return (
@@ -227,16 +234,16 @@ export const TrendAnalysis: React.FC<Props> = ({
               )}
               
               <div className="mb-4 pr-8">
-                {isHot && (
+                 {hot && (
                   <div className="inline-flex items-center gap-1 mb-2 px-2 py-0.5 rounded-full bg-orange-950/40 border border-orange-500/30 text-[10px] font-bold text-orange-400 uppercase tracking-wider animate-pulse">
                     <Flame className="w-3 h-3" /> Trending Now
                   </div>
                 )}
                 <h4 className="font-bold text-white text-lg leading-tight group-hover:text-emerald-400 transition-colors">{trend.title}</h4>
                 <div className="flex flex-wrap items-center gap-2 mt-2 mb-3">
-                   <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border ${trend.sentiment === 'Positive' ? 'bg-emerald-950/30 text-emerald-400 border-emerald-500/20' : trend.sentiment === 'Negative' ? 'bg-red-950/30 text-red-400 border-red-500/20' : 'bg-blue-950/30 text-blue-400 border-blue-500/20'}`}>
-                      {getSentimentIcon(trend.sentiment)} {trend.sentiment || 'News'} Signal
-                   </div>
+                    <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border ${getSentimentStyle(trend.sentiment).bg} ${getSentimentStyle(trend.sentiment).text} ${getSentimentStyle(trend.sentiment).border}`}>
+                       <SentimentIconComponent sentiment={trend.sentiment} /> {trend.sentiment || 'News'} Signal
+                    </div>
                    {trend.date && (
                      <div className="px-2 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-950 border border-slate-800 flex items-center gap-1">
                        <Clock className="w-3 h-3" /> {trend.date}

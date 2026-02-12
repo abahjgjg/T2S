@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Share2, CheckSquare, Square, CheckCircle2 } from 'lucide-react';
 import { Blueprint } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { CopyButton } from './ui/CopyButton';
 
 interface Props {
   roadmap: Blueprint['roadmap'];
@@ -17,20 +18,36 @@ export const BlueprintRoadmap: React.FC<Props> = ({ roadmap, progress = {}, onTo
     let total = 0;
     let completed = 0;
     roadmap.forEach(phase => {
-      phase.tasks.forEach(task => {
+      phase.tasks.forEach(t => {
         total++;
-        if (progress[task]) completed++;
+        if (progress[t]) completed++;
       });
     });
     return { total, completed, percentage: total === 0 ? 0 : Math.round((completed / total) * 100) };
   }, [roadmap, progress]);
 
+  const roadmapText = useMemo(() => {
+    return roadmap.map(phase => {
+      return `${phase.phase}:\n${phase.tasks.map(t => `- [${progress[t] ? 'x' : ' '}] ${t}`).join('\n')}`;
+    }).join('\n\n');
+  }, [roadmap, progress]);
+
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid">
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid relative group">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <Share2 className="w-5 h-5 text-orange-400" /> {uiText.roadmap}
-        </h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-orange-400" /> {uiText.roadmap}
+          </h3>
+          <CopyButton
+            text={roadmapText}
+            ariaLabel="Copy Roadmap"
+            tooltip="Copy Roadmap to Clipboard"
+            variant="subtle"
+            size="sm"
+            revealOnHover
+          />
+        </div>
         
         {/* Progress Bar */}
         {onToggleTask && (
@@ -71,13 +88,24 @@ export const BlueprintRoadmap: React.FC<Props> = ({ roadmap, progress = {}, onTo
                 {phase.tasks.map((task, t) => {
                   const isDone = !!progress[task];
                   
+                  const handleKeyDown = (e: React.KeyboardEvent) => {
+                    if (onToggleTask && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      onToggleTask(task);
+                    }
+                  };
+
                   return (
                     <li 
                       key={t} 
                       className={`group flex items-start gap-3 text-sm transition-all ${
                         isDone ? 'text-slate-500' : 'text-slate-300'
-                      } ${onToggleTask ? 'cursor-pointer hover:bg-slate-800/50 p-2 rounded-lg -ml-2' : ''}`}
+                      } ${onToggleTask ? 'cursor-pointer hover:bg-slate-800/50 focus:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 p-2 rounded-lg -ml-2' : ''}`}
                       onClick={() => onToggleTask && onToggleTask(task)}
+                      onKeyDown={handleKeyDown}
+                      tabIndex={onToggleTask ? 0 : -1}
+                      role={onToggleTask ? 'checkbox' : undefined}
+                      aria-checked={onToggleTask ? isDone : undefined}
                     >
                       {onToggleTask ? (
                         <div className={`mt-0.5 shrink-0 transition-colors ${isDone ? 'text-emerald-500' : 'text-slate-600 group-hover:text-emerald-400'}`}>

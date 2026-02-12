@@ -1,33 +1,37 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, Suspense } from 'react';
 import { Blueprint, BusinessIdea, CompetitorAnalysis } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { supabaseService } from '../services/supabaseService';
-import { toast } from './ToastNotifications'; 
-import { ShieldCheck, Loader2, TrendingUp, ArrowUp } from 'lucide-react';
+import { toast } from './ToastNotifications';
+import { ShieldCheck, Loader2, TrendingUp } from 'lucide-react';
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { useBlueprintMedia } from '../hooks/useBlueprintMedia';
 import { usePreferences } from '../contexts/PreferencesContext';
-import { BlueprintChat } from './BlueprintChat';
-import { LivePitchModal } from './LivePitchModal';
-import { SwotAnalysis } from './SwotAnalysis';
-import { LocationScoutModal } from './LocationScoutModal';
 import { BlueprintHeader } from './BlueprintHeader';
 import { BlueprintHero } from './BlueprintHero';
 import { BlueprintVisuals } from './BlueprintVisuals';
-import { BlueprintAgents } from './BlueprintAgents';
-import { CompetitorAnalysisModal } from './CompetitorAnalysisModal';
-import { BlueprintRoadmap } from './BlueprintRoadmap';
-import { BlueprintRevenue } from './BlueprintRevenue';
-import { BlueprintLaunchpad } from './BlueprintLaunchpad';
-import { BlueprintAuditModal } from './BlueprintAuditModal';
-import { BusinessModelCanvas } from './BusinessModelCanvas';
-import { BrandStudio } from './BrandStudio';
-import { CustomerPersonas } from './CustomerPersonas'; 
-import { PresentationMode } from './PresentationMode'; 
 import { BlueprintCompetitors } from './blueprint/BlueprintCompetitors';
 import { BlueprintAffiliates } from './blueprint/BlueprintAffiliates';
 import { BlueprintStrategies } from './blueprint/BlueprintStrategies';
-import { BlueprintMarkdownViewer } from './blueprint/BlueprintMarkdownViewer';
+import { TEXT_TRUNCATION } from '../constants/displayConfig';
+import { BRAND_CONFIG } from '../config';
+
+// Lazy load modal components and heavy sections for better performance
+const LivePitchModal = React.lazy(() => import('./LivePitchModal').then(m => ({ default: m.LivePitchModal })));
+const LocationScoutModal = React.lazy(() => import('./LocationScoutModal').then(m => ({ default: m.LocationScoutModal })));
+const CompetitorAnalysisModal = React.lazy(() => import('./CompetitorAnalysisModal').then(m => ({ default: m.CompetitorAnalysisModal })));
+const BlueprintAuditModal = React.lazy(() => import('./BlueprintAuditModal').then(m => ({ default: m.BlueprintAuditModal })));
+const PresentationMode = React.lazy(() => import('./PresentationMode').then(m => ({ default: m.PresentationMode })));
+const SwotAnalysis = React.lazy(() => import('./SwotAnalysis').then(m => ({ default: m.SwotAnalysis })));
+const BlueprintRoadmap = React.lazy(() => import('./BlueprintRoadmap').then(m => ({ default: m.BlueprintRoadmap })));
+const BlueprintRevenue = React.lazy(() => import('./BlueprintRevenue').then(m => ({ default: m.BlueprintRevenue })));
+const BlueprintLaunchpad = React.lazy(() => import('./BlueprintLaunchpad').then(m => ({ default: m.BlueprintLaunchpad })));
+const BlueprintAgents = React.lazy(() => import('./BlueprintAgents').then(m => ({ default: m.BlueprintAgents })));
+const BusinessModelCanvas = React.lazy(() => import('./BusinessModelCanvas').then(m => ({ default: m.BusinessModelCanvas })));
+const BrandStudio = React.lazy(() => import('./BrandStudio').then(m => ({ default: m.BrandStudio })));
+const CustomerPersonas = React.lazy(() => import('./CustomerPersonas').then(m => ({ default: m.CustomerPersonas })));
+const BlueprintMarkdownViewer = React.lazy(() => import('./blueprint/BlueprintMarkdownViewer').then(m => ({ default: m.BlueprintMarkdownViewer })));
+const BlueprintChat = React.lazy(() => import('./BlueprintChat').then(m => ({ default: m.BlueprintChat })));
 
 interface Props {
   idea: BusinessIdea;
@@ -56,6 +60,7 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
 
   const { provider, language, uiText } = usePreferences();
   const isGemini = provider === 'gemini';
+  // Note: updates parameters used in callback functions
 
   const { 
     play: playSummary, 
@@ -113,10 +118,10 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
       
       if (updates) {
         onUpdateBlueprint(updates);
-        toast.success(`Pivot Applied: ${pivot}`);
+        toast.success((uiText.pivotApplied || "Pivot Applied: {pivot}").replace('{pivot}', pivot));
         setShowAuditModal(false);
       } else {
-        toast.error("AI could not generate pivot updates.");
+        toast.error(uiText.pivotUpdateFailed || "AI could not generate pivot updates.");
       }
     } catch (e) {
       console.error("Pivot failed", e);
@@ -148,12 +153,12 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
 
     try {
       const aiService = getAIService(provider);
-      const nicheContext = idea.type + " " + idea.description.slice(0, 50);
+      const nicheContext = idea.type + " " + idea.description.slice(0, TEXT_TRUNCATION.NICHE_CONTEXT);
       const analysis = await aiService.analyzeCompetitor(compName, nicheContext, language);
       setCompetitorData(analysis);
     } catch (e) {
       console.error("Failed to analyze competitor", e);
-      toast.error("Analysis failed. Try again.");
+      toast.error(uiText.analysisFailed || "Analysis failed. Try again.");
       setShowCompetitorModal(false);
     } finally {
       setAnalyzingCompetitor(null);
@@ -255,9 +260,9 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
       <div className="hidden print:flex flex-col items-center justify-center h-screen text-center print:break-after-page">
          <div className="flex items-center gap-2 mb-8">
             <TrendingUp className="w-10 h-10 text-emerald-600" />
-            <h1 className="text-3xl font-bold tracking-tighter text-slate-900">
-              Trend<span className="text-emerald-600">Ventures</span> AI
-            </h1>
+             <h1 className="text-3xl font-bold tracking-tighter text-slate-900">
+               {BRAND_CONFIG.NAME}<span className="text-emerald-600">{BRAND_CONFIG.NAME_HIGHLIGHT}</span>
+             </h1>
          </div>
          <h1 className="text-6xl font-black text-slate-900 mb-4">{idea.name}</h1>
          <p className="text-2xl text-slate-600 mb-12">{idea.description}</p>
@@ -269,49 +274,51 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
          </div>
       </div>
 
-      {showPitchModal && (
-        <LivePitchModal 
-          blueprint={blueprint} 
-          idea={idea}
-          onClose={() => setShowPitchModal(false)}
-          onUpdateBlueprint={onUpdateBlueprint}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showPitchModal && (
+          <LivePitchModal
+            blueprint={blueprint}
+            idea={idea}
+            onClose={() => setShowPitchModal(false)}
+            onUpdateBlueprint={onUpdateBlueprint}
+          />
+        )}
 
-      {showLocationModal && (
-        <LocationScoutModal
-          isOpen={showLocationModal}
-          onClose={() => setShowLocationModal(false)}
-          idea={idea}
-          onSaveToBlueprint={handleSaveLocationStrategy}
-        />
-      )}
+        {showLocationModal && (
+          <LocationScoutModal
+            isOpen={showLocationModal}
+            onClose={() => setShowLocationModal(false)}
+            idea={idea}
+            onSaveToBlueprint={handleSaveLocationStrategy}
+          />
+        )}
 
-      {showAuditModal && blueprint.viabilityAudit && (
-        <BlueprintAuditModal 
-          audit={blueprint.viabilityAudit}
-          isOpen={showAuditModal}
-          onClose={() => setShowAuditModal(false)}
-          onApplyPivot={handleApplyPivot}
-          isPivoting={isPivoting}
-        />
-      )}
+        {showAuditModal && blueprint.viabilityAudit && (
+          <BlueprintAuditModal
+            audit={blueprint.viabilityAudit}
+            isOpen={showAuditModal}
+            onClose={() => setShowAuditModal(false)}
+            onApplyPivot={handleApplyPivot}
+            isPivoting={isPivoting}
+          />
+        )}
 
-      {showPresentation && (
-        <PresentationMode 
-          idea={idea}
-          blueprint={blueprint}
-          onClose={() => setShowPresentation(false)}
-        />
-      )}
+        {showPresentation && (
+          <PresentationMode
+            idea={idea}
+            blueprint={blueprint}
+            onClose={() => setShowPresentation(false)}
+          />
+        )}
 
-      <CompetitorAnalysisModal 
-        isOpen={showCompetitorModal}
-        onClose={() => setShowCompetitorModal(false)}
-        analyzingCompetitor={analyzingCompetitor}
-        competitorData={competitorData}
-        onSaveToSWOT={handleSaveCompetitorInsights}
-      />
+        <CompetitorAnalysisModal
+          isOpen={showCompetitorModal}
+          onClose={() => setShowCompetitorModal(false)}
+          analyzingCompetitor={analyzingCompetitor}
+          competitorData={competitorData}
+          onSaveToSWOT={handleSaveCompetitorInsights}
+        />
+      </Suspense>
 
       <div className="print:hidden">
         <BlueprintHeader 
@@ -384,85 +391,87 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
         />
       </div>
 
-      <div className="print:break-inside-avoid">
-        <BrandStudio 
-          idea={idea} 
-          blueprint={blueprint} 
-          brandIdentity={blueprint.brandIdentity}
-          onUpdateBlueprint={onUpdateBlueprint}
-          onUpdateIdea={onUpdateIdea}
-        />
-      </div>
+      <Suspense fallback={<div className="h-32 flex items-center justify-center"><Loader2 className="w-6 h-6 text-emerald-500 animate-spin" /></div>}>
+        <div className="print:break-inside-avoid">
+          <BrandStudio
+            idea={idea}
+            blueprint={blueprint}
+            brandIdentity={blueprint.brandIdentity}
+            onUpdateBlueprint={onUpdateBlueprint}
+            onUpdateIdea={onUpdateIdea}
+          />
+        </div>
 
-      <div className="print:break-inside-avoid">
-        <CustomerPersonas 
-          idea={idea}
+        <div className="print:break-inside-avoid">
+          <CustomerPersonas
+            idea={idea}
+            blueprint={blueprint}
+            personas={blueprint.personas}
+            onUpdateBlueprint={onUpdateBlueprint}
+          />
+        </div>
+
+        <div className="print:break-inside-avoid">
+          <BlueprintLaunchpad
+            idea={idea}
+            blueprint={blueprint}
+            assets={blueprint.launchAssets}
+            onUpdateBlueprint={onUpdateBlueprint}
+          />
+        </div>
+
+        <div className="print:break-inside-avoid">
+          <BusinessModelCanvas
+            idea={idea}
+            blueprint={blueprint}
+            bmc={blueprint.bmc}
+            onUpdateBlueprint={onUpdateBlueprint}
+          />
+        </div>
+
+        <div className="print:break-inside-avoid">
+          <BlueprintAgents
+            agents={agents}
+            isGenerating={isGeneratingAgents}
+            onGenerate={handleGenerateAgents}
+            onUpdateBlueprint={onUpdateBlueprint}
+          />
+        </div>
+
+        <div className="print:break-inside-avoid">
+          <BlueprintRevenue
+            revenueStreams={blueprint.revenueStreams}
+            onUpdate={handleUpdateRevenue}
+          />
+        </div>
+
+        {blueprint.swot && (
+           <div className="print:break-inside-avoid">
+             <SwotAnalysis data={blueprint.swot} />
+           </div>
+        )}
+
+        <div className="print:break-inside-avoid">
+          <BlueprintRoadmap
+            roadmap={blueprint.roadmap}
+            progress={blueprint.roadmapProgress}
+            onToggleTask={handleToggleTask}
+          />
+        </div>
+
+        <div className="print:break-before-page">
+          <BlueprintMarkdownViewer
+            content={blueprint.fullContentMarkdown}
+            affiliateMap={affiliateMap}
+            onAffiliateClick={handleAffiliateClick}
+          />
+        </div>
+
+        <BlueprintChat
           blueprint={blueprint}
-          personas={blueprint.personas}
           onUpdateBlueprint={onUpdateBlueprint}
         />
-      </div>
-
-      <div className="print:break-inside-avoid">
-        <BlueprintLaunchpad 
-          idea={idea} 
-          blueprint={blueprint} 
-          assets={blueprint.launchAssets}
-          onUpdateBlueprint={onUpdateBlueprint}
-        />
-      </div>
-
-      <div className="print:break-inside-avoid">
-        <BusinessModelCanvas 
-          idea={idea} 
-          blueprint={blueprint} 
-          bmc={blueprint.bmc}
-          onUpdateBlueprint={onUpdateBlueprint}
-        />
-      </div>
-
-      <div className="print:break-inside-avoid">
-        <BlueprintAgents 
-          agents={agents}
-          isGenerating={isGeneratingAgents}
-          onGenerate={handleGenerateAgents}
-          onUpdateBlueprint={onUpdateBlueprint}
-        />
-      </div>
-
-      <div className="print:break-inside-avoid">
-        <BlueprintRevenue 
-          revenueStreams={blueprint.revenueStreams} 
-          onUpdate={handleUpdateRevenue}
-        />
-      </div>
-
-      {blueprint.swot && (
-         <div className="print:break-inside-avoid">
-           <SwotAnalysis data={blueprint.swot} />
-         </div>
-      )}
-
-      <div className="print:break-inside-avoid">
-        <BlueprintRoadmap 
-          roadmap={blueprint.roadmap} 
-          progress={blueprint.roadmapProgress}
-          onToggleTask={handleToggleTask}
-        />
-      </div>
-
-      <div className="print:break-before-page">
-        <BlueprintMarkdownViewer 
-          content={blueprint.fullContentMarkdown} 
-          affiliateMap={affiliateMap}
-          onAffiliateClick={handleAffiliateClick}
-        />
-      </div>
-
-      <BlueprintChat 
-        blueprint={blueprint} 
-        onUpdateBlueprint={onUpdateBlueprint}
-      />
+      </Suspense>
     </div>
   );
 };

@@ -5,7 +5,7 @@
 TrendVentures AI is a market intelligence suite generating business blueprints via Gemini/OpenAI.
 
 ## Current Architecture
-- **Frontend**: React 18 (Vite), TailwindCSS.
+- **Frontend**: React 19 (Vite), TailwindCSS.
 - **State**: React Context (`AuthContext`, `PreferencesContext`) + Modular Engines (`useTrendEngine`, `useIdeaEngine`, `useBlueprintEngine`) coordinated by `useResearch`.
 - **Hooks (Feature Logic)**: 
   - `useVoiceSummary`: Handles AI text-to-speech audio context and playback.

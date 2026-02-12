@@ -3,6 +3,7 @@ import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
 import { OPENAI_MODELS, MEDIA_CONFIG } from "../../constants/aiConfig";
 import { API_ENDPOINTS, VOICE_NAMES, IMAGE_SIZES, RESPONSE_FORMATS } from "../../constants/apiConfig";
+import { promptService } from "../promptService";
 
 export const generateVoiceSummary = async (text: string, lang: Language): Promise<string | null> => {
   const apiKey = process.env.API_KEY;
@@ -44,7 +45,12 @@ export const generateBrandImage = async (ideaName: string, description: string, 
   if (!apiKey) throw new Error("API Key not configured");
 
   return retryOperation(async () => {
-    const prompt = `Professional logo design for "${ideaName}". ${description}. Style: ${style}. Vector flat design.`;
+    // Flexy loves modular prompts! Using centralized prompt service instead of hardcoded string.
+    const prompt = promptService.build('GENERATE_IMAGE_PROMPT', {
+      name: ideaName,
+      description: description,
+      style: style
+    });
 
     const response = await fetch(API_ENDPOINTS.OPENAI.IMAGES, {
       method: "POST",

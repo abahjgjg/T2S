@@ -1,16 +1,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, User, Bot, Loader2, Minimize2, Maximize2, Zap } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Minimize2 } from 'lucide-react';
 import { Blueprint, ChatMessage } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { toast } from './ToastNotifications';
 import { GEMINI_MODELS, OPENAI_MODELS } from '../constants/aiConfig';
 import { SafeMarkdown } from './SafeMarkdown';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { MODAL_DIMENSIONS, MODAL_Z_INDEX } from '../constants/modalConfig';
+import { Z_INDEX } from '../constants/zIndex';
+import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 
 interface Props {
   blueprint: Blueprint;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint }) => {
@@ -20,7 +23,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { provider, language, uiText } = usePreferences();
+  const { provider, language } = usePreferences();
   const aiService = getAIService(provider);
 
   useEffect(() => {
@@ -39,10 +42,10 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
     setIsLoading(true);
 
     try {
-      const { text, updates } = await aiService.sendBlueprintChat(messages, userMsg.content, blueprint, language);
+      const { text, updates: _updates } = await aiService.sendBlueprintChat(messages, userMsg.content, blueprint, language);
       
-      if (updates) {
-        onUpdateBlueprint(updates);
+      if (_updates) {
+        onUpdateBlueprint(_updates);
         toast.success("Blueprint updated based on your request.");
         
         setMessages(prev => [
@@ -65,11 +68,11 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
 
   return (
     <>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed z-50 bottom-6 right-6 p-4 rounded-full shadow-lg transition-all transform hover:scale-105 ${
-            isOpen 
-            ? 'bg-slate-700 text-slate-300' 
+        className={`fixed ${MODAL_Z_INDEX.FLOATING_BUTTON} bottom-6 right-6 p-4 rounded-full shadow-lg transition-all transform hover:scale-105 ${
+            isOpen
+            ? 'bg-slate-700 text-slate-300'
             : 'bg-emerald-600 text-white shadow-emerald-500/30'
         } print:hidden`}
         aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
@@ -79,7 +82,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
       </button>
 
       {isOpen && (
-        <div className="fixed z-40 bottom-24 right-6 w-full max-w-sm md:max-w-md h-[500px] md:h-[600px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out] print:hidden">
+        <div className={`fixed ${Z_INDEX.OVERLAY} bottom-24 right-6 ${MODAL_DIMENSIONS.CHAT.width} ${MODAL_DIMENSIONS.CHAT.height} bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[slideUp_${ANIMATION_TIMING.SLIDE_UP}s_${ANIMATION_EASING.DEFAULT}] print:hidden`}>
           <div className="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
             <div className="flex items-center gap-2">
                <Bot className="w-5 h-5 text-emerald-400" />
@@ -117,7 +120,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
                 
                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}`}>
                   <div className="prose prose-invert prose-xs max-w-none">
-                    <SafeMarkdown content={msg.content} components={{ p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} /> }} />
+                    <SafeMarkdown content={msg.content} components={{ p: (props) => <p className="mb-1 last:mb-0" {...props} /> }} />
                   </div>
                 </div>
 
@@ -134,9 +137,10 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
                  <div className="w-8 h-8 rounded-full bg-emerald-900/50 border border-emerald-500/20 flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4 text-emerald-400" />
                  </div>
-                 <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
-                    <span className="text-xs text-slate-400">Processing changes...</span>
+                 <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-1" aria-label="AI is typing">
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                  </div>
               </div>
             )}

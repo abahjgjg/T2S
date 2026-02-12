@@ -7,12 +7,14 @@ import { toast } from './ToastNotifications';
 import { SafeMarkdown } from './SafeMarkdown';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { COORDINATE_PRECISION, TEXT_TRUNCATION } from '../constants/displayLimits';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   idea: BusinessIdea;
-  onSaveToBlueprint: (strategy: string) => void;
+  onSaveToBlueprint: (_strategy: string) => void;
 }
 
 export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onSaveToBlueprint }) => {
@@ -52,7 +54,7 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        setLocation(`${latitude.toFixed(COORDINATE_PRECISION.latitude)}, ${longitude.toFixed(COORDINATE_PRECISION.longitude)}`);
         toast.success("Coordinates acquired!");
       },
       (error) => {
@@ -63,7 +65,7 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
 
   const handleAddToBlueprint = () => {
     if (!result) return;
-    const strategy = `Target Expansion in ${location}: ${result.summary.slice(0, 150)}...`;
+    const strategy = `Target Expansion in ${location}: ${result.summary.slice(0, TEXT_TRUNCATION.insight)}...`;
     onSaveToBlueprint(strategy);
     setIsSaved(true);
     toast.success("Added to Marketing Strategy");
@@ -83,15 +85,15 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
              <div className="mb-6">
                 <p className="text-slate-300 text-sm mb-4 leading-relaxed">Analyze specific cities or regions to find competitors, assess market density, and identify the best spots for your <strong>{idea.type}</strong> business.</p>
                 <div className="flex gap-2">
-                   <div className="relative flex-1"><MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-500" /><input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={uiText.locationPrompt} className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" onKeyDown={(e) => e.key === 'Enter' && handleScout()} /></div>
-                   <button onClick={handleUseMyLocation} className="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors" title={uiText.useMyLocation}><Navigation className="w-4 h-4" /></button>
+                    <div className="relative flex-1"><MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-500" /><input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={uiText.locationPrompt} aria-label={uiText.locationPrompt} className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" onKeyDown={(e) => e.key === 'Enter' && handleScout()} /></div>
+                     <button onClick={handleUseMyLocation} className="px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors" title={uiText.useMyLocation} aria-label={uiText.useMyLocation}><Navigation className="w-4 h-4" /></button>
                    <button onClick={handleScout} disabled={loading || !location} className="px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : uiText.scoutLocation}</button>
                 </div>
              </div>
            )}
            {loading && (<div className="flex flex-col items-center justify-center py-12"><Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" /><p className="text-slate-400 animate-pulse">{uiText.findingPlaces}</p></div>)}
-           {result && (
-             <div className="animate-[fadeIn_0.5s_ease-out]">
+            {result && (
+              <div className={`${ANIMATION_CLASSES.fadeIn.slow}`}>
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-white text-lg flex items-center gap-2"><MapPin className="w-5 h-5 text-red-500" /> Results for {location}</h3>
                   <div className="flex gap-3"><button onClick={handleAddToBlueprint} disabled={isSaved} className={`text-xs font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors ${isSaved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}>{isSaved ? <Check className="w-3 h-3" /> : <PlusCircle className="w-3 h-3" />}{isSaved ? "Strategy Added" : "Add to Plan"}</button><button onClick={() => setResult(null)} className="text-xs text-blue-400 hover:text-blue-300 underline">New Search</button></div>

@@ -4,6 +4,7 @@ import { Modality } from "@google/genai";
 import { Language } from "../../types";
 import { retryOperation } from "../../utils/retryUtils";
 import { getGeminiClient } from "./shared";
+import { AUDIO_PROCESSING_CONFIG } from "../../constants/audioVisualizerConfig";
 import { GEMINI_MODELS, MEDIA_CONFIG } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
 
@@ -45,7 +46,7 @@ export const generateBrandImage = async (ideaName: string, description: string, 
       const prompt = promptService.build('GENERATE_IMAGE_PROMPT', {
         name: ideaName,
         description,
-        style: style || "Minimalist, Tech-focused, Clean lines, Vector art style"
+        style: style || MEDIA_CONFIG.DEFAULT_IMAGE_STYLE
       });
 
       const response = await ai.models.generateContent({
@@ -87,8 +88,8 @@ export const generateMarketingVideo = async (ideaName: string, description: stri
         prompt: prompt,
         config: {
           numberOfVideos: 1,
-          resolution: '720p',
-          aspectRatio: '16:9'
+          resolution: MEDIA_CONFIG.VIDEO_RESOLUTION,
+          aspectRatio: MEDIA_CONFIG.VIDEO_ASPECT_RATIO
         }
       });
 
@@ -112,5 +113,5 @@ export const generateMarketingVideo = async (ideaName: string, description: stri
       console.error("Error generating marketing video:", error);
       throw error;
     }
-  }, 1, 1000);
+  }, MEDIA_CONFIG.RETRY.DEFAULT_MAX_RETRIES, MEDIA_CONFIG.RETRY.LONG_DELAY_MS);
 };

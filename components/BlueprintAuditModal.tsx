@@ -1,17 +1,22 @@
-
-
-
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { ViabilityAudit } from '../types';
 import { Target, Zap, AlertTriangle, ShieldCheck, CheckCircle2, RefreshCcw } from 'lucide-react';
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
 import { Modal } from './ui/Modal';
+import { SCORE_THRESHOLDS } from '../constants/displayLimits';
 
+// Lazy load radar chart to reduce initial bundle
+const AuditRadarChart = lazy(() => import('./AuditRadarChart'));
+
+const ChartFallback = () => (
+  <div className="h-[250px] w-full flex items-center justify-center">
+    <div className="animate-pulse text-slate-500">Loading chart...</div>
+  </div>
+);
 interface Props {
   audit: ViabilityAudit;
   isOpen: boolean;
   onClose: () => void;
-  onApplyPivot: (pivot: string) => void;
+  onApplyPivot: (_pivot: string) => void;
   isPivoting: boolean;
 }
 
@@ -24,8 +29,8 @@ export const BlueprintAuditModal: React.FC<Props> = ({ audit, isOpen, onClose, o
   }));
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-emerald-400';
-    if (score >= 50) return 'text-yellow-400';
+    if (score >= SCORE_THRESHOLDS.excellent) return 'text-emerald-400';
+    if (score >= SCORE_THRESHOLDS.average) return 'text-yellow-400';
     return 'text-red-400';
   };
 
@@ -57,26 +62,11 @@ export const BlueprintAuditModal: React.FC<Props> = ({ audit, isOpen, onClose, o
                  </div>
               </div>
 
-              <div className="h-[250px] w-full">
-                 <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                      <PolarGrid stroke="#334155" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                      <Radar
-                        name="Score"
-                        dataKey="A"
-                        stroke="#8b5cf6"
-                        fill="#8b5cf6"
-                        fillOpacity={0.4}
-                      />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }}
-                        itemStyle={{ color: '#a78bfa' }}
-                      />
-                    </RadarChart>
-                 </ResponsiveContainer>
-              </div>
+               <div className="h-[250px] w-full">
+                  <Suspense fallback={<ChartFallback />}>
+                    <AuditRadarChart data={radarData} />
+                  </Suspense>
+               </div>
            </div>
 
            {/* Hard Truths */}
@@ -108,7 +98,7 @@ export const BlueprintAuditModal: React.FC<Props> = ({ audit, isOpen, onClose, o
                            <span className={`text-xs font-bold ${getScoreColor(dim.score)}`}>{dim.score}</span>
                          </div>
                          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                           <div className={`h-full ${dim.score >= 80 ? 'bg-emerald-500' : dim.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${dim.score}%` }}></div>
+                            <div className={`h-full ${dim.score >= SCORE_THRESHOLDS.excellent ? 'bg-emerald-500' : dim.score >= SCORE_THRESHOLDS.average ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${dim.score}%` }}></div>
                          </div>
                       </div>
                       <p className="text-xs text-slate-400 leading-relaxed border-l border-slate-800 pl-4">

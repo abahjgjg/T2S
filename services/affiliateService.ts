@@ -15,7 +15,7 @@ export const affiliateService = {
 
     const recommendations: AffiliateProduct[] = [];
     let updatedMarkdown = blueprint.fullContentMarkdown;
-    let updatedSummary = blueprint.executiveSummary;
+    const updatedSummary = blueprint.executiveSummary;
     const updatedTechStack = [...blueprint.technicalStack];
 
     // Helper to escape regex special characters

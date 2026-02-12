@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap');
+@import "tailwindcss";
+
+/* CSS Custom Properties - Generated from constants/cssVariables.ts
+ * Flexy: All values are configurable via environment variables
+ * This eliminates hardcoded values and makes the system modular
+ */
+:root {
+  /* Primary brand colors */
+  --color-primary-emerald: #10b981;
+  --color-primary-blue: #3b82f6;
+  --color-primary-purple: #8b5cf6;
+  
+  /* Slate palette (dark theme base) */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+  
+  /* Status colors */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  
+  /* Semantic colors */
+  --color-focus: #10b981;
+  --color-accent: #10b981;
+  
+  /* Scrollbar colors */
+  --color-scrollbar-track: var(--color-slate-900);
+  --color-scrollbar-thumb: var(--color-slate-700);
+  --color-scrollbar-thumb-hover: var(--color-slate-600);
+  
+  /* Print colors */
+  --color-print-bg: #ffffff;
+  --color-print-text: #000000;
+  --color-print-border: #e2e8f0;
+  
+  /* Animation durations */
+  --animation-duration-shimmer: 2000ms;
+  --animation-duration-marquee: 30000ms;
+  --animation-duration-spin-slow: 8000ms;
+  --animation-duration-float: 3000ms;
+  --animation-duration-shake: 500ms;
+  --animation-duration-focus: 200ms;
+  
+  /* Layout */
+  --scrollbar-width: 8px;
+  --scrollbar-height: 8px;
+  --scrollbar-border-radius: 4px;
+  --outline-width: 2px;
+  --outline-offset: 2px;
+  
+  /* Typography */
+  --font-family-sans: 'Inter', sans-serif;
+  --font-family-mono: 'Fira Code', monospace;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 800;
+  
+  /* Reduced motion */
+  --reduced-motion-duration: 0.01ms;
+  --reduced-motion-iteration: 1;
+}
+
+@theme {
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+  
+  --animate-shimmer: shimmer var(--animation-duration-shimmer) infinite linear;
+  --animate-marquee: marquee var(--animation-duration-marquee) linear infinite;
+  --animate-spin-slow: spin-slow var(--animation-duration-spin-slow) linear infinite;
+  --animate-float: float var(--animation-duration-float) ease-in-out infinite;
+  --animate-shake: shake var(--animation-duration-shake) cubic-bezier(0.36, 0, 0.66, -0.56);
+  --animate-ripple: ripple 300ms ease-out forwards;
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+  }
+  
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+}
+
+/* Custom scrollbar for dark theme - Uses CSS custom properties */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-height);
+}
+::-webkit-scrollbar-track {
+  background: var(--color-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-thumb);
+  border-radius: var(--scrollbar-border-radius);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-thumb-hover);
+}
+
+/* Accessibility: Enhanced focus-visible styles for keyboard navigation */
+:focus-visible {
+  outline: var(--outline-width) solid var(--color-focus);
+  outline-offset: var(--outline-offset);
+}
+
+/* Remove default focus outline when focus-visible is supported */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Accessibility: Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: var(--reduced-motion-duration) !important;
+    animation-iteration-count: var(--reduced-motion-iteration) !important;
+    transition-duration: var(--reduced-motion-duration) !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential UI feedback but make it instant */
+  .animate-pulse,
+  .animate-bounce,
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
+/* Smooth scrolling for anchor links (when motion is allowed) */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: auto;
+  }
+  
+  body {
+    background-color: var(--color-print-bg) !important;
+    color: var(--color-print-text) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Force Reset for Dark Mode Containers */
+  [class*='bg-slate-'], [class*='bg-gray-'], [class*='bg-zinc-'] {
+    background-color: var(--color-print-bg) !important;
+    border-color: var(--color-print-border) !important;
+    color: var(--color-print-text) !important;
+  }
+  
+  /* Ensure text visibility */
+  [class*='text-slate-'], [class*='text-gray-'], [class*='text-white'] {
+    color: var(--color-slate-900) !important;
+  }
+  
+  /* Keep accent colors but make them printable */
+  [class*='text-emerald-'], [class*='text-blue-'], [class*='text-purple-'] {
+    filter: brightness(0.8);
+  }
+
+  /* Hide UI elements */
+  header, nav, button, .no-print {
+    display: none !important;
+  }
+
+  /* Typography optimizations */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    color: var(--color-print-text) !important;
+  }
+  
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Layout cleanup */
+  .grid {
+    display: block !important;
+  }
+  .grid > * {
+    margin-bottom: 2rem;
+    page-break-inside: avoid;
+  }
+
+  /* Hide scrollbars in print */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}

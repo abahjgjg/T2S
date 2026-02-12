@@ -1,17 +1,20 @@
 
 import React, { useState } from 'react';
-import { Bot, Copy, Edit2, Trash2, Plus, X, Check, Sparkles, MessageSquare, Save, Cpu, PlayCircle } from 'lucide-react';
+import { Bot, Copy, Edit2, Trash2, Plus, Check, MessageSquare, Save, Cpu, PlayCircle } from 'lucide-react';
 import { AgentProfile, Blueprint } from '../types';
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { UI_TIMING } from '../constants/uiConfig';
 import { AgentChatModal } from './AgentChatModal';
+import { Z_INDEX } from '../constants/zIndex';
+import { EmptyState } from './ui/EmptyState';
 
 interface Props {
   agents: AgentProfile[];
   isGenerating: boolean;
   onGenerate: () => void;
-  onUpdateBlueprint: (updates: Partial<Blueprint>) => void;
+  onUpdateBlueprint: (_updates: Partial<Blueprint>) => void;
 }
 
 export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGenerate, onUpdateBlueprint }) => {
@@ -22,6 +25,7 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
   const [editForm, setEditForm] = useState<Partial<AgentProfile>>({});
   const [isAdding, setIsAdding] = useState(false);
   const { uiText } = usePreferences();
+  const { confirm } = useConfirm();
 
   const handleCopySystemPrompt = (prompt: string, index: number) => {
     navigator.clipboard.writeText(prompt);
@@ -30,8 +34,15 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
     setTimeout(() => setCopiedAgentIndex(null), UI_TIMING.COPY_FEEDBACK_DURATION);
   };
 
-  const handleDeleteAgent = (index: number) => {
-    if (window.confirm("Remove this agent from your team?")) {
+  const handleDeleteAgent = async (index: number) => {
+    const confirmed = await confirm({
+      title: 'Remove Agent?',
+      message: 'Remove this agent from your team?',
+      confirmText: 'Remove',
+      cancelText: 'Keep',
+      variant: 'warning',
+    });
+    if (confirmed) {
       const newAgents = [...agents];
       newAgents.splice(index, 1);
       onUpdateBlueprint({ agents: newAgents });
@@ -90,7 +101,7 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
   };
 
   const renderEditor = () => (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+    <div className={`fixed inset-0 ${Z_INDEX.MAXIMUM} flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]`}>
       <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">{isAdding ? <Plus className="w-5 h-5 text-emerald-400" /> : <Edit2 className="w-5 h-5 text-blue-400" />} {isAdding ? "Hire Custom Agent" : "Edit Agent Profile"}</h3>
         <div className="space-y-4">
@@ -125,12 +136,14 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
         <AgentChatModal agent={selectedAgent} isOpen={!!selectedAgent} onClose={() => { setSelectedAgent(null); setInitialTask(null); }} initialMessage={initialTask} />
       )}
       {isGenerating ? (
-        <div className="flex flex-col items-center justify-center py-12 bg-slate-950/30 rounded-lg border border-slate-800 border-dashed">
-          <Cpu className="w-8 h-8 text-pink-500 animate-spin mb-3" />
-          <p className="text-slate-400 text-sm animate-pulse">{uiText.generatingAgents}</p>
-        </div>
+        <EmptyState
+          variant="generating"
+          icon={<Cpu className="w-12 h-12 text-pink-500 animate-spin" />}
+          title="Architecting AI Team..."
+          description={uiText.generatingAgents}
+        />
       ) : agents.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-[fadeIn_0.3s_ease-out]">
           {agents.map((agent, index) => (
             <div key={index} className="bg-slate-950 border border-slate-800 rounded-xl p-5 hover:border-pink-500/30 transition-all flex flex-col group relative">
               <div className="flex justify-between items-start mb-3">
@@ -138,7 +151,7 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
                     <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-pink-500/50 transition-colors"><Bot className="w-5 h-5 text-pink-500" /></div>
                     <div><h4 className="font-bold text-white text-sm">{agent.name}</h4><p className="text-xs text-slate-500 font-mono">{agent.role}</p></div>
                  </div>
-                 <div className="flex gap-1"><button onClick={() => handleStartEdit(agent, index)} className="p-1.5 text-slate-500 hover:text-blue-400 transition-colors"><Edit2 className="w-3 h-3" /></button><button onClick={() => handleDeleteAgent(index)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="w-3 h-3" /></button></div>
+                  <div className="flex gap-1"><button onClick={() => handleStartEdit(agent, index)} className="p-1.5 text-slate-500 hover:text-blue-400 transition-colors" aria-label="Edit agent"><Edit2 className="w-3 h-3" /></button><button onClick={() => handleDeleteAgent(index)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors" aria-label="Delete agent"><Trash2 className="w-3 h-3" /></button></div>
               </div>
               <p className="text-sm text-slate-400 mb-4 line-clamp-2 min-h-[40px]">{agent.objective}</p>
               {agent.suggestedTasks && agent.suggestedTasks.length > 0 && (
@@ -160,10 +173,25 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
           ))}
         </div>
       ) : (
-        <div className="text-center py-10 bg-slate-950/30 rounded-lg border border-slate-800 border-dashed">
-          <p className="text-slate-500 text-sm mb-4 max-w-md mx-auto">{uiText.agentsDesc}</p>
-          <button onClick={onGenerate} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm font-bold border border-slate-700"><Cpu className="w-4 h-4" /> {uiText.generateAgents}</button>
-        </div>
+        <EmptyState
+          variant="default"
+          icon={<Bot className="w-12 h-12 text-slate-500" />}
+          title="Autonomous AI Team"
+          description={uiText.agentsDesc}
+          action={
+            <button
+              onClick={onGenerate}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white rounded-xl transition-all hover:scale-105 shadow-lg shadow-pink-900/20 font-bold"
+            >
+              <Cpu className="w-5 h-5" /> {uiText.generateAgents}
+            </button>
+          }
+          tips={[
+            { text: "Agents are specialized with custom system prompts for your specific niche" },
+            { text: "Each agent comes with recommended tools and suggested tasks" },
+            { text: "Start a real-time chat with any agent to execute business operations" }
+          ]}
+        />
       )}
     </div>
   );

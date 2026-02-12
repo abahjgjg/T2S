@@ -3,8 +3,10 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Header } from './components/Header';
 import { TrendSearch } from './components/TrendSearch';
 import { IdeaSelection } from './components/IdeaSelection';
-import { BlueprintView } from './components/BlueprintView';
 import { ToastNotifications } from './components/ToastNotifications';
+
+// Lazy load BlueprintView - only needed when viewing a blueprint
+const BlueprintView = React.lazy(() => import('./components/BlueprintView').then(module => ({ default: module.BlueprintView })));
 import { getAIService } from './services/aiRegistry';
 import { supabaseService } from './services/supabaseService';
 import { promptService } from './services/promptService';
@@ -15,10 +17,13 @@ import { useResearch } from './hooks/useResearch';
 import { indexedDBService } from './utils/storageUtils';
 import { useAuth } from './contexts/AuthContext';
 import { usePreferences } from './contexts/PreferencesContext';
+import { useConfirm } from './contexts/ConfirmContext';
 import { useRouter } from './hooks/useRouter';
 import { STORAGE_KEYS } from './constants/storageConfig';
-import { SEO_CONFIG, getOgImageUrl } from './constants/appConfig';
+import { SEO_CONFIG, getOgImageUrl, SCROLL_CONFIG } from './constants/appConfig';
 import { DEFAULT_SEARCH_CONFIG } from './constants/searchConfig';
+import { ROUTES, buildRoute } from './constants/routes';
+import { Z_INDEX } from './constants/zIndex';
 
 // Lazy Load Heavy Route Components
 const PublicBlogView = React.lazy(() => import('./components/PublicBlogView').then(module => ({ default: module.PublicBlogView })));
@@ -29,10 +34,10 @@ const ProjectLibrary = React.lazy(() => import('./components/ProjectLibrary').th
 
 const LIBRARY_KEY = STORAGE_KEYS.PROJECT_LIBRARY;
 
-const FullScreenLoader = () => (
+const FullScreenLoader = ({ text }: { text?: string }) => (
   <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
     <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
-    <p className="text-slate-400 font-medium animate-pulse">Loading Application Module...</p>
+    <p className="text-slate-400 font-medium animate-pulse">{text || "Loading..."}</p>
   </div>
 );
 
@@ -40,6 +45,7 @@ const App: React.FC = () => {
   const { language, provider, setProvider, uiText } = usePreferences();
   const { pushState, getParams, getPath } = useRouter();
   const { user, openAuthModal } = useAuth();
+  const { confirm } = useConfirm();
 
   const aiService = getAIService(provider);
   const { state: rState, setters: rSetters, actions: rActions } = useResearch(aiService, language, user?.id);
@@ -50,27 +56,33 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      setShowScrollTop(window.scrollY > SCROLL_CONFIG.THRESHOLD);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: SCROLL_CONFIG.TOP_POSITION, behavior: 'smooth' });
   }, []);
   
-  const handleReset = useCallback(() => {
-    const confirmMsg = uiText.resetConfirmation;
+  const handleReset = useCallback(async () => {
+    const confirmed = await confirm({
+      title: uiText.resetConfirmationTitle || 'Start New Research?',
+      message: uiText.resetConfirmation || 'This will clear your current research. Any unsaved progress will be lost.',
+      confirmText: uiText.confirm || 'Start New',
+      cancelText: uiText.cancel || 'Keep Working',
+      variant: 'warning',
+    });
 
-    if (window.confirm(confirmMsg)) {
+    if (confirmed) {
       rActions.resetResearch();
-      pushState('/');
+      pushState(ROUTES.HOME);
     }
-  }, [uiText.resetConfirmation, rActions, pushState]);
+  }, [uiText.resetConfirmation, uiText.resetConfirmationTitle, uiText.confirm, uiText.cancel, rActions, pushState, confirm]);
 
   const handleSearch = useCallback(async (searchTerm: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => {
-    const newUrl = `/idea?niche=${encodeURIComponent(searchTerm)}`;
+    const newUrl = buildRoute.idea({ niche: searchTerm });
     pushState(newUrl);
     rActions.executeSearchSequence(searchTerm, region, timeframe, deepMode, image);
   }, [pushState, rActions]);
@@ -78,13 +90,13 @@ const App: React.FC = () => {
   const handleIdeaSelectionWrapper = useCallback(async (idea: any) => {
     const publishedId = await rActions.handleSelectIdea(idea);
     if (publishedId) {
-      pushState(`/blueprint?id=${publishedId}`);
+      pushState(buildRoute.blueprint({ id: publishedId }));
     }
   }, [pushState, rActions]);
 
   const handleBackToIdeasWrapper = useCallback(() => {
     rActions.handleBackToIdeas();
-    pushState(`/idea?niche=${encodeURIComponent(rState.niche)}`);
+    pushState(buildRoute.idea({ niche: rState.niche }));
   }, [pushState, rActions, rState.niche]);
 
   const handleRouting = useCallback(async (isInitialLoad = false) => {
@@ -93,30 +105,30 @@ const App: React.FC = () => {
     const params = getParams();
     const path = getPath();
 
-    if (path.includes('/admin')) {
+    if (path.includes(ROUTES.ADMIN)) {
       rSetters.setAppState('ADMIN');
       return;
     }
 
-    if (path.includes('/dashboard')) {
+    if (path.includes(ROUTES.DASHBOARD)) {
       rSetters.setAppState('DASHBOARD');
       return;
     }
 
-    if (path.includes('/directory')) {
+    if (path.includes(ROUTES.DIRECTORY)) {
       rSetters.setAppState('DIRECTORY');
       return;
     }
 
     const sharedId = params.get('id');
-    if (path.includes('/blueprint') && sharedId) {
+    if (path.includes(ROUTES.BLUEPRINT) && sharedId) {
       if (rState.appState === 'VIEWING' && rState.currentBlueprintId === sharedId) return;
       rSetters.setAppState('VIEWING_PUBLIC');
       return;
     }
 
     const sharedNiche = params.get('niche');
-    if (path.includes('/idea') && sharedNiche) {
+    if (path.includes(ROUTES.IDEA) && sharedNiche) {
       if (rState.niche === sharedNiche && rState.ideas.length > 0) {
         rSetters.setSelectedIdea(null);
         rSetters.setBlueprint(null);
@@ -129,7 +141,7 @@ const App: React.FC = () => {
       return;
     }
 
-    if (path === '/' || path === '') {
+    if (path === ROUTES.HOME || path === '') {
       if (!isInitialLoad) {
         rActions.resetResearch();
       }
@@ -165,9 +177,9 @@ const App: React.FC = () => {
   }, [rState.isRestoring, handleRouting]);
 
   useEffect(() => {
-    if (!user && window.location.pathname.includes('/dashboard')) {
+    if (!user && window.location.pathname.includes(ROUTES.DASHBOARD)) {
         rSetters.setAppState('IDLE');
-        pushState('/');
+        pushState(ROUTES.HOME);
     }
   }, [user, rSetters, pushState]);
 
@@ -217,7 +229,7 @@ const App: React.FC = () => {
         const { error } = await supabaseService.saveCloudProject(newProject, user.id);
         if (error) {
            console.warn("Failed to save to cloud:", error);
-           rSetters.setError("Project saved locally, but cloud sync failed.");
+           rSetters.setError(uiText.cloudSyncFailed);
         }
       }
     } else {
@@ -248,7 +260,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mb-4" />
-        <h2 className="text-xl font-bold text-slate-900">Restoring Session...</h2>
+        <h2 className="text-xl font-bold text-slate-900">{uiText.restoringSession}</h2>
       </div>
     );
   }
@@ -256,12 +268,12 @@ const App: React.FC = () => {
   if (rState.appState === 'VIEWING_PUBLIC') {
     const sharedId = new URLSearchParams(window.location.search).get('id');
     return (
-      <Suspense fallback={<FullScreenLoader />}>
+      <Suspense fallback={<FullScreenLoader text={uiText.loadingModule} />}>
         <PublicBlogView 
           id={sharedId}
           onHome={() => {
             rSetters.setAppState('IDLE');
-            pushState('/');
+            pushState(ROUTES.HOME);
           }}
         />
         <ToastNotifications />
@@ -271,11 +283,11 @@ const App: React.FC = () => {
 
   if (rState.appState === 'ADMIN') {
     return (
-      <Suspense fallback={<FullScreenLoader />}>
+      <Suspense fallback={<FullScreenLoader text={uiText.loadingModule} />}>
         <AdminPanel 
           onExit={() => {
             rSetters.setAppState('IDLE');
-            pushState('/');
+            pushState(ROUTES.HOME);
           }}
           user={user}
           onLogin={openAuthModal}
@@ -289,21 +301,21 @@ const App: React.FC = () => {
 
   if (rState.appState === 'DASHBOARD') {
     return (
-      <Suspense fallback={<FullScreenLoader />}>
+      <Suspense fallback={<FullScreenLoader text={uiText.loadingModule} />}>
         {user ? (
           <UserDashboard 
             user={user}
             onHome={() => {
               rSetters.setAppState('IDLE');
-              pushState('/');
+              pushState(ROUTES.HOME);
             }}
           />
         ) : (
           <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-            <h2 className="text-2xl font-bold text-white mb-4">Please Log In</h2>
-            <p className="text-slate-400 mb-6">You need to be signed in to view your dashboard.</p>
-            <button onClick={openAuthModal} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">Log In</button>
-            <button onClick={() => { rSetters.setAppState('IDLE'); pushState('/'); }} className="mt-4 text-slate-500 hover:text-white">Go Home</button>
+            <h2 className="text-2xl font-bold text-white mb-4">{uiText.pleaseLogIn}</h2>
+            <p className="text-slate-400 mb-6">{uiText.loginRequiredDashboard}</p>
+            <button onClick={openAuthModal} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">{uiText.login}</button>
+            <button onClick={() => { rSetters.setAppState('IDLE'); pushState(ROUTES.HOME); }} className="mt-4 text-slate-500 hover:text-white">{uiText.back}</button>
           </div>
         )}
         <ToastNotifications />
@@ -316,7 +328,7 @@ const App: React.FC = () => {
       {/* Accessibility: Skip to main content link for keyboard users */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-lg focus:font-bold focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white"
+        className={`sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 ${Z_INDEX.TOAST} focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-lg focus:font-bold focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white`}
       >
         Skip to main content
       </a>
@@ -326,16 +338,16 @@ const App: React.FC = () => {
         onOpenLibrary={() => setIsLibraryOpen(true)}
         onOpenDirectory={() => {
           rSetters.setAppState('DIRECTORY');
-          pushState('/directory');
+          pushState(ROUTES.DIRECTORY);
         }}
         onOpenAdmin={() => {
           rSetters.setAppState('ADMIN');
-          pushState('/admin');
+          pushState(ROUTES.ADMIN);
         }}
         onLogin={() => {
           if (user) {
              rSetters.setAppState('DASHBOARD');
-             pushState('/dashboard');
+             pushState(ROUTES.DASHBOARD);
           } else {
              openAuthModal();
           }
@@ -346,7 +358,11 @@ const App: React.FC = () => {
         {rState.error && (
           <div className="max-w-2xl mx-auto mt-6 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg flex items-start justify-between gap-4 animate-[fadeIn_0.3s_ease-out]">
             <p className="font-semibold">{rState.error}</p>
-            <button onClick={rActions.dismissError} className="text-red-400 hover:text-white transition-colors">
+            <button
+              onClick={rActions.dismissError}
+              className="text-red-400 hover:text-white transition-colors"
+              aria-label="Dismiss error"
+            >
               <XCircle className="w-5 h-5" />
             </button>
           </div>
@@ -369,7 +385,7 @@ const App: React.FC = () => {
            <Suspense fallback={<div className="py-20 flex justify-center"><Loader2 className="w-10 h-10 text-emerald-500 animate-spin" /></div>}>
              <Directory 
                onViewBlueprint={(id) => {
-                 pushState(`/blueprint?id=${id}`);
+                 pushState(buildRoute.blueprint({ id }));
                  rSetters.setAppState('VIEWING_PUBLIC');
                }} 
               />
@@ -422,16 +438,23 @@ const App: React.FC = () => {
         )}
 
         {rState.appState === 'VIEWING' && rState.selectedIdea && rState.blueprint && (
-          <BlueprintView 
-            idea={rState.selectedIdea} 
-            blueprint={rState.blueprint} 
-            onBack={handleBackToIdeasWrapper} 
-            onSaveToLibrary={handleSaveProject}
-            onUpdateBlueprint={rActions.updateBlueprint}
-            onUpdateIdea={rActions.updateIdea}
-            isSaved={savedProjects.some(p => p.id === rState.selectedIdea!.id)}
-            publishedUrl={rState.currentBlueprintId ? `${window.location.origin}/blueprint?id=${rState.currentBlueprintId}` : null}
-          />
+          <Suspense fallback={
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
+              <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
+              <p className="text-slate-400 font-medium animate-pulse">Loading Blueprint...</p>
+            </div>
+          }>
+            <BlueprintView 
+              idea={rState.selectedIdea} 
+              blueprint={rState.blueprint} 
+              onBack={handleBackToIdeasWrapper} 
+              onSaveToLibrary={handleSaveProject}
+              onUpdateBlueprint={rActions.updateBlueprint}
+              onUpdateIdea={rActions.updateIdea}
+              isSaved={savedProjects.some(p => p.id === rState.selectedIdea!.id)}
+              publishedUrl={rState.currentBlueprintId ? `${window.location.origin}/blueprint?id=${rState.currentBlueprintId}` : null}
+            />
+          </Suspense>
         )}
       </main>
 
@@ -442,8 +465,15 @@ const App: React.FC = () => {
             onClose={() => setIsLibraryOpen(false)}
             projects={savedProjects}
             onLoad={handleLoadProject}
-            onDelete={(id) => {
-               if (window.confirm(uiText.delete + '?')) {
+            onDelete={async (id) => {
+               const confirmed = await confirm({
+                 title: uiText.deleteConfirmationTitle || 'Delete Project?',
+                 message: uiText.deleteConfirmation || 'This project will be permanently deleted. This action cannot be undone.',
+                 confirmText: uiText.delete || 'Delete',
+                 cancelText: uiText.cancel || 'Cancel',
+                 variant: 'danger',
+               });
+               if (confirmed) {
                  setSavedProjects(prev => prev.filter(p => p.id !== id));
                }
             }}

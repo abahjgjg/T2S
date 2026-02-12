@@ -4,6 +4,9 @@ import { Sparkles, Bot, ShieldCheck, ShieldAlert, Database, Upload, Download, Al
 import { toast } from '../ToastNotifications';
 import { indexedDBService } from '../../utils/storageUtils';
 import { AIProvider } from '../../types';
+import { DEV_CONFIG } from '../../constants/appConfig';
+import { useConfirm } from '../../contexts/ConfirmContext';
+import { COLORS } from '../../constants/theme';
 
 interface Props {
   provider: AIProvider;
@@ -14,6 +17,7 @@ interface Props {
 
 export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEmail, onResetOwnership }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { confirm } = useConfirm();
 
   const handleBackup = async () => {
     try {
@@ -38,7 +42,15 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!window.confirm("This will overwrite current local data. Continue?")) {
+    const confirmed = await confirm({
+      title: 'Restore Database?',
+      message: 'This will overwrite all current local data with the backup file. This action cannot be undone.',
+      confirmText: 'Restore',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -46,7 +58,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
       const text = await file.text();
       await indexedDBService.importDatabase(text);
       toast.success("Database Restored. Reloading...");
-      setTimeout(() => window.location.reload(), 1000);
+      setTimeout(() => window.location.reload(), DEV_CONFIG.RELOAD_DELAY_MS);
     } catch (e) {
       console.error(e);
       toast.error("Import Failed: Invalid File");
@@ -66,7 +78,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
             onClick={() => setProvider('gemini')}
             className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-4 ${
               provider === 'gemini' 
-              ? 'bg-emerald-900/20 border-emerald-500/50 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]' 
+              ? `bg-emerald-900/20 border-emerald-500/50 shadow-[0_0_20px_-5px_${COLORS.shadow.emerald}]` 
               : 'bg-slate-950 border-slate-800 hover:border-slate-700'
             }`}
           >
@@ -83,7 +95,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
             onClick={() => setProvider('openai')}
             className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-4 ${
               provider === 'openai' 
-              ? 'bg-blue-900/20 border-blue-500/50 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)]' 
+              ? `bg-blue-900/20 border-blue-500/50 shadow-[0_0_20px_-5px_${COLORS.shadow.blue}]` 
               : 'bg-slate-950 border-slate-800 hover:border-slate-700'
             }`}
           >

@@ -2,17 +2,21 @@ import React, { useState, useMemo } from 'react';
 import { SavedProject, UserProfile } from '../types';
 import { supabaseService } from '../services/supabaseService';
 import { Trash2, FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search, History, Clock } from 'lucide-react';
+import { ProjectCardSkeleton } from './ui/ProjectCardSkeleton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { useConfirm } from '../contexts/ConfirmContext';
+import { CACHE_CONFIG } from '../constants/appConfig';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   projects: SavedProject[];
   onLoad: (project: SavedProject) => void;
-  onDelete: (id: string) => void; 
+  onDelete: (_id: string) => void; 
   user: UserProfile | null;
   onOpenLogin: () => void;
 }
@@ -21,6 +25,7 @@ const BUSINESS_TYPES = ['All', 'SaaS', 'Agency', 'Content', 'E-commerce', 'Platf
 
 export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: localProjects, onLoad, onDelete, user, onOpenLogin }) => {
   const { uiText } = usePreferences();
+  const { confirm } = useConfirm();
   const [activeTab, setActiveTab] = useState<'local' | 'cloud' | 'recent'>('local');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
@@ -40,7 +45,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
       return data;
     },
     enabled: isOpen && activeTab === 'cloud' && !!user,
-    staleTime: 1000 * 60 * 5, 
+    staleTime: CACHE_CONFIG.DEFAULT_STALE_TIME_MS,
   });
 
   const deleteMutation = useMutation({
@@ -63,14 +68,21 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
 
   const handleDeleteCloud = async (id: string) => {
     if (!user) return;
-    if (!window.confirm("Delete from cloud permanently?")) return;
+    const confirmed = await confirm({
+      title: uiText.deleteCloudTitle || 'Delete from Cloud?',
+      message: uiText.deleteCloudMsg || 'This project will be permanently deleted from the cloud. This action cannot be undone.',
+      confirmText: uiText.delete || 'Delete',
+      cancelText: uiText.keep || 'Keep',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     deleteMutation.mutate(id);
   };
 
   const recentSearches = useMemo(() => {
     if (!isOpen) return [];
     try {
-      const saved = localStorage.getItem('trendventures_search_history');
+      const saved = localStorage.getItem(STORAGE_KEYS.SEARCH_HISTORY);
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
@@ -102,32 +114,33 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           onClick={() => setActiveTab('local')}
           className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'local' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
         >
-          <HardDrive className="w-4 h-4" /> Local
+          <HardDrive className="w-4 h-4" /> {uiText.libraryTabs?.local || "Local"}
         </button>
         <button
           onClick={() => setActiveTab('cloud')}
           className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'cloud' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
         >
-          <Cloud className="w-4 h-4" /> Cloud
+          <Cloud className="w-4 h-4" /> {uiText.libraryTabs?.cloud || "Cloud"}
         </button>
         <button
           onClick={() => setActiveTab('recent')}
           className={`pb-2 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'recent' ? 'border-orange-500 text-orange-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
         >
-          <History className="w-4 h-4" /> Recent
+          <History className="w-4 h-4" /> {uiText.libraryTabs?.recent || "Recent"}
         </button>
       </div>
 
       <div className="flex flex-col gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Search projects..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
-            />
+             <input
+               type="text"
+               placeholder={uiText.searchProjects || "Search projects..."}
+               aria-label={uiText.searchProjects || "Search projects"}
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+               className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+             />
           </div>
           
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -156,21 +169,19 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
           {activeTab === 'cloud' && !user && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                <Cloud className="w-16 h-16 mb-4 opacity-20" />
-               <p className="text-lg font-medium mb-2">Sync Your Projects</p>
-               <p className="text-sm opacity-60 max-w-xs text-center mb-6">Log in to save your blueprints to the cloud.</p>
+               <p className="text-lg font-medium mb-2">{uiText.syncProjects || "Sync Your Projects"}</p>
+               <p className="text-sm opacity-60 max-w-xs text-center mb-6">{uiText.syncProjectsDesc || "Log in to save your blueprints to the cloud."}</p>
                <button 
                  onClick={onOpenLogin}
                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors"
                >
-                 <LogIn className="w-4 h-4" /> Log In
+                 <LogIn className="w-4 h-4" /> {uiText.login || "Log In"}
                </button>
             </div>
           )}
 
           {activeTab === 'cloud' && user && loadingCloud && (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-            </div>
+            <ProjectCardSkeleton count={4} />
           )}
 
           {activeTab === 'cloud' && user && cloudError && (
@@ -203,7 +214,7 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
                         }}
                         className="text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1"
                       >
-                         Re-scan <ArrowRight className="w-3 h-3" />
+                         {uiText.rescan || "Re-scan"} <ArrowRight className="w-3 h-3" />
                       </button>
                    </div>
                  ))
@@ -215,16 +226,23 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
             <div className="text-center py-12 text-slate-500">
               <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium">
-                {searchTerm || filterType !== 'All' ? "No matches found." : (activeTab === 'local' ? uiText.noProjects : "No cloud saves yet.")}
+                {searchTerm || filterType !== 'All' ? (uiText.noMatches || "No matches found.") : (activeTab === 'local' ? uiText.noProjects : (uiText.noCloudSaves || "No cloud saves yet."))}
               </p>
             </div>
           )}
 
           {(activeTab === 'local' || (activeTab === 'cloud' && user)) && filteredProjects.map((project) => (
-              <div key={project.id} className="bg-slate-950 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-4 transition-all group relative">
+              <div 
+                key={project.id} 
+                className="bg-slate-950 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-4 transition-all duration-300 ease-out group relative cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/10"
+                role="button"
+                tabIndex={0}
+                onClick={() => onLoad(project)}
+                onKeyDown={(e) => e.key === 'Enter' && onLoad(project)}
+              >
                 <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1 cursor-pointer" onClick={() => onLoad(project)}>
-                    <h3 className="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mb-1.5 text-lg">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors duration-300 mb-1.5 text-lg">
                       {project.idea.name}
                     </h3>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -243,21 +261,25 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
                   
                   <div className="flex items-center gap-2 shrink-0">
                      <button 
-                        onClick={() => onLoad(project)}
-                        className="flex items-center gap-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-lg transition-colors border border-emerald-500/20"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onLoad(project);
+                        }}
+                        className="flex items-center gap-1 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-lg transition-all duration-300 border border-emerald-500/20 hover:scale-105 active:scale-95"
                      >
                        {uiText.load} <ArrowRight className="w-3 h-3" />
                      </button>
-                     <button 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          activeTab === 'local' ? onDelete(project.id) : handleDeleteCloud(project.id); 
-                        }}
-                        disabled={deleteMutation.isPending}
-                        className="p-2 text-slate-500 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 disabled:opacity-50"
-                     >
-                       {activeTab === 'cloud' && deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                     </button>
+                      <button 
+                         onClick={(e) => { 
+                           e.stopPropagation(); 
+                           activeTab === 'local' ? onDelete(project.id) : handleDeleteCloud(project.id); 
+                         }}
+                         disabled={deleteMutation.isPending}
+                         className="p-2 text-slate-500 hover:text-red-400 transition-all duration-300 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 disabled:opacity-50 hover:scale-105 active:scale-95"
+                         aria-label="Delete project"
+                      >
+                        {activeTab === 'cloud' && deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
                   </div>
                 </div>
               </div>

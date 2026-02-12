@@ -3,8 +3,9 @@ import { DEFAULT_PROMPTS, PromptKey } from '../constants/systemPrompts';
 import { interpolate } from '../utils/promptUtils';
 import { safeLocalStorage } from '../utils/storageUtils';
 import { supabaseService } from './supabaseService';
+import { STORAGE_KEYS } from '../constants/storageConfig';
 
-const STORAGE_KEY = 'trendventures_prompts_v1';
+const STORAGE_KEY = STORAGE_KEYS.PROMPTS;
 
 export const promptService = {
   /**

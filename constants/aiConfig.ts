@@ -1,82 +1,119 @@
+/**
+ * AI Model Configuration
+ * Centralized configuration for AI model names and media generation settings
+ * Flexy: Uses centralized env utilities for modularity
+ * 
+ * All values can be overridden via environment variables.
+ */
 
+import { getEnv, getEnvNumber } from '../utils/envUtils';
+
+// Gemini Models - Configurable via environment variables
 export const GEMINI_MODELS = {
   // Basic Text Tasks (summarization, proofreading, simple Q&A, fast generation)
-  BASIC: 'gemini-3-flash-preview',
+  BASIC: getEnv('VITE_GEMINI_MODEL_BASIC', 'gemini-3-flash-preview'),
   
   // Complex Text Tasks (reasoning, coding, blueprint generation)
-  COMPLEX: 'gemini-3-pro-preview',
+  COMPLEX: getEnv('VITE_GEMINI_MODEL_COMPLEX', 'gemini-3-pro-preview'),
   
   // General Image Generation
-  IMAGE: 'gemini-2.5-flash-image',
+  IMAGE: getEnv('VITE_GEMINI_MODEL_IMAGE', 'gemini-2.5-flash-image'),
   
   // Video Generation
-  VIDEO: 'veo-3.1-fast-generate-preview',
+  VIDEO: getEnv('VITE_GEMINI_MODEL_VIDEO', 'veo-3.1-fast-generate-preview'),
   
   // Real-time audio & video conversation
-  LIVE: 'gemini-2.5-flash-native-audio-preview-09-2025',
+  LIVE: getEnv('VITE_GEMINI_MODEL_LIVE', 'gemini-2.5-flash-native-audio-preview-09-2025'),
   
   // Text-to-speech
-  TTS: 'gemini-2.5-flash-preview-tts',
+  TTS: getEnv('VITE_GEMINI_MODEL_TTS', 'gemini-2.5-flash-preview-tts'),
 };
 
+// OpenAI Models - Configurable via environment variables
 export const OPENAI_MODELS = {
   // Fast, cost-effective model
-  BASIC: 'gpt-4o-mini',
+  BASIC: getEnv('VITE_OPENAI_MODEL_BASIC', 'gpt-4o-mini'),
 
   // High-intelligence model
-  COMPLEX: 'gpt-4o',
+  COMPLEX: getEnv('VITE_OPENAI_MODEL_COMPLEX', 'gpt-4o'),
 
   // Image generation
-  IMAGE: 'dall-e-3',
+  IMAGE: getEnv('VITE_OPENAI_MODEL_IMAGE', 'dall-e-3'),
 
   // Text-to-speech
-  TTS: 'tts-1'
+  TTS: getEnv('VITE_OPENAI_MODEL_TTS', 'tts-1')
 };
 
-// Media Generation Configuration
+// Media Generation Configuration - Configurable via environment variables
 export const MEDIA_CONFIG = {
   // Default Voice for TTS
-  DEFAULT_VOICE: 'Kore',
+  DEFAULT_VOICE: getEnv('VITE_MEDIA_DEFAULT_VOICE', 'Kore'),
 
   // TTS text length limit (characters)
-  TTS_MAX_CHARS: 3000,
+  TTS_MAX_CHARS: getEnvNumber('VITE_MEDIA_TTS_MAX_CHARS', 3000),
 
   // Video generation description limit (characters)
-  VIDEO_DESC_MAX_CHARS: 150,
+  VIDEO_DESC_MAX_CHARS: getEnvNumber('VITE_MEDIA_VIDEO_DESC_MAX_CHARS', 150),
 
   // Video generation polling interval (milliseconds)
-  VIDEO_POLL_INTERVAL_MS: 5000,
+  VIDEO_POLL_INTERVAL_MS: getEnvNumber('VITE_MEDIA_VIDEO_POLL_INTERVAL_MS', 5000),
+
+  // Video resolution and aspect ratio
+  VIDEO_RESOLUTION: getEnv('VITE_MEDIA_VIDEO_RESOLUTION', '720p'),
+  VIDEO_ASPECT_RATIO: getEnv('VITE_MEDIA_VIDEO_ASPECT_RATIO', '16:9'),
+
+  // Default image style for brand image generation
+  DEFAULT_IMAGE_STYLE: getEnv(
+    'VITE_MEDIA_DEFAULT_IMAGE_STYLE',
+    'Minimalist, Tech-focused, Clean lines, Vector art style'
+  ),
 
   // Retry configuration
   RETRY: {
-    DEFAULT_DELAY_MS: 500,
-    LONG_DELAY_MS: 2000,
-    DEFAULT_MAX_RETRIES: 3,
+    DEFAULT_DELAY_MS: getEnvNumber('VITE_MEDIA_RETRY_DEFAULT_DELAY_MS', 500),
+    LONG_DELAY_MS: getEnvNumber('VITE_MEDIA_RETRY_LONG_DELAY_MS', 2000),
+    DEFAULT_MAX_RETRIES: getEnvNumber('VITE_MEDIA_RETRY_DEFAULT_MAX_RETRIES', 3),
   },
 
   // Text truncation limits
   TEXT_TRUNCATION: {
     // Description for brand image generation
-    BRAND_IMAGE_DESC: 200,
+    BRAND_IMAGE_DESC: getEnvNumber('VITE_MEDIA_TRUNCATION_BRAND_IMAGE_DESC', 200),
     // Bio text for persona avatar generation
-    PERSONA_BIO: 150,
+    PERSONA_BIO: getEnvNumber('VITE_MEDIA_TRUNCATION_PERSONA_BIO', 150),
   },
 
   // Audio configuration
   AUDIO: {
     // Sample rate for TTS audio context (Hz)
-    SAMPLE_RATE: 24000,
+    SAMPLE_RATE: getEnvNumber('VITE_MEDIA_AUDIO_SAMPLE_RATE', 24000),
     // Buffer size for audio processing
-    BUFFER_SIZE: 2048,
-  }
-} as const;
+    BUFFER_SIZE: getEnvNumber('VITE_MEDIA_AUDIO_BUFFER_SIZE', 2048),
+  },
 
-// Database query limits
+  // AI Temperature values
+  TEMPERATURES: {
+    CREATIVE: getEnvNumber('VITE_MEDIA_TEMPERATURE_CREATIVE', 0.9),
+    BALANCED: getEnvNumber('VITE_MEDIA_TEMPERATURE_BALANCED', 0.7),
+    PRECISE: getEnvNumber('VITE_MEDIA_TEMPERATURE_PRECISE', 0.3),
+    DETERMINISTIC: getEnvNumber('VITE_MEDIA_TEMPERATURE_DETERMINISTIC', 0.1),
+  },
+};
+
+// Database query limits - Configurable via environment variables
 export const QUERY_LIMITS = {
   // Default page size for paginated results
-  DEFAULT_PAGE_SIZE: 20,
+  DEFAULT_PAGE_SIZE: getEnvNumber('VITE_QUERY_DEFAULT_PAGE_SIZE', 20),
   // Number of items in featured sections
-  FEATURED_ITEMS: 6,
+  FEATURED_ITEMS: getEnvNumber('VITE_QUERY_FEATURED_ITEMS', 6),
   // Number of roadmap items to store in metadata
-  ROADMAP_PREVIEW_ITEMS: 3,
-} as const;
+  ROADMAP_PREVIEW_ITEMS: getEnvNumber('VITE_QUERY_ROADMAP_PREVIEW_ITEMS', 3),
+};
+
+// Default export for convenience
+export default {
+  GEMINI_MODELS,
+  OPENAI_MODELS,
+  MEDIA_CONFIG,
+  QUERY_LIMITS,
+};
