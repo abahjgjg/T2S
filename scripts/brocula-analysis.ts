@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
 import fs from 'fs';
-import { SCRIPT_CONFIG } from './config';
+import { SCRIPT_CONFIG } from './config.js';
 
 const { server, chrome, testRoutes, timeouts, thresholds } = SCRIPT_CONFIG;
 
