@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { SavedProject, UserProfile } from '../types';
 import { supabaseService } from '../services/supabaseService';
-import { Trash2, FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search, History, Clock } from 'lucide-react';
+import { FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search, History, Clock } from 'lucide-react';
 import { ProjectCardSkeleton } from './ui/ProjectCardSkeleton';
+import { ConfirmDeleteButton } from './ui/ConfirmDeleteButton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from './ToastNotifications';
 import { Modal } from './ui/Modal';
@@ -269,17 +270,19 @@ export const ProjectLibrary: React.FC<Props> = ({ isOpen, onClose, projects: loc
                      >
                        {uiText.load} <ArrowRight className="w-3 h-3" />
                      </button>
-                      <button 
-                         onClick={(e) => { 
-                           e.stopPropagation(); 
-                           activeTab === 'local' ? onDelete(project.id) : handleDeleteCloud(project.id); 
-                         }}
-                         disabled={deleteMutation.isPending}
-                         className="p-2 text-slate-500 hover:text-red-400 transition-all duration-300 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 disabled:opacity-50 hover:scale-105 active:scale-95"
-                         aria-label="Delete project"
-                      >
-                        {activeTab === 'cloud' && deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                      </button>
+                      <ConfirmDeleteButton
+                        onDelete={() => {
+                          if (activeTab === 'local') {
+                            onDelete(project.id);
+                          } else {
+                            handleDeleteCloud(project.id);
+                          }
+                        }}
+                        isPending={activeTab === 'cloud' && deleteMutation.isPending}
+                        size="md"
+                        ariaLabel="Delete project"
+                        tooltipText={activeTab === 'local' ? 'Hold to delete from local' : 'Hold to delete from cloud'}
+                      />
                   </div>
                 </div>
               </div>
