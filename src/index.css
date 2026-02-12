@@ -1,15 +1,86 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'Fira Code', monospace;
+/* CSS Custom Properties - Generated from constants/cssVariables.ts
+ * Flexy: All values are configurable via environment variables
+ * This eliminates hardcoded values and makes the system modular
+ */
+:root {
+  /* Primary brand colors */
+  --color-primary-emerald: #10b981;
+  --color-primary-blue: #3b82f6;
+  --color-primary-purple: #8b5cf6;
   
-  --animate-shimmer: shimmer 2s infinite linear;
-  --animate-marquee: marquee 30s linear infinite;
-  --animate-spin-slow: spin-slow 8s linear infinite;
-  --animate-float: float 3s ease-in-out infinite;
-  --animate-shake: shake 0.5s cubic-bezier(0.36, 0, 0.66, -0.56);
+  /* Slate palette (dark theme base) */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+  
+  /* Status colors */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  
+  /* Semantic colors */
+  --color-focus: #10b981;
+  --color-accent: #10b981;
+  
+  /* Scrollbar colors */
+  --color-scrollbar-track: var(--color-slate-900);
+  --color-scrollbar-thumb: var(--color-slate-700);
+  --color-scrollbar-thumb-hover: var(--color-slate-600);
+  
+  /* Print colors */
+  --color-print-bg: #ffffff;
+  --color-print-text: #000000;
+  --color-print-border: #e2e8f0;
+  
+  /* Animation durations */
+  --animation-duration-shimmer: 2000ms;
+  --animation-duration-marquee: 30000ms;
+  --animation-duration-spin-slow: 8000ms;
+  --animation-duration-float: 3000ms;
+  --animation-duration-shake: 500ms;
+  --animation-duration-focus: 200ms;
+  
+  /* Layout */
+  --scrollbar-width: 8px;
+  --scrollbar-height: 8px;
+  --scrollbar-border-radius: 4px;
+  --outline-width: 2px;
+  --outline-offset: 2px;
+  
+  /* Typography */
+  --font-family-sans: 'Inter', sans-serif;
+  --font-family-mono: 'Fira Code', monospace;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 800;
+  
+  /* Reduced motion */
+  --reduced-motion-duration: 0.01ms;
+  --reduced-motion-iteration: 1;
+}
+
+@theme {
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+  
+  --animate-shimmer: shimmer var(--animation-duration-shimmer) infinite linear;
+  --animate-marquee: marquee var(--animation-duration-marquee) linear infinite;
+  --animate-spin-slow: spin-slow var(--animation-duration-spin-slow) linear infinite;
+  --animate-float: float var(--animation-duration-float) ease-in-out infinite;
+  --animate-shake: shake var(--animation-duration-shake) cubic-bezier(0.36, 0, 0.66, -0.56);
   
   @keyframes shimmer {
     0% { transform: translateX(-100%); }
@@ -38,26 +109,26 @@
   }
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar for dark theme - Uses CSS custom properties */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-height);
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: var(--color-scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: var(--color-scrollbar-thumb);
+  border-radius: var(--scrollbar-border-radius);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--color-scrollbar-thumb-hover);
 }
 
 /* Accessibility: Enhanced focus-visible styles for keyboard navigation */
 :focus-visible {
-  outline: 2px solid #10b981;
-  outline-offset: 2px;
+  outline: var(--outline-width) solid var(--color-focus);
+  outline-offset: var(--outline-offset);
 }
 
 /* Remove default focus outline when focus-visible is supported */
@@ -70,9 +141,9 @@
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: var(--reduced-motion-duration) !important;
+    animation-iteration-count: var(--reduced-motion-iteration) !important;
+    transition-duration: var(--reduced-motion-duration) !important;
     scroll-behavior: auto !important;
   }
 
@@ -98,22 +169,22 @@
   }
   
   body {
-    background-color: white !important;
-    color: black !important;
+    background-color: var(--color-print-bg) !important;
+    color: var(--color-print-text) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   /* Force Reset for Dark Mode Containers */
   [class*='bg-slate-'], [class*='bg-gray-'], [class*='bg-zinc-'] {
-    background-color: white !important;
-    border-color: #e2e8f0 !important;
-    color: black !important;
+    background-color: var(--color-print-bg) !important;
+    border-color: var(--color-print-border) !important;
+    color: var(--color-print-text) !important;
   }
   
   /* Ensure text visibility */
   [class*='text-slate-'], [class*='text-gray-'], [class*='text-white'] {
-    color: #0f172a !important;
+    color: var(--color-slate-900) !important;
   }
   
   /* Keep accent colors but make them printable */
@@ -129,7 +200,7 @@
   /* Typography optimizations */
   h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
-    color: #000 !important;
+    color: var(--color-print-text) !important;
   }
   
   p, li {
