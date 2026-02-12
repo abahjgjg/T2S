@@ -23,6 +23,7 @@ import { STORAGE_KEYS } from './constants/storageConfig';
 import { SEO_CONFIG, getOgImageUrl, SCROLL_CONFIG } from './constants/appConfig';
 import { DEFAULT_SEARCH_CONFIG } from './constants/searchConfig';
 import { ROUTES, buildRoute } from './constants/routes';
+import { Z_INDEX } from './constants/zIndex';
 
 // Lazy Load Heavy Route Components
 const PublicBlogView = React.lazy(() => import('./components/PublicBlogView').then(module => ({ default: module.PublicBlogView })));
@@ -327,7 +328,7 @@ const App: React.FC = () => {
       {/* Accessibility: Skip to main content link for keyboard users */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-lg focus:font-bold focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white"
+        className={`sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 ${Z_INDEX.TOAST} focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-lg focus:font-bold focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white`}
       >
         Skip to main content
       </a>

@@ -125,6 +125,14 @@ export const THEME_SHADOWS = {
   },
 } as const;
 
+// Z-index scale - defined before COMPONENT_STYLES to avoid temporal dead zone
+export const Z_INDEX = {
+  dropdown: getEnvNumber('VITE_Z_INDEX_DROPDOWN', 50),
+  modal: getEnvNumber('VITE_Z_INDEX_MODAL', 60),
+  tooltip: getEnvNumber('VITE_Z_INDEX_TOOLTIP', 70),
+  toast: getEnvNumber('VITE_Z_INDEX_TOAST', 80),
+} as const;
+
 // Component-specific styles
 export const COMPONENT_STYLES = {
   // Button variants
@@ -156,7 +164,7 @@ export const COMPONENT_STYLES = {
   },
   // Modal styles
   modal: {
-    overlay: `fixed inset-0 z-[60] flex items-center justify-center p-4 bg-${THEME_COLORS.background.DEFAULT}/90 backdrop-blur-md`,
+    overlay: `fixed inset-0 z-[${Z_INDEX.modal}] flex items-center justify-center p-4 bg-${THEME_COLORS.background.DEFAULT}/90 backdrop-blur-md`,
     container: `bg-${THEME_COLORS.background.card} border border-${THEME_COLORS.border.light} w-full ${THEME_RADIUS.xl} ${THEME_SHADOWS.lg}`,
     header: `p-4 border-b border-${THEME_COLORS.border.DEFAULT} bg-${THEME_COLORS.background.DEFAULT}/50`,
   },
@@ -173,14 +181,6 @@ export const LAYOUT = {
   container: {
     padding: getEnv('VITE_LAYOUT_CONTAINER_PADDING', 'px-4 md:px-8'),
   },
-} as const;
-
-// Z-index scale
-export const Z_INDEX = {
-  dropdown: getEnvNumber('VITE_Z_INDEX_DROPDOWN', 50),
-  modal: getEnvNumber('VITE_Z_INDEX_MODAL', 60),
-  tooltip: getEnvNumber('VITE_Z_INDEX_TOOLTIP', 70),
-  toast: getEnvNumber('VITE_Z_INDEX_TOAST', 80),
 } as const;
 
 // Default export for convenience

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
 import { ANIMATION_DURATION } from '../../constants/animationConfig';
+import { Z_INDEX } from '../../constants/zIndex';
 
 interface TooltipProps {
   children: React.ReactNode;
@@ -80,7 +81,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         <div
           role="tooltip"
           className={`
-            absolute z-[100] px-2.5 py-1.5 
+            absolute ${Z_INDEX.TOAST} px-2.5 py-1.5 
             bg-slate-800 text-slate-200 text-xs font-medium
             rounded-md shadow-lg border border-slate-700
             whitespace-nowrap pointer-events-none
