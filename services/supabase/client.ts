@@ -1,27 +1,22 @@
 
 import { createClient } from '@supabase/supabase-js';
+import { 
+  isValidSupabaseUrl, 
+  isValidSupabaseKey 
+} from '../../constants/supabaseConfig';
 
-// NOTE: In a real production app, these should be in process.env
-// Users must provide their own Supabase URL and Anon Key
+// Flexy: Environment variables with validation - no hardcoded defaults!
 const SUPABASE_URL = process.env.SUPABASE_URL || ''; 
 const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
 
-// Validate Supabase URL - reject dummy/placeholder URLs
-const isValidSupabaseUrl = (url: string): boolean => {
-  if (!url || url.includes('dummy') || url.includes('placeholder')) {
-    return false;
-  }
-  try {
-    const urlObj = new URL(url);
-    // Must be a valid https URL with supabase.co domain
-    return urlObj.protocol === 'https:' && urlObj.hostname.endsWith('.supabase.co');
-  } catch {
-    return false;
-  }
-};
+// Flexy: Using modular validation functions from supabaseConfig
+// All validation rules are now configurable via environment variables!
 
-export const supabase = (isValidSupabaseUrl(SUPABASE_URL) && SUPABASE_KEY && !SUPABASE_KEY.includes('dummy')) 
+export const supabase = (isValidSupabaseUrl(SUPABASE_URL) && isValidSupabaseKey(SUPABASE_KEY)) 
   ? createClient(SUPABASE_URL, SUPABASE_KEY) 
   : null;
 
 export const isConfigured = () => !!supabase;
+
+// Re-export validation functions for external use
+export { isValidSupabaseUrl, isValidSupabaseKey };
