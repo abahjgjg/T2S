@@ -6,6 +6,7 @@ import { Send, Bot, Loader2, Sparkles, PlayCircle } from 'lucide-react';
 import { SafeMarkdown } from './SafeMarkdown';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { CHAT_ROLES } from '../constants/chatRoles';
 
 interface Props {
   agent: AgentProfile;
@@ -35,7 +36,7 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, initia
         handleSend(undefined, initialMessage);
       } else if (messages.length === 0) {
         setMessages([{ 
-          role: 'model', 
+          role: CHAT_ROLES.MODEL, 
           content: language === 'id' 
             ? `Halo! Saya ${agent.name}, ${agent.role} Anda. Apa yang bisa saya bantu?` 
             : `Hello! I am ${agent.name}, your ${agent.role}. How can I assist you today?`
@@ -49,19 +50,19 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, initia
     const textToSend = overrideText || input.trim();
     if (!textToSend || isLoading) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: textToSend };
+    const userMsg: ChatMessage = { role: CHAT_ROLES.USER, content: textToSend };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
 
     try {
       const aiService = getAIService(provider);
-      const apiHistory = messages.filter(m => m.role !== 'model' || messages.indexOf(m) > 0); 
+      const apiHistory = messages.filter(m => m.role !== CHAT_ROLES.MODEL || messages.indexOf(m) > 0); 
       const responseText = await aiService.chatWithAgent(apiHistory, userMsg.content, agent, language);
-      setMessages(prev => [...prev, { role: 'model', content: responseText }]);
+      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: responseText }]);
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'model', content: "Sorry, I encountered an error. Please try again." }]);
+      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: "Sorry, I encountered an error. Please try again." }]);
     } finally {
       setIsLoading(false);
     }

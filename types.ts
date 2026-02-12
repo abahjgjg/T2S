@@ -219,7 +219,7 @@ export interface Comment {
 }
 
 export interface ChatMessage {
-  role: 'user' | 'model';
+  role: 'user' | 'model' | string;
   content: string;
 }
 

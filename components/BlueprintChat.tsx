@@ -10,6 +10,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { MODAL_DIMENSIONS, MODAL_Z_INDEX } from '../constants/modalConfig';
 import { Z_INDEX } from '../constants/zIndex';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
+import { CHAT_ROLES } from '../constants/chatRoles';
 
 interface Props {
   blueprint: Blueprint;
@@ -36,7 +37,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: input.trim() };
+    const userMsg: ChatMessage = { role: CHAT_ROLES.USER, content: input.trim() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
@@ -50,15 +51,15 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
         
         setMessages(prev => [
           ...prev, 
-          { role: 'model', content: text || "✅ I've updated the blueprint with your changes." }
+          { role: CHAT_ROLES.MODEL, content: text || "✅ I've updated the blueprint with your changes." }
         ]);
       } else {
-        setMessages(prev => [...prev, { role: 'model', content: text }]);
+        setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: text }]);
       }
 
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'model', content: "Sorry, I encountered an error. Please try again." }]);
+      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: "Sorry, I encountered an error. Please try again." }]);
     } finally {
       setIsLoading(false);
     }
@@ -111,20 +112,20 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
             )}
             
             {messages.map((msg, idx) => (
-              <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {msg.role === 'model' && (
+              <div key={idx} className={`flex gap-3 ${msg.role === CHAT_ROLES.USER ? 'justify-end' : 'justify-start'}`}>
+                {msg.role === CHAT_ROLES.MODEL && (
                   <div className="w-8 h-8 rounded-full bg-emerald-900/50 border border-emerald-500/20 flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4 text-emerald-400" />
                   </div>
                 )}
                 
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}`}>
+                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${msg.role === CHAT_ROLES.USER ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}`}>
                   <div className="prose prose-invert prose-xs max-w-none">
                     <SafeMarkdown content={msg.content} components={{ p: (props) => <p className="mb-1 last:mb-0" {...props} /> }} />
                   </div>
                 </div>
 
-                {msg.role === 'user' && (
+                {msg.role === CHAT_ROLES.USER && (
                   <div className="w-8 h-8 rounded-full bg-blue-900/50 border border-blue-500/20 flex items-center justify-center shrink-0">
                     <User className="w-4 h-4 text-blue-400" />
                   </div>
