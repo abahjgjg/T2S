@@ -5,6 +5,7 @@ import { ChatMessage, Trend } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
+import { CHAT_ROLES } from '../constants/chatRoles';
 
 interface Props {
   niche: string;
@@ -48,7 +49,7 @@ export const ResearchChat: React.FC<Props> = ({
     const textToSend = overrideText || input.trim();
     if (!textToSend || isLoading) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: textToSend };
+    const userMsg: ChatMessage = { role: CHAT_ROLES.USER, content: textToSend };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
@@ -58,10 +59,10 @@ export const ResearchChat: React.FC<Props> = ({
       // Filter out system messages or keep conversation history appropriate for the API
       // We pass the full message history to the service, it handles formatting
       const responseText = await aiService.chatWithResearchAnalyst(messages, userMsg.content, niche, trends, language);
-      setMessages(prev => [...prev, { role: 'model', content: responseText }]);
+      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: responseText }]);
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'model', content: "I'm having trouble analyzing the data right now. Please try again." }]);
+      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: "I'm having trouble analyzing the data right now. Please try again." }]);
     } finally {
       setIsLoading(false);
     }
@@ -100,20 +101,20 @@ export const ResearchChat: React.FC<Props> = ({
         )}
 
         {messages.map((msg, idx) => (
-          <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            {msg.role === 'model' && (
+          <div key={idx} className={`flex gap-3 ${msg.role === CHAT_ROLES.USER ? 'justify-end' : 'justify-start'}`}>
+            {msg.role === CHAT_ROLES.MODEL && (
               <div className="w-8 h-8 rounded-full bg-indigo-900/50 border border-indigo-500/20 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-indigo-400" />
               </div>
             )}
 
-            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}`}>
+            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${msg.role === CHAT_ROLES.USER ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}`}>
               <div className="prose prose-invert prose-xs max-w-none">
                 <SafeMarkdown content={msg.content} />
               </div>
             </div>
 
-            {msg.role === 'user' && (
+            {msg.role === CHAT_ROLES.USER && (
               <div className="w-8 h-8 rounded-full bg-blue-900/50 border border-blue-500/20 flex items-center justify-center shrink-0">
                 <User className="w-4 h-4 text-blue-400" />
               </div>

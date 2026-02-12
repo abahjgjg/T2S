@@ -6,6 +6,7 @@ import { getLanguageInstruction } from "../../utils/promptUtils";
 import { OPENAI_MODELS, QUERY_LIMITS } from "../../constants/aiConfig";
 import { promptService } from "../promptService";
 import { AI_INSTRUCTIONS } from "../../constants/contentConfig";
+import { CHAT_ROLES } from "../../constants/chatRoles";
 import { 
   BusinessIdeaListSchema, 
   BlueprintSchema, 
@@ -60,7 +61,7 @@ export const generateBusinessIdeas = async (niche: string, trends: any[], lang: 
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }]);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }]);
   return BusinessIdeaListSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]"))) as BusinessIdea[];
 };
 
@@ -74,7 +75,7 @@ export const generateSystemBlueprint = async (idea: BusinessIdea, lang: Language
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.COMPLEX);
   const rawBlueprint = JSON.parse(cleanJsonOutput(response.content || "{}"));
   const validatedBlueprint = BlueprintSchema.parse(rawBlueprint);
   
@@ -93,9 +94,9 @@ export const sendBlueprintChat = async (history: ChatMessage[], newMessage: stri
   });
 
   const messages = [
-    { role: "system", content: systemPrompt },
+    { role: CHAT_ROLES.SYSTEM, content: systemPrompt },
     ...history,
-    { role: "user", content: newMessage }
+    { role: CHAT_ROLES.USER, content: newMessage }
   ];
 
   const response = await callOpenAI(messages, OPENAI_MODELS.BASIC, {
@@ -124,9 +125,9 @@ export const sendBlueprintChat = async (history: ChatMessage[], newMessage: stri
 
 export const chatWithAgent = async (history: ChatMessage[], newMessage: string, agent: AgentProfile, lang: Language): Promise<string> => {
   const messages = [
-    { role: "system", content: agent.systemPrompt },
+    { role: CHAT_ROLES.SYSTEM, content: agent.systemPrompt },
     ...history,
-    { role: "user", content: newMessage }
+    { role: CHAT_ROLES.USER, content: newMessage }
   ];
 
   const response = await callOpenAI(messages, OPENAI_MODELS.BASIC);
@@ -144,9 +145,9 @@ export const chatWithResearchAnalyst = async (history: ChatMessage[], newMessage
   });
 
   const messages = [
-    { role: "system", content: systemInstruction },
+    { role: CHAT_ROLES.SYSTEM, content: systemInstruction },
     ...history,
-    { role: "user", content: newMessage }
+    { role: CHAT_ROLES.USER, content: newMessage }
   ];
 
   const response = await callOpenAI(messages, OPENAI_MODELS.BASIC);
@@ -162,7 +163,7 @@ export const generateTeamOfAgents = async (blueprint: Blueprint, lang: Language)
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.BASIC);
   return AgentProfileListSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]"))) as AgentProfile[];
 };
 
@@ -176,7 +177,7 @@ export const generateLaunchAssets = async (idea: BusinessIdea, blueprint: Bluepr
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.BASIC);
   return LaunchAssetsSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as LaunchAssets;
 };
 
@@ -191,7 +192,7 @@ export const conductViabilityAudit = async (idea: BusinessIdea, blueprint: Bluep
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.COMPLEX);
   return ViabilityAuditSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as ViabilityAudit;
 };
 
@@ -204,7 +205,7 @@ export const generateBMC = async (idea: BusinessIdea, blueprint: Blueprint, lang
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.BASIC);
   return BMCSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as BMC;
 };
 
@@ -221,7 +222,7 @@ export const generateLandingPageCode = async (idea: BusinessIdea, assets: Launch
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.COMPLEX);
   const text = response.content || "";
   return text.replace(/^```tsx?\s*/, '').replace(/\s*```$/, '');
 };
@@ -236,7 +237,7 @@ export const generateContentCalendar = async (idea: BusinessIdea, blueprint: Blu
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.BASIC);
   return ContentCalendarSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]"))) as ContentWeek[];
 };
 
@@ -251,7 +252,7 @@ export const generateBrandIdentity = async (idea: BusinessIdea, blueprint: Bluep
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.BASIC);
   return BrandIdentitySchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as BrandIdentity;
 };
 
@@ -264,7 +265,7 @@ export const generatePersonas = async (idea: BusinessIdea, blueprint: Blueprint,
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.BASIC);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.BASIC);
   return CustomerPersonaListSchema.parse(JSON.parse(cleanJsonOutput(response.content || "[]"))) as CustomerPersona[];
 };
 
@@ -279,6 +280,6 @@ export const analyzePitchTranscript = async (transcript: string, idea: BusinessI
     langInstruction
   });
 
-  const response = await callOpenAI([{ role: "user", content: prompt }], OPENAI_MODELS.COMPLEX);
+  const response = await callOpenAI([{ role: CHAT_ROLES.USER, content: prompt }], OPENAI_MODELS.COMPLEX);
   return PitchAnalysisSchema.parse(JSON.parse(cleanJsonOutput(response.content || "{}"))) as PitchAnalysis;
 };
