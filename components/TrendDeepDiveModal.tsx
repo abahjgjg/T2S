@@ -72,7 +72,7 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
             </div>
           </div>
         ) : (
-          <div className="h-64 flex items-center justify-center"><div className="text-center p-6 bg-red-900/10 border border-red-500/20 rounded-xl"><p className="text-red-400 font-bold mb-2">Analysis Failed</p><p className="text-xs text-slate-500">Could not retrieve deep dive data. Please try again.</p><button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs">Close</button></div></div>
+          <div className="h-64 flex items-center justify-center"><div className="text-center p-6 bg-red-900/10 border border-red-500/20 rounded-xl"><p className="text-red-400 font-bold mb-2">Analysis Failed</p><p className="text-xs text-slate-500">Could not retrieve deep dive data. Please try again.</p><button onClick={onClose} aria-label="Close" className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs">Close</button></div></div>
         )}
       </div>
       {deepDive && (

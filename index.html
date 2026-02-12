@@ -3,154 +3,134 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <!-- Content Security Policy -->
-    <!-- 'unsafe-eval' is strictly required for the Tailwind CSS Play CDN to compile styles in the browser. -->
-    <!-- 'connect-src' ensures API calls to Google, OpenAI, and Supabase are allowed. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: blob: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; connect-src 'self' https: data: blob:; media-src 'self' https: data: blob:; worker-src 'self' blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: data: 'unsafe-inline'; connect-src 'self' https: data: blob:; media-src 'self' https: data: blob:; worker-src 'self' blob:;">
 
     <!-- Default SEO / Open Graph Tags -->
-    <title>TrendVentures AI</title>
-    <meta name="description" content="AI-powered market intelligence suite that generates business blueprints and revenue models." />
-    <meta property="og:title" content="TrendVentures AI" />
-    <meta property="og:description" content="AI-powered market intelligence suite that generates business blueprints." />
-    <meta property="og:image" content="https://placehold.co/1200x630/0f172a/10b981?text=TrendVentures+AI&font=roboto" />
-    <meta property="og:url" content="https://trendventures.ai" />
+    <title>%VITE_APP_DEFAULT_TITLE%</title>
+    <meta name="description" content="%VITE_APP_DEFAULT_DESCRIPTION%" />
+    <meta property="og:title" content="%VITE_APP_DEFAULT_TITLE%" />
+    <meta property="og:description" content="%VITE_OG_DESCRIPTION%" />
+    <meta property="og:image" content="%VITE_PLACEHOLDER_BASE_URL%/%VITE_OG_IMAGE_WIDTH%x%VITE_OG_IMAGE_HEIGHT%/%VITE_COLOR_SLATE_900%/%VITE_COLOR_PRIMARY_EMERALD%?text=%VITE_APP_NAME%&font=roboto" />
+    <meta property="og:url" content="%VITE_APP_BASE_URL%" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Preconnect to required origins for performance -->
+    <!-- Critical resource hints for performance -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
 
     <!-- Favicon to prevent 404 errors -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E" />
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['Fira Code', 'monospace'],
-            },
-            keyframes: {
-              shimmer: {
-                '0%': { transform: 'translateX(-100%)' },
-                '100%': { transform: 'translateX(300%)' }
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(20px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)', opacity: '1' }
-              },
-              slideDown: {
-                '0%': { transform: 'translateY(0)', opacity: '1' },
-                '100%': { transform: 'translateY(20px)', opacity: '0' }
-              },
-              fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' }
-              },
-              marquee: {
-                '0%': { transform: 'translateX(0%)' },
-                '100%': { transform: 'translateX(-100%)' }
-              }
-            },
-            animation: {
-              shimmer: 'shimmer 2s infinite linear',
-              marquee: 'marquee 30s linear infinite',
-            },
-            screens: {
-              'print': {'raw': 'print'},
-            }
-          },
-        },
-      }
-    </script>
+    <!-- Critical CSS inlined for fast First Contentful Paint - Optimized for BroCula -->
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code&display=swap');
-      
-      /* Custom scrollbar for dark theme */
+      /* Critical render path optimizations - inlined to eliminate render-blocking */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+        -moz-tab-size: 4;
+        tab-size: 4;
+      }
+
+      body {
+        margin: 0;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: %VITE_COLOR_SLATE_950%; /* bg-slate-950 - prevent flash */
+        color: %VITE_COLOR_SLATE_50%; /* text-slate-50 - immediate text color */
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      /* Critical Tailwind utilities inlined with CSS variables */
+      .bg-slate-950 { background-color: %VITE_COLOR_SLATE_950%; }
+      .text-slate-50 { color: %VITE_COLOR_SLATE_50%; }
+      .min-h-screen { min-height: 100vh; }
+      .flex { display: flex; }
+      .items-center { align-items: center; }
+      .justify-center { justify-content: center; }
+
+      /* Loading state for better perceived performance */
+      #root:empty::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 40px;
+        border: 3px solid %VITE_COLOR_SLATE_800%;
+        border-top-color: %VITE_COLOR_PRIMARY_EMERALD%;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      @keyframes spin {
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+
+      /* Button press feedback optimization for micro-UX */
+      button, [role="button"] {
+        will-change: transform;
+        transform: translateZ(0);
+      }
+
+      button:active:not(:disabled), [role="button"]:active:not([aria-disabled="true"]) {
+        transform: scale(0.97);
+      }
+
+      /* Custom scrollbar for dark theme - optimized */
       ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #0f172a; 
+        background: %VITE_COLOR_SLATE_900%;
       }
       ::-webkit-scrollbar-thumb {
-        background: #334155; 
+        background: %VITE_COLOR_SLATE_700%;
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #475569; 
+        background: %VITE_COLOR_SLATE_600%;
       }
 
-      @media print {
-        @page {
-          margin: 1.5cm;
-          size: auto;
-        }
-        
-        body {
-          background-color: white !important;
-          color: black !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
+      /* Font display swap for non-blocking font loading */
+      @font-face {
+        font-family: 'Inter';
+        font-display: swap;
+      }
 
-        /* Force Reset for Dark Mode Containers */
-        [class*='bg-slate-'], [class*='bg-gray-'], [class*='bg-zinc-'] {
-          background-color: white !important;
-          border-color: #e2e8f0 !important; /* slate-200 */
-          color: black !important;
+      /* Reduced motion preference support */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
         }
-        
-        /* Ensure text visibility */
-        [class*='text-slate-'], [class*='text-gray-'], [class*='text-white'] {
-          color: #0f172a !important; /* slate-900 */
-        }
-        
-        /* Keep accent colors but make them printable */
-        [class*='text-emerald-'], [class*='text-blue-'], [class*='text-purple-'] {
-          filter: brightness(0.8);
-        }
-
-        /* Hide UI elements */
-        header, nav, button, .no-print {
-          display: none !important;
-        }
-
-        /* Typography optimizations */
-        h1, h2, h3, h4, h5, h6 {
-          page-break-after: avoid;
-          color: #000 !important;
-        }
-        
-        p, li {
-          orphans: 3;
-          widows: 3;
-        }
-
-        /* Layout cleanup */
-        .grid {
-          display: block !important;
-        }
-        .grid > * {
-          margin-bottom: 2rem;
-          page-break-inside: avoid;
-        }
-
-        /* Hide scrollbars in print */
-        ::-webkit-scrollbar {
-          display: none;
+        #root:empty::before {
+          animation: none;
         }
       }
     </style>
+
+    <!-- Google Fonts with display=swap for non-blocking loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="%VITE_GOOGLE_FONTS_URL%" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="%VITE_GOOGLE_FONTS_URL%" rel="stylesheet"></noscript>
+
 </head>
   <body class="bg-slate-950">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <!-- Defer main script to prevent render-blocking -->
+    <script type="module" src="/index.tsx" defer></script>
   </body>
 </html>
