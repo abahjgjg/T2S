@@ -4,6 +4,7 @@ import { telemetryService, SystemLog } from '../../services/telemetryService';
 import { Trash2, RefreshCcw, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { useConfirm } from '../../contexts/ConfirmContext';
 import { ICON_SIZES } from '../../constants/designTokens';
+import { DIMENSIONS } from '../../constants/dimensionConfig';
 
 export const AdminLogs: React.FC = () => {
   const [logs, setLogs] = useState<SystemLog[]>([]);
@@ -68,7 +69,7 @@ export const AdminLogs: React.FC = () => {
             No logs recorded. System is healthy.
           </div>
         ) : (
-          <div className="divide-y divide-slate-800 max-h-[600px] overflow-y-auto custom-scrollbar">
+          <div className="divide-y divide-slate-800 overflow-y-auto custom-scrollbar" style={{ maxHeight: DIMENSIONS.admin.logsMaxHeight }}>
             {logs.map((log) => (
               <div key={log.id} className="p-4 hover:bg-slate-800/30 transition-colors">
                 <div className="flex justify-between items-start mb-1">

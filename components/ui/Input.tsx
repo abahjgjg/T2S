@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, AlertCircle, Check, CornerDownLeft } from 'lucide-react';
-import { ICON_SIZES } from '../../constants/designTokens';
+import { ICON_SIZES, TYPOGRAPHY } from '../../constants/designTokens';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -175,7 +175,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {/* Enter key hint - subtle micro-UX improvement */}
             {showEnterHintIndicator && (
               <div 
-                className="flex items-center gap-0.5 text-[10px] text-slate-500 font-mono animate-[fadeIn_0.2s_ease-out]"
+                className="flex items-center gap-0.5 text-slate-500 font-mono animate-[fadeIn_0.2s_ease-out]"
+                style={{ fontSize: TYPOGRAPHY.fontSize['2xs'] }}
                 aria-hidden="true"
               >
                 <CornerDownLeft className={ICON_SIZES.xs} />

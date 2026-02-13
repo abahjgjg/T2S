@@ -6,6 +6,7 @@ import { getAIService } from '../services/aiRegistry';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
 import { CHAT_ROLES } from '../constants/chatRoles';
+import { DIMENSIONS } from '../constants/dimensionConfig';
 
 interface Props {
   niche: string;
@@ -71,7 +72,7 @@ export const ResearchChat: React.FC<Props> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed z-50 bottom-24 left-6 w-full max-w-sm md:max-w-md h-[500px] md:h-[600px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out] print:hidden">
+    <div className="fixed z-50 bottom-24 left-6 w-full max-w-sm md:max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out] print:hidden" style={{ height: DIMENSIONS.modal.chatHeight }}>
       {/* Header */}
       <div className="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
         <div className="flex items-center gap-2">

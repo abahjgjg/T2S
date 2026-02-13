@@ -6,6 +6,7 @@ import { Save, RotateCcw, MessageSquareCode, Info, Cloud, Check } from 'lucide-r
 import { toast } from '../ToastNotifications';
 import { supabaseService } from '../../services/supabaseService';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { DIMENSIONS } from '../../constants/dimensionConfig';
 
 export const AdminPrompts: React.FC = () => {
   const [prompts, setPrompts] = useState<Record<string, string>>({});
@@ -98,7 +99,7 @@ export const AdminPrompts: React.FC = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-[fadeIn_0.3s_ease-out]">
       {/* Sidebar List */}
-      <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 h-fit max-h-[600px] overflow-y-auto custom-scrollbar">
+      <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-4 h-fit overflow-y-auto custom-scrollbar" style={{ maxHeight: DIMENSIONS.admin.promptsMaxHeight }}>
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
           <MessageSquareCode className="w-4 h-4" /> Prompts
         </h3>
@@ -135,7 +136,7 @@ export const AdminPrompts: React.FC = () => {
 
       {/* Editor */}
       <div className="lg:col-span-3">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg flex flex-col h-[600px]">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg flex flex-col" style={{ height: DIMENSIONS.admin.editorHeight }}>
           <div className="flex justify-between items-center mb-4">
             <div>
               <div className="flex items-center gap-2">

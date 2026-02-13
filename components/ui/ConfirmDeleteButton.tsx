@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Trash2, AlertTriangle, X } from 'lucide-react';
 import { ANIMATION_DURATION } from '../../constants/animationConfig';
+import { DELETE_BUTTON, BUTTON_TIMING, BUTTON_SIZES, TOOLTIP_TEXT } from '../../constants/buttonConfig';
+import { TYPOGRAPHY } from '../../constants/designTokens';
 
 export interface ConfirmDeleteButtonProps {
   /** Callback when deletion is confirmed */
@@ -36,7 +38,7 @@ export const ConfirmDeleteButton: React.FC<ConfirmDeleteButtonProps> = ({
   className = '',
   ariaLabel = 'Delete project',
   isPending = false,
-  confirmationDelay = 800,
+  confirmationDelay = DELETE_BUTTON.confirmationDelay,
   tooltipText = 'Hold to delete',
 }) => {
   const [isConfirming, setIsConfirming] = useState(false);
@@ -120,7 +122,7 @@ export const ConfirmDeleteButton: React.FC<ConfirmDeleteButtonProps> = ({
         setIsCompleted(false);
         setProgress(0);
         setIsConfirming(false);
-      }, 150);
+      }, DELETE_BUTTON.resetDelay);
     }
   }, [isCompleted, onDelete]);
 
@@ -146,15 +148,15 @@ export const ConfirmDeleteButton: React.FC<ConfirmDeleteButtonProps> = ({
   }, []);
 
   const sizeStyles = {
-    sm: 'p-1.5',
-    md: 'p-2',
-    lg: 'p-2.5',
+    sm: BUTTON_SIZES.sm.padding,
+    md: BUTTON_SIZES.md.padding,
+    lg: BUTTON_SIZES.lg.padding,
   };
 
   const iconSizes = {
-    sm: 'w-3.5 h-3.5',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5',
+    sm: BUTTON_SIZES.sm.iconSize,
+    md: BUTTON_SIZES.md.iconSize,
+    lg: BUTTON_SIZES.lg.iconSize,
   };
 
   const getButtonStyles = () => {
@@ -191,8 +193,8 @@ export const ConfirmDeleteButton: React.FC<ConfirmDeleteButtonProps> = ({
   };
 
   const getTooltipContent = () => {
-    if (isCompleted) return 'Release to confirm deletion';
-    if (isConfirming) return 'Keep holding...';
+    if (isCompleted) return TOOLTIP_TEXT.delete.completed;
+    if (isConfirming) return TOOLTIP_TEXT.delete.confirming;
     return tooltipText;
   };
 
@@ -247,12 +249,12 @@ export const ConfirmDeleteButton: React.FC<ConfirmDeleteButtonProps> = ({
               <circle
                 cx="50"
                 cy="50"
-                r="45"
+                r={DELETE_BUTTON.progressRing.radius}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="4"
+                strokeWidth={DELETE_BUTTON.progressRing.strokeWidth}
                 strokeLinecap="round"
-                strokeDasharray={`${progress * 2.83} 283`}
+                strokeDasharray={`${progress * DELETE_BUTTON.progressRing.progressMultiplier} ${DELETE_BUTTON.progressRing.circumference}`}
                 className="text-red-500 transition-all duration-75"
               />
             </svg>
@@ -285,12 +287,21 @@ export const ConfirmDeleteButton: React.FC<ConfirmDeleteButtonProps> = ({
       {/* Tooltip */}
       {showTooltip && (
         <div 
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-slate-200 text-[10px] font-medium rounded shadow-lg border border-slate-700 whitespace-nowrap pointer-events-none animate-[fadeIn_0.15s_ease-out] z-50"
+          className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-slate-200 font-medium rounded shadow-lg border border-slate-700 whitespace-nowrap pointer-events-none z-50`}
+          style={{ fontSize: DELETE_BUTTON.tooltip.fontSize }}
           role="tooltip"
         >
           {getTooltipContent()}
           {/* Tooltip arrow */}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-slate-800" aria-hidden="true" />
+          <span 
+            className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-0 h-0 border-l-transparent border-r-transparent border-t-slate-800" 
+            style={{
+              borderLeftWidth: `${DELETE_BUTTON.tooltip.arrowBorderWidth}px`,
+              borderRightWidth: `${DELETE_BUTTON.tooltip.arrowBorderWidth}px`,
+              borderTopWidth: `${DELETE_BUTTON.tooltip.arrowBorderWidth}px`,
+            }}
+            aria-hidden="true" 
+          />
         </div>
       )}
       

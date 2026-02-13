@@ -4,6 +4,7 @@ import { TrendingUp, Mail, Download } from 'lucide-react';
 import { toast } from '../ToastNotifications';
 import { COLORS } from '../../constants/theme';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
+import { DIMENSIONS } from '../../constants/dimensionConfig';
 
 // Lazy load chart component to reduce initial bundle
 const LeadsAreaChart = lazy(() => import('./LeadsAreaChart'));
@@ -96,7 +97,7 @@ export const AdminLeads: React.FC<Props> = ({ leads }) => {
               <Download className="w-3 h-3" /> Export CSV
             </button>
          </div>
-         <div className="divide-y divide-slate-800 max-h-[500px] overflow-y-auto custom-scrollbar">
+          <div className="divide-y divide-slate-800 overflow-y-auto custom-scrollbar" style={{ maxHeight: DIMENSIONS.admin.leadsMaxHeight }}>
             {leads.length === 0 ? (
               <div className="p-8 text-center text-slate-500">No leads captured yet.</div>
             ) : (

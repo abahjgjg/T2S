@@ -7,6 +7,7 @@ import { SafeMarkdown } from './SafeMarkdown';
 import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { CHAT_ROLES } from '../constants/chatRoles';
+import { DIMENSIONS } from '../constants/dimensionConfig';
 
 interface Props {
   agent: AgentProfile;
@@ -76,7 +77,7 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, initia
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={Header} className="max-w-lg h-[600px]">
+    <Modal isOpen={isOpen} onClose={onClose} title={Header} className="max-w-lg" style={{ height: DIMENSIONS.modal.chatHeightMd }}>
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/30" ref={scrollRef}>
           {messages.map((msg, idx) => (
