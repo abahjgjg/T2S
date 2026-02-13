@@ -2,9 +2,60 @@ import { chromium } from 'playwright';
 import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
 import fs from 'fs';
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { SCRIPT_CONFIG } from './config.js';
 
 const { server, chrome, testRoutes, timeouts, thresholds } = SCRIPT_CONFIG;
+
+// Global server process reference
+let previewServer: ChildProcessWithoutNullStreams | null = null;
+
+async function startPreviewServer(): Promise<void> {
+  console.log('🚀 Starting preview server...');
+  
+  previewServer = spawn('npm', ['run', 'preview'], {
+    stdio: 'pipe',
+    detached: true
+  });
+  
+  // Wait for server to be ready
+  await new Promise<void>((resolve, reject) => {
+    let output = '';
+    
+    previewServer!.stdout.on('data', (data: Buffer) => {
+      output += data.toString();
+      if (output.includes('Local:') || output.includes('http://localhost:')) {
+        resolve();
+      }
+    });
+    
+    setTimeout(() => {
+      if (!output.includes('error')) {
+        resolve();
+      }
+    }, timeouts.serverStartup);
+    
+    setTimeout(() => {
+      reject(new Error('Server startup timeout'));
+    }, timeouts.serverStartupMax);
+  });
+  
+  console.log('✅ Preview server ready\n');
+  
+  // Wait a bit more for server to fully initialize
+  await new Promise(resolve => setTimeout(resolve, timeouts.serverReady));
+}
+
+async function stopPreviewServer(): Promise<void> {
+  if (previewServer && previewServer.pid) {
+    try {
+      process.kill(-previewServer.pid);
+      console.log('🛑 Preview server stopped');
+    } catch (e) {
+      // Ignore kill errors
+    }
+  }
+}
 
 interface ConsoleLog {
   type: string;
@@ -138,30 +189,41 @@ async function runLighthouse() {
 async function main() {
   console.log('🧛 BroCula starting browser analysis workflow...\n');
   
-  const { consoleLogs, pageErrors } = await checkConsoleErrors();
-  const lighthouseReport = await runLighthouse();
-  
-  console.log('\n✨ BroCula analysis complete!');
-  
-  // Check for fatal errors
-  const hasErrors = consoleLogs.filter(l => l.type === 'error').length > 0 || pageErrors.length > 0;
-  
-  if (hasErrors) {
-    console.log('\n❌ FATAL: Console errors detected! BroCula must fix these immediately.');
-    process.exit(1);
+  try {
+    // Start the preview server first
+    await startPreviewServer();
+    
+    const { consoleLogs, pageErrors } = await checkConsoleErrors();
+    const lighthouseReport = await runLighthouse();
+    
+    console.log('\n✨ BroCula analysis complete!');
+    
+    // Stop the preview server
+    await stopPreviewServer();
+    
+    // Check for fatal errors
+    const hasErrors = consoleLogs.filter(l => l.type === 'error').length > 0 || pageErrors.length > 0;
+    
+    if (hasErrors) {
+      console.log('\n❌ FATAL: Console errors detected! BroCula must fix these immediately.');
+      process.exit(1);
+    }
+    
+    // Check for low Lighthouse scores
+    const categories = lighthouseReport.categories;
+    const lowScores = Object.entries(categories).filter(([key, category]: [string, any]) => {
+      return category.score * 100 < thresholds.good;
+    });
+    
+    if (lowScores.length > 0) {
+      console.log('\n⚠️  Low Lighthouse scores detected - optimization needed');
+    }
+    
+    process.exit(0);
+  } catch (error) {
+    await stopPreviewServer();
+    throw error;
   }
-  
-  // Check for low Lighthouse scores
-  const categories = lighthouseReport.categories;
-  const lowScores = Object.entries(categories).filter(([key, category]: [string, any]) => {
-    return category.score * 100 < thresholds.good;
-  });
-  
-  if (lowScores.length > 0) {
-    console.log('\n⚠️  Low Lighthouse scores detected - optimization needed');
-  }
-  
-  process.exit(0);
 }
 
 main().catch(error => {
