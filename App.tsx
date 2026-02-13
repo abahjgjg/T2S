@@ -6,6 +6,7 @@ import { IdeaSelection } from './components/IdeaSelection';
 import { ToastNotifications } from './components/ToastNotifications';
 import { ConnectionStatusIndicator } from './components/ui/ConnectionStatusIndicator';
 import { ScrollProgressIndicator } from './components/ui/ScrollProgressIndicator';
+import { FullScreenLoader } from './components/ui/FullScreenLoader';
 
 // Lazy load BlueprintView - only needed when viewing a blueprint
 const BlueprintView = React.lazy(() => import('./components/BlueprintView').then(module => ({ default: module.BlueprintView })));
@@ -35,13 +36,6 @@ const UserDashboard = React.lazy(() => import('./components/UserDashboard').then
 const ProjectLibrary = React.lazy(() => import('./components/ProjectLibrary').then(module => ({ default: module.ProjectLibrary })));
 
 const LIBRARY_KEY = STORAGE_KEYS.PROJECT_LIBRARY;
-
-const FullScreenLoader = ({ text }: { text?: string }) => (
-  <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
-    <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
-    <p className="text-slate-400 font-medium animate-pulse">{text || "Loading..."}</p>
-  </div>
-);
 
 const App: React.FC = () => {
   const { language, provider, setProvider, uiText } = usePreferences();
