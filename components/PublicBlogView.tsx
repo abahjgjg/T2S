@@ -9,6 +9,7 @@ import { SafeMarkdown } from './SafeMarkdown';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { UI_TIMING } from '../constants/uiConfig';
 import { getOgImageUrl } from '../constants/appConfig';
+import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayLimits';
 
 interface Props {
   id?: string | null;
@@ -63,7 +64,7 @@ export const PublicBlogView: React.FC<Props> = ({ id, data: initialData, onHome 
   const ogImage = idea?.name ? getOgImageUrl(encodeURIComponent(idea.name)) : '';
   useMetaTags(
     idea?.name ? `${idea.name} | TrendVentures` : 'TrendVentures',
-    blueprint?.executiveSummary ? blueprint.executiveSummary.slice(0, 160) + '...' : 'Business Blueprint',
+    blueprint?.executiveSummary ? blueprint.executiveSummary.slice(0, TEXT_TRUNCATION.metaDescription) + '...' : 'Business Blueprint',
     ogImage,
     window.location.href
   );
@@ -78,7 +79,7 @@ export const PublicBlogView: React.FC<Props> = ({ id, data: initialData, onHome 
     const fetchRelated = async () => {
       const results = await supabaseService.findBlueprintsByNiche(data.niche);
       // Filter out current idea
-      setRelated(results.filter(r => r.id !== data.id).slice(0, 3));
+      setRelated(results.filter(r => r.id !== data.id).slice(0, DISPLAY_LIMITS.content.relatedLinks));
     };
     fetchRelated();
 
@@ -263,8 +264,8 @@ export const PublicBlogView: React.FC<Props> = ({ id, data: initialData, onHome 
               <h3 className="font-bold text-sm uppercase">{uiText?.techStack || 'Tech Stack'}</h3>
             </div>
             <div className="flex flex-wrap gap-1">
-              {blueprint.technicalStack.slice(0, 3).map((t, i) => (
-                <span key={i} className="text-sm font-medium text-slate-900">{t}{i < 2 ? ',' : '...'}</span>
+              {blueprint.technicalStack.slice(0, DISPLAY_LIMITS.blueprint.tools).map((t, i) => (
+                <span key={i} className="text-sm font-medium text-slate-900">{t}{i < DISPLAY_LIMITS.blueprint.tools - 1 ? ',' : '...'}</span>
               ))}
             </div>
           </div>

@@ -11,6 +11,7 @@ import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { Z_INDEX } from '../constants/zIndex';
 import { ANIMATION_CLASSES } from '../constants/animationConfig';
+import { UI_TIMING } from '../constants/uiConfig';
 
 interface Props {
   niche: string;
@@ -65,7 +66,7 @@ export const IdeaSelection: React.FC<Props> = ({
     if (isGeneratingBlueprint) {
       const interval = setInterval(() => {
         setLoadingStepIndex((prev) => (prev + 1) % uiText.loadingSteps.length);
-      }, 3500); 
+      }, UI_TIMING.LOADING_STEP_INTERVAL);
       return () => clearInterval(interval);
     } else {
       setLoadingStepIndex(0);
