@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { BrandIdentity, Blueprint, BusinessIdea } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { Palette, Loader2, RefreshCcw, Tag, Type, Hash, Check, Copy } from 'lucide-react';
@@ -7,6 +7,8 @@ import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { EmptyState } from './ui/EmptyState';
+import { Tooltip } from './ui/Tooltip';
+import { UI_TIMING } from '../constants/uiConfig';
 
 interface Props {
   idea: BusinessIdea;
@@ -19,6 +21,7 @@ interface Props {
 export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, onUpdateBlueprint, onUpdateIdea }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedName, setSelectedName] = useState<string | null>(null);
+  const [copiedColor, setCopiedColor] = useState<string | null>(null);
   
   const { provider, language } = usePreferences();
   const { confirm } = useConfirm();
@@ -53,10 +56,20 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
     }
   };
 
-  const handleCopyHex = (hex: string) => {
-    navigator.clipboard.writeText(hex);
-    toast.success(`Hex code ${hex} copied!`);
-  };
+  const handleCopyHex = useCallback(async (hex: string) => {
+    try {
+      await navigator.clipboard.writeText(hex);
+      setCopiedColor(hex);
+      toast.success(`Hex code ${hex} copied!`);
+      
+      // Reset copied state after animation duration
+      setTimeout(() => {
+        setCopiedColor(null);
+      }, UI_TIMING.COPY_FEEDBACK_DURATION);
+    } catch (err) {
+      toast.error('Failed to copy to clipboard');
+    }
+  }, []);
 
   if (isGenerating) {
     return (
@@ -137,32 +150,77 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
         </div>
 
         <div className="space-y-6">
-           <div className="bg-slate-950/50 rounded-xl p-5 border border-slate-800">
-              <h4 className="text-sm font-bold text-emerald-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Palette className="w-4 h-4" /> Color Palette
-              </h4>
-              <div className="flex flex-col gap-3">
-                 {brandIdentity.colors.map((color, i) => (
-                   <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg group transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg shadow-sm border border-white/10 shrink-0" style={{ backgroundColor: color.hex }}></div>
-                        <div>
-                           <p className="text-slate-200 font-bold text-sm">{color.name}</p>
-                           <p className="text-slate-500 text-xs font-mono uppercase">{color.hex}</p>
-                        </div>
+            <div className="bg-slate-950/50 rounded-xl p-5 border border-slate-800">
+               <h4 className="text-sm font-bold text-emerald-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                 <Palette className="w-4 h-4" /> Color Palette
+               </h4>
+               <div className="flex flex-col gap-3">
+                  {brandIdentity.colors.map((color, i) => {
+                    const isCopied = copiedColor === color.hex;
+                    return (
+                      <div 
+                        key={i} 
+                        className="flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg group transition-colors cursor-pointer"
+                        onClick={() => handleCopyHex(color.hex)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleCopyHex(color.hex);
+                          }
+                        }}
+                        aria-label={`Copy ${color.name} color hex code ${color.hex}`}
+                      >
+                         <div className="flex items-center gap-4">
+                           <div 
+                             className="w-12 h-12 rounded-lg shadow-sm border border-white/10 shrink-0 transition-transform duration-200 group-hover:scale-105 group-active:scale-95"
+                             style={{ backgroundColor: color.hex }}
+                           ></div>
+                           <div>
+                              <p className="text-slate-200 font-bold text-sm">{color.name}</p>
+                              <p className="text-slate-500 text-xs font-mono uppercase">{color.hex}</p>
+                           </div>
+                         </div>
+                          <Tooltip content={isCopied ? 'Copied!' : 'Click to copy hex code'} position="left">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopyHex(color.hex);
+                              }}
+                              className={`
+                                p-2 rounded-lg transition-all duration-200
+                                ${isCopied 
+                                  ? 'opacity-100 text-emerald-400 bg-emerald-500/10' 
+                                  : 'opacity-0 group-hover:opacity-100 hover:text-emerald-400 hover:bg-slate-700'
+                                }
+                              `}
+                              aria-label={isCopied ? 'Copied to clipboard' : 'Copy hex code'}
+                              aria-live="polite"
+                            >
+                              <span className="relative flex items-center justify-center w-4 h-4">
+                                <Copy 
+                                  className={`
+                                    w-4 h-4 absolute transition-all duration-200
+                                    ${isCopied ? 'opacity-0 rotate-12 scale-50' : 'opacity-100 rotate-0 scale-100'}
+                                  `}
+                                  aria-hidden={isCopied}
+                                />
+                                <Check 
+                                  className={`
+                                    w-4 h-4 absolute text-emerald-400 transition-all duration-200
+                                    ${isCopied ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-12 scale-50'}
+                                  `}
+                                  aria-hidden={!isCopied}
+                                />
+                              </span>
+                            </button>
+                          </Tooltip>
                       </div>
-                       <button
-                         onClick={() => handleCopyHex(color.hex)}
-                         className="p-2 opacity-0 group-hover:opacity-100 hover:text-emerald-400 transition-all"
-                         title="Copy Hex Code"
-                         aria-label="Copy hex code"
-                       >
-                         <Copy className="w-4 h-4" />
-                       </button>
-                   </div>
-                 ))}
-              </div>
-           </div>
+                    );
+                  })}
+               </div>
+            </div>
 
            <div className="bg-slate-950/50 rounded-xl p-5 border border-slate-800">
               <h4 className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-3 flex items-center gap-2">
