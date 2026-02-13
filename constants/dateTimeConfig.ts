@@ -5,7 +5,7 @@
  * Flexy: Eliminating hardcoded date format values
  */
 
-
+import { getEnv } from '../utils/envUtils';
 
 // Standard date format options for Intl.DateTimeFormat
 export const DATE_FORMATS: Record<string, globalThis.Intl.DateTimeFormatOptions> = {
@@ -54,8 +54,8 @@ export const DATE_FORMATS: Record<string, globalThis.Intl.DateTimeFormatOptions>
   },
 } as const;
 
-// Default locale for date formatting
-export const DEFAULT_DATE_LOCALE = 'en-US';
+// Default locale for date formatting - Flexy hates hardcoded locales!
+export const DEFAULT_DATE_LOCALE = getEnv('VITE_DEFAULT_LOCALE', 'en-US');
 
 // Timezone to region mapping for search configuration
 export const TIMEZONE_REGION_MAP: Record<string, string> = {

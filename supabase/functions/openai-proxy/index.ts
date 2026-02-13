@@ -1,96 +1,98 @@
 // Supabase Edge Function: OpenAI Proxy
 // Securely proxies requests to OpenAI API without exposing API keys to clients
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const OPENAI_API_BASE = "https://api.openai.com/v1";
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import {
+  HTTP_STATUS,
+  MIME_TYPES,
+  HTTP_HEADERS,
+  AI_CONFIG,
+  createCorsHeaders,
+  createJsonResponse,
+  createErrorResponse,
+} from '../shared/config.ts';
 
 interface OpenAIProxyRequest {
   operation: string;
-  params: Record<string, unknown>;
+  params: {
+    model?: string;
+    messages?: unknown;
+    prompt?: string;
+    temperature?: number;
+    tools?: unknown;
+    tool_choice?: unknown;
+    response_format?: unknown;
+    size?: string;
+    quality?: string;
+    n?: number;
+  };
 }
 
-serve(async (req) => {
+const corsHeaders = createCorsHeaders();
+
+Deno.serve(async (req: Request) => {
   // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const { operation, params } = await req.json() as OpenAIProxyRequest;
-    const apiKey = Deno.env.get("OPENAI_API_KEY");
+    const apiKey = Deno.env.get(AI_CONFIG.OPENAI.API_KEY_ENV);
 
     if (!apiKey) {
-      console.error("OPENAI_API_KEY not configured");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
+      console.error(`${AI_CONFIG.OPENAI.API_KEY_ENV} not configured`);
+      return createErrorResponse(
+        'Server configuration error',
+        HTTP_STATUS.INTERNAL_SERVER_ERROR
       );
     }
 
     console.log(`Proxying OpenAI operation: ${operation}`);
 
     // Route to appropriate handler based on operation type
-    let result;
     switch (operation) {
-      case "chatCompletion":
-        result = await handleChatCompletion(params, apiKey);
-        break;
-      case "chatCompletionStream":
+      case 'chatCompletion': {
+        const result = await handleChatCompletion(params, apiKey);
+        return createJsonResponse(result);
+      }
+      case 'chatCompletionStream':
         return await handleChatCompletionStream(params, apiKey, corsHeaders);
-      case "generateImage":
-        result = await handleGenerateImage(params, apiKey);
-        break;
+      case 'generateImage': {
+        const result = await handleGenerateImage(params, apiKey);
+        return createJsonResponse(result);
+      }
       default:
-        return new Response(
-          JSON.stringify({ error: `Unknown operation: ${operation}` }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, "Content-Type": "application/json" } 
-          }
+        return createErrorResponse(
+          `Unknown operation: ${operation}`,
+          HTTP_STATUS.BAD_REQUEST
         );
     }
 
-    return new Response(
-      JSON.stringify(result),
-      { 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      }
-    );
-
   } catch (error) {
-    console.error("OpenAI proxy error:", error);
-    return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error" 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      }
+    console.error('OpenAI proxy error:', error);
+    return createErrorResponse(
+      error instanceof Error ? error.message : 'Unknown error',
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
     );
   }
 });
 
 async function handleChatCompletion(
-  params: Record<string, unknown>, 
+  params: OpenAIProxyRequest['params'],
   apiKey: string
 ): Promise<unknown> {
   const { model, messages, temperature, tools, tool_choice, response_format } = params;
   
-  const url = `${OPENAI_API_BASE}/chat/completions`;
+  if (!model) {
+    throw new Error('Model is required');
+  }
+  
+  const url = `${AI_CONFIG.OPENAI.API_BASE_URL}/chat/completions`;
   
   const body: Record<string, unknown> = {
     model,
     messages,
-    temperature: temperature ?? 0.7,
+    temperature: temperature ?? AI_CONFIG.OPENAI.DEFAULT_TEMPERATURE,
   };
 
   if (tools) {
@@ -106,10 +108,10 @@ async function handleChatCompletion(
   }
 
   const response = await fetch(url, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
+    method: 'POST',
+    headers: {
+      [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.JSON,
+      [HTTP_HEADERS.AUTHORIZATION]: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(body),
   });
@@ -124,26 +126,30 @@ async function handleChatCompletion(
 }
 
 async function handleChatCompletionStream(
-  params: Record<string, unknown>, 
+  params: OpenAIProxyRequest['params'],
   apiKey: string,
   corsHeaders: Record<string, string>
 ): Promise<Response> {
   const { model, messages, temperature } = params;
   
-  const url = `${OPENAI_API_BASE}/chat/completions`;
+  if (!model) {
+    throw new Error('Model is required');
+  }
+  
+  const url = `${AI_CONFIG.OPENAI.API_BASE_URL}/chat/completions`;
   
   const body = {
     model,
     messages,
-    temperature: temperature ?? 0.7,
+    temperature: temperature ?? AI_CONFIG.OPENAI.DEFAULT_TEMPERATURE,
     stream: true,
   };
 
   const response = await fetch(url, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
+    method: 'POST',
+    headers: {
+      [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.JSON,
+      [HTTP_HEADERS.AUTHORIZATION]: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(body),
   });
@@ -158,21 +164,25 @@ async function handleChatCompletionStream(
   response.body?.pipeTo(writable);
 
   return new Response(readable, {
-    headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    headers: { ...corsHeaders, [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.EVENT_STREAM },
   });
 }
 
 async function handleGenerateImage(
-  params: Record<string, unknown>, 
+  params: OpenAIProxyRequest['params'],
   apiKey: string
 ): Promise<unknown> {
   const { prompt, model, size, quality, n } = params;
   
-  const url = `${OPENAI_API_BASE}/images/generations`;
+  if (!prompt) {
+    throw new Error('Prompt is required');
+  }
+  
+  const url = `${AI_CONFIG.OPENAI.API_BASE_URL}/images/generations`;
   
   const body: Record<string, unknown> = {
-    prompt: prompt as string,
-    model: model ?? "dall-e-3",
+    prompt,
+    model: model ?? AI_CONFIG.OPENAI.DEFAULT_IMAGE_MODEL,
   };
 
   if (size) {
@@ -188,10 +198,10 @@ async function handleGenerateImage(
   }
 
   const response = await fetch(url, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
+    method: 'POST',
+    headers: {
+      [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.JSON,
+      [HTTP_HEADERS.AUTHORIZATION]: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(body),
   });
