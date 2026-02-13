@@ -66,7 +66,7 @@ export const Header: React.FC<Props> = ({
         onClick={onReset}
         role="button"
         tabIndex={0}
-        aria-label="Go to Home / Reset"
+        aria-label="TrendVenturesAI - Go to Home / Reset"
         onKeyDown={(e) => e.key === 'Enter' && onReset()}
       >
         <div className="bg-slate-900/50 p-2 rounded-lg border border-white/5 group-hover:border-emerald-500/30 transition-colors">
@@ -157,7 +157,7 @@ export const Header: React.FC<Props> = ({
               <button
                 onClick={() => setLanguage('id')}
                 className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:text-white'}`}
-                aria-label="Switch to Indonesian"
+                aria-label="ID - Switch to Indonesian"
                 aria-pressed={language === 'id'}
               >
                 ID

@@ -538,7 +538,7 @@ export const TrendSearch: React.FC<Props> = ({
               ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/30'
               : 'bg-emerald-600 hover:bg-emerald-500 text-slate-950 shadow-emerald-900/20'
             }`}
-            aria-label={isLoading ? "Analyzing..." : "Start Analysis"}
+            aria-label={isLoading ? `${uiText.analyzeBtn} - Analyzing...` : uiText.analyzeBtn}
           >
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : uiText.analyzeBtn}
           </button>

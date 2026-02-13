@@ -2,12 +2,11 @@
 import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Trend, BusinessIdea } from '../types';
 import { TrendingUp, BarChart3, Newspaper, Download, Headphones, StopCircle, Loader2, Sparkles } from 'lucide-react';
-import { NewsWire } from './NewsWire';
-import { BusinessOpportunities } from './BusinessOpportunities';
-
 // Lazy load heavy components to reduce initial bundle size
 const TrendAnalysis = lazy(() => import('./TrendAnalysis').then(m => ({ default: m.TrendAnalysis })));
 const ResearchChat = lazy(() => import('./ResearchChat').then(m => ({ default: m.ResearchChat })));
+const NewsWire = lazy(() => import('./NewsWire').then(m => ({ default: m.NewsWire })));
+const BusinessOpportunities = lazy(() => import('./BusinessOpportunities').then(m => ({ default: m.BusinessOpportunities })));
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { Z_INDEX } from '../constants/zIndex';
@@ -277,23 +276,35 @@ export const IdeaSelection: React.FC<Props> = ({
             />
           </Suspense>
         ) : (
-          <NewsWire
-            sources={allNewsSources}
-            provider={provider}
-          />
+          <Suspense fallback={
+            <div className="py-12 flex justify-center">
+              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            </div>
+          }>
+            <NewsWire
+              sources={allNewsSources}
+              provider={provider}
+            />
+          </Suspense>
         )}
       </div>
 
       {/* Ideas Section */}
-      <BusinessOpportunities 
-        ideas={ideas}
-        isGeneratingIdeas={isGeneratingIdeas}
-        isGeneratingBlueprint={isGeneratingBlueprint}
-        loadingStepIndex={loadingStepIndex}
-        hasSelection={selectedTrendIndices.size > 0}
-        onGenerate={handleGenerateClick}
-        onSelectIdea={onSelectIdea}
-      />
+      <Suspense fallback={
+        <div className="py-12 flex justify-center">
+          <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+        </div>
+      }>
+        <BusinessOpportunities 
+          ideas={ideas}
+          isGeneratingIdeas={isGeneratingIdeas}
+          isGeneratingBlueprint={isGeneratingBlueprint}
+          loadingStepIndex={loadingStepIndex}
+          hasSelection={selectedTrendIndices.size > 0}
+          onGenerate={handleGenerateClick}
+          onSelectIdea={onSelectIdea}
+        />
+      </Suspense>
     </div>
   );
 };

@@ -1,14 +1,12 @@
 
 import React, { useState, useMemo, Suspense, lazy } from 'react';
 import { Trend } from '../types';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  ScatterChart, Scatter, ZAxis, ReferenceLine, Label, Cell
-} from 'recharts';
-import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, TrendingUp, TrendingDown, Minus, Calendar, Clock, Globe, Flame, Loader2 } from 'lucide-react';
+import { BarChart3, List, LayoutGrid, CheckSquare, Square, Newspaper, Activity, Radio, Calendar, Clock, Globe, Flame, Loader2 } from 'lucide-react';
 
-// Lazy load modal to reduce initial chunk size
+// Lazy load heavy components to reduce initial bundle size
 const TrendDeepDiveModal = lazy(() => import('./TrendDeepDiveModal').then(m => ({ default: m.TrendDeepDiveModal })));
+const TrendBarChart = lazy(() => import('./TrendBarChart').then(m => ({ default: m.TrendBarChart })));
+const TrendScatterChart = lazy(() => import('./TrendScatterChart').then(m => ({ default: m.TrendScatterChart })));
 import { usePreferences } from '../contexts/PreferencesContext';
 import { COLORS } from '../constants/theme';
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
@@ -169,33 +167,24 @@ export const TrendAnalysis: React.FC<Props> = ({
          
           <div className={`lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 h-[${CHART_HEIGHTS.TREND_ANALYSIS}px] relative overflow-hidden`}>
               {viewMode === 'list' && (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} layout="vertical" margin={CHART_MARGINS.DEFAULT}>
-                    <CartesianGrid strokeDasharray={CHART_GRID.strokeDasharray} stroke={COLORS.chart.grid} horizontal={CHART_GRID.horizontal} vertical={CHART_GRID.vertical} />
-                    <XAxis type="number" domain={[CHART_RANGES.SCORE.min, CHART_RANGES.SCORE.max]} stroke={COLORS.chart.axis} fontSize={CHART_AXIS.fontSize} tickLine={CHART_AXIS.tickLine} axisLine={CHART_AXIS.axisLine} />
-                    <YAxis dataKey="name" type="category" width={120} stroke={COLORS.slate[400]} fontSize={CHART_AXIS.fontSize} tickLine={CHART_AXIS.tickLine} axisLine={CHART_AXIS.axisLine} />
-                   <Tooltip contentStyle={{ backgroundColor: COLORS.chart.tooltipBg, borderColor: COLORS.chart.tooltipBorder, color: COLORS.chart.tooltipText }} />
-                    <Bar dataKey="score" radius={CHART_RANGES.BAR_RADIUS} barSize={CHART_RANGES.BAR_SIZE}>
-                      {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColorForChart(entry.sentiment)} />)}
-                    </Bar>
-                 </BarChart>
-               </ResponsiveContainer>
-             )}
-             
+                <Suspense fallback={
+                  <div className="h-full w-full flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                  </div>
+                }>
+                  <TrendBarChart data={chartData} getSentimentColor={getSentimentColorForChart} />
+                </Suspense>
+              )}
+              
               {viewMode === 'matrix' && (
-                <ResponsiveContainer width="100%" height="100%">
-                  <ScatterChart margin={CHART_MARGINS.SCATTER}>
-                    <CartesianGrid strokeDasharray={CHART_GRID.strokeDasharray} stroke={COLORS.chart.grid} />
-                    <XAxis type="number" dataKey="x" name="Relevance" unit="%" stroke={COLORS.chart.axis} domain={[CHART_RANGES.SCORE.min, CHART_RANGES.SCORE.max]}><Label value="Relevance" offset={-10} position="insideBottom" fill={COLORS.chart.axisLabel} fontSize={10} /></XAxis>
-                    <YAxis type="number" dataKey="y" name="Growth" unit="%" stroke={COLORS.chart.axis} domain={[CHART_RANGES.GROWTH.min, CHART_RANGES.GROWTH.max]}><Label value="Growth/Hype" angle={-90} position="insideLeft" fill={COLORS.chart.axisLabel} fontSize={10} /></YAxis>
-                    <ZAxis type="number" dataKey="z" range={[CHART_RANGES.IMPACT_SIZE.min, CHART_RANGES.IMPACT_SIZE.max]} name="Impact" />
-                   <Tooltip contentStyle={{ backgroundColor: COLORS.chart.tooltipBg, borderColor: COLORS.chart.tooltipBorder, color: COLORS.chart.tooltipText }} />
-                    <Scatter name="Trends" data={scatterData} fill={COLORS.sentiment.positive}>
-                      {scatterData.map((entry, index) => <Cell key={`cell-${index}`} fill={getSentimentColorForChart(entry.sentiment)} />)}
-                    </Scatter>
-                 </ScatterChart>
-               </ResponsiveContainer>
-             )}
+                <Suspense fallback={
+                  <div className="h-full w-full flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                  </div>
+                }>
+                  <TrendScatterChart data={scatterData} getSentimentColor={getSentimentColorForChart} />
+                </Suspense>
+              )}
 
             {viewMode === 'timeline' && (
               <div className="absolute inset-0 overflow-y-auto custom-scrollbar p-2">
