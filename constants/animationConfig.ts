@@ -72,10 +72,45 @@ export const STAGGER_DELAY = {
   slow: getEnvNumber('VITE_STAGGER_DELAY_SLOW', 150),
 } as const;
 
+// Animation delays for staggered effects (in seconds)
+export const ANIMATION_DELAYS = {
+  none: getEnv('VITE_ANIMATION_DELAY_NONE', '0s'),
+  fast: getEnv('VITE_ANIMATION_DELAY_FAST', '0.5s'),
+  normal: getEnv('VITE_ANIMATION_DELAY_NORMAL', '1s'),
+  slow: getEnv('VITE_ANIMATION_DELAY_SLOW', '1.5s'),
+  // For bouncing/typing animations
+  bounce: {
+    first: getEnv('VITE_ANIMATION_BOUNCE_FIRST', '0ms'),
+    second: getEnv('VITE_ANIMATION_BOUNCE_SECOND', '150ms'),
+    third: getEnv('VITE_ANIMATION_BOUNCE_THIRD', '300ms'),
+  },
+  // For floating particles
+  particle: (index: number) => `${index * getEnvNumber('VITE_PARTICLE_DELAY_MULTIPLIER', 0.5)}s`,
+} as const;
+
+// Animation delays in milliseconds (for React style props)
+export const ANIMATION_DELAYS_MS = {
+  bounce: {
+    first: getEnvNumber('VITE_ANIMATION_BOUNCE_FIRST_MS', 0),
+    second: getEnvNumber('VITE_ANIMATION_BOUNCE_SECOND_MS', 150),
+    third: getEnvNumber('VITE_ANIMATION_BOUNCE_THIRD_MS', 300),
+  },
+} as const;
+
+// Spin animation durations
+export const SPIN_DURATION = {
+  slow: getEnv('VITE_SPIN_DURATION_SLOW', '8s'),
+  normal: getEnv('VITE_SPIN_DURATION_NORMAL', '4s'),
+  fast: getEnv('VITE_SPIN_DURATION_FAST', '2s'),
+} as const;
+
 // Default export for convenience
 export default {
   ANIMATION_DURATION,
   ANIMATION_EASING,
   ANIMATION_CLASSES,
   STAGGER_DELAY,
+  ANIMATION_DELAYS,
+  ANIMATION_DELAYS_MS,
+  SPIN_DURATION,
 };

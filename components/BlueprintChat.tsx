@@ -10,6 +10,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { MODAL_DIMENSIONS, MODAL_Z_INDEX } from '../constants/modalConfig';
 import { Z_INDEX } from '../constants/zIndex';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
+import { ANIMATION_DELAYS_MS } from '../constants/animationConfig';
 import { CHAT_ROLES } from '../constants/chatRoles';
 
 interface Props {
@@ -139,9 +140,9 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
                     <Bot className="w-4 h-4 text-emerald-400" />
                  </div>
                  <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-1" aria-label="AI is typing">
-                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                     <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: `${ANIMATION_DELAYS_MS.bounce.first}ms` }} />
+                     <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: `${ANIMATION_DELAYS_MS.bounce.second}ms` }} />
+                     <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: `${ANIMATION_DELAYS_MS.bounce.third}ms` }} />
                  </div>
               </div>
             )}
