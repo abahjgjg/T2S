@@ -167,3 +167,96 @@ quality_gates:
   build_required: true
   typecheck_required: true
   test_required: false
+
+# Supplements integration
+supplements:
+  enabled: true
+  config_path: .opencode/supplements/repositories.yaml
+  auto_sync: true
+  references:
+    - oh-my-opencode
+    - ai-agents-public
+    - superpowers
+    - opencode-antigravity-auth
+    - system-prompts-leaks
+    - ultrarag
+
+# Enhanced workflow optimizations from iterate.yml analysis
+workflow_optimizations:
+  # CI/CD alignment
+  ci_cd:
+    workflow_file: .github/workflows/iterate.yml
+    agents:
+      - RepoKeeper
+      - BugFixer
+      - Palette
+      - Flexy
+      - Brocula
+    schedule: "0 */4 * * *"  # Every 4 hours
+    
+  # Execution patterns
+  execution:
+    max_retries: 2
+    timeout_minutes: 20
+    continue_on_error: true
+    
+  # Git operations
+  git:
+    auto_commit: false  # Manual commit for review
+    pr_required: true
+    branch_sync: true
+    
+  # Error handling
+  error_handling:
+    fatal_on_build_error: true
+    fatal_on_lint_error: true
+    log_errors: true
+    
+# Skill integration
+skills:
+  enabled:
+    - proffesor-for-testing-agentic-qe-skill-builder
+    - maxritter-claude-codepro-backend-models-standards
+    - obra-superpowers-systematic-debugging
+    - modu-ai-moai-adk-moai-foundation-context
+    - muratcankoylan-agent-skills-for-context-engineering-memory-systems
+    - madappgang-claude-code-debugging-strategies
+    - vasilyu1983-ai-agents-public-git-commit-message
+  auto_load: true
+
+# MCP integration from oh-my-opencode
+mcp:
+  enabled: true
+  servers:
+    websearch:
+      enabled: true
+      description: "Exa web search for documentation and examples"
+    context7:
+      enabled: true
+      description: "Official documentation search"
+    grep_app:
+      enabled: true
+      description: "GitHub code search"
+
+# Context injection
+context_injection:
+  enabled: true
+  files:
+    - AGENTS.md
+    - README.md
+    - .opencode/supplements/README.md
+  conditional_rules: true
+
+# Verification and monitoring
+verification:
+  enabled: true
+  check_lint: true
+  check_build: true
+  check_types: true
+  self_reflection: true
+  
+# Documentation
+documentation:
+  auto_update: true
+  update_agents_md: true
+  track_changes: true
