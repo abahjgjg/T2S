@@ -122,10 +122,93 @@ export const isFatalClientError = (status: number): boolean => {
   return true;
 };
 
+/**
+ * MIME Types - Standard MIME type definitions for Content-Type headers
+ * All values can be overridden via environment variables.
+ */
+const getEnvString = (key: string, defaultValue: string): string => {
+  const value = (import.meta as unknown as Record<string, Record<string, string>>)?.env?.[key]
+    ?? (typeof process !== 'undefined' ? process.env?.[key] : undefined)
+    ?? defaultValue;
+  return value;
+};
+
+export const MIME_TYPES = {
+  // Application types
+  JSON: getEnvString('VITE_MIME_TYPE_JSON', 'application/json'),
+  XML: getEnvString('VITE_MIME_TYPE_XML', 'application/xml'),
+  FORM: getEnvString('VITE_MIME_TYPE_FORM', 'application/x-www-form-urlencoded'),
+  JAVASCRIPT: getEnvString('VITE_MIME_TYPE_JAVASCRIPT', 'application/javascript'),
+  PDF: getEnvString('VITE_MIME_TYPE_PDF', 'application/pdf'),
+  ZIP: getEnvString('VITE_MIME_TYPE_ZIP', 'application/zip'),
+  
+  // Text types
+  TEXT: getEnvString('VITE_MIME_TYPE_TEXT', 'text/plain'),
+  HTML: getEnvString('VITE_MIME_TYPE_HTML', 'text/html'),
+  CSS: getEnvString('VITE_MIME_TYPE_CSS', 'text/css'),
+  EVENT_STREAM: getEnvString('VITE_MIME_TYPE_EVENT_STREAM', 'text/event-stream'),
+  
+  // Image types
+  PNG: getEnvString('VITE_MIME_TYPE_PNG', 'image/png'),
+  JPEG: getEnvString('VITE_MIME_TYPE_JPEG', 'image/jpeg'),
+  GIF: getEnvString('VITE_MIME_TYPE_GIF', 'image/gif'),
+  SVG: getEnvString('VITE_MIME_TYPE_SVG', 'image/svg+xml'),
+  WEBP: getEnvString('VITE_MIME_TYPE_WEBP', 'image/webp'),
+  
+  // Multipart
+  MULTIPART: getEnvString('VITE_MIME_TYPE_MULTIPART', 'multipart/form-data'),
+} as const;
+
+/**
+ * HTTP Headers - Common HTTP header names
+ */
+export const HTTP_HEADERS = {
+  CONTENT_TYPE: 'Content-Type',
+  CONTENT_LENGTH: 'Content-Length',
+  AUTHORIZATION: 'Authorization',
+  ACCEPT: 'Accept',
+  ACCEPT_ENCODING: 'Accept-Encoding',
+  ACCEPT_LANGUAGE: 'Accept-Language',
+  CACHE_CONTROL: 'Cache-Control',
+  ETAG: 'ETag',
+  IF_NONE_MATCH: 'If-None-Match',
+  LAST_MODIFIED: 'Last-Modified',
+  LOCATION: 'Location',
+  
+  // CORS headers
+  CORS_ORIGIN: 'Access-Control-Allow-Origin',
+  CORS_METHODS: 'Access-Control-Allow-Methods',
+  CORS_HEADERS: 'Access-Control-Allow-Headers',
+  CORS_CREDENTIALS: 'Access-Control-Allow-Credentials',
+  CORS_MAX_AGE: 'Access-Control-Max-Age',
+  
+  // Security headers
+  X_CONTENT_TYPE_OPTIONS: 'X-Content-Type-Options',
+  X_FRAME_OPTIONS: 'X-Frame-Options',
+  X_XSS_PROTECTION: 'X-XSS-Protection',
+  STRICT_TRANSPORT_SECURITY: 'Strict-Transport-Security',
+  REFERRER_POLICY: 'Referrer-Policy',
+} as const;
+
+/**
+ * CORS Configuration
+ * Default CORS settings, can be overridden via environment variables
+ */
+export const CORS_CONFIG = {
+  ALLOWED_ORIGINS: getEnvString('VITE_CORS_ALLOWED_ORIGINS', '*'),
+  ALLOWED_METHODS: getEnvString('VITE_CORS_ALLOWED_METHODS', 'GET,POST,PUT,DELETE,OPTIONS'),
+  ALLOWED_HEADERS: getEnvString('VITE_CORS_ALLOWED_HEADERS', 'authorization,x-client-info,apikey,content-type'),
+  ALLOW_CREDENTIALS: getEnvString('VITE_CORS_ALLOW_CREDENTIALS', 'false') === 'true',
+  MAX_AGE: getEnvNumber('VITE_CORS_MAX_AGE', 86400),
+} as const;
+
 export default {
   HTTP_STATUS,
   HTTP_STATUS_RANGES,
   RETRY_STATUS_CONFIG,
+  MIME_TYPES,
+  HTTP_HEADERS,
+  CORS_CONFIG,
   isStatusInRange,
   isClientError,
   isServerError,

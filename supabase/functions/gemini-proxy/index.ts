@@ -1,97 +1,101 @@
 // Supabase Edge Function: Gemini Proxy
 // Securely proxies requests to Google Gemini API without exposing API keys to clients
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  HTTP_STATUS,
+  MIME_TYPES,
+  HTTP_HEADERS,
+  AI_CONFIG,
+  createCorsHeaders,
+  createJsonResponse,
+  createErrorResponse,
+} from '../shared/config.ts';
 
-const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+interface GeminiConfig {
+  temperature?: number;
+  responseMimeType?: string;
+  responseSchema?: Record<string, unknown>;
+  maxOutputTokens?: number;
+  systemInstruction?: unknown;
+}
 
 interface GeminiProxyRequest {
   operation: string;
-  params: Record<string, unknown>;
+  params: {
+    model?: string;
+    contents?: unknown;
+    prompt?: string;
+    config?: GeminiConfig;
+  };
 }
 
-serve(async (req) => {
+const corsHeaders = createCorsHeaders();
+
+Deno.serve(async (req: Request) => {
   // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const { operation, params } = await req.json() as GeminiProxyRequest;
-    const apiKey = Deno.env.get("GEMINI_API_KEY");
+    const apiKey = Deno.env.get(AI_CONFIG.GEMINI.API_KEY_ENV);
 
     if (!apiKey) {
-      console.error("GEMINI_API_KEY not configured");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
+      console.error(`${AI_CONFIG.GEMINI.API_KEY_ENV} not configured`);
+      return createErrorResponse(
+        'Server configuration error',
+        HTTP_STATUS.INTERNAL_SERVER_ERROR
       );
     }
 
     console.log(`Proxying Gemini operation: ${operation}`);
 
     // Route to appropriate handler based on operation type
-    let result;
     switch (operation) {
-      case "generateContent":
-        result = await handleGenerateContent(params, apiKey);
-        break;
-      case "generateContentStream":
+      case 'generateContent': {
+        const result = await handleGenerateContent(params, apiKey);
+        return createJsonResponse(result);
+      }
+      case 'generateContentStream':
         return await handleGenerateContentStream(params, apiKey, corsHeaders);
-      case "generateImage":
-        result = await handleGenerateImage(params, apiKey);
-        break;
+      case 'generateImage': {
+        const result = await handleGenerateImage(params, apiKey);
+        return createJsonResponse(result);
+      }
       default:
-        return new Response(
-          JSON.stringify({ error: `Unknown operation: ${operation}` }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, "Content-Type": "application/json" } 
-          }
+        return createErrorResponse(
+          `Unknown operation: ${operation}`,
+          HTTP_STATUS.BAD_REQUEST
         );
     }
 
-    return new Response(
-      JSON.stringify(result),
-      { 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      }
-    );
-
   } catch (error) {
-    console.error("Gemini proxy error:", error);
-    return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error" 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      }
+    console.error('Gemini proxy error:', error);
+    return createErrorResponse(
+      error instanceof Error ? error.message : 'Unknown error',
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
     );
   }
 });
 
 async function handleGenerateContent(
-  params: Record<string, unknown>, 
+  params: GeminiProxyRequest['params'],
   apiKey: string
 ): Promise<unknown> {
   const { model, contents, config } = params;
   
-  const url = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${apiKey}`;
+  if (!model) {
+    throw new Error('Model is required');
+  }
+  
+  const url = `${AI_CONFIG.GEMINI.API_BASE_URL}/models/${model}:generateContent?key=${apiKey}`;
   
   const body: Record<string, unknown> = {
     contents,
     generationConfig: {
-      temperature: config?.temperature ?? 0.7,
-      responseMimeType: config?.responseMimeType ?? "text/plain",
+      temperature: config?.temperature ?? AI_CONFIG.GEMINI.DEFAULT_TEMPERATURE,
+      responseMimeType: config?.responseMimeType ?? AI_CONFIG.GEMINI.DEFAULT_MIME_TYPE,
       ...(config?.responseSchema && { responseSchema: config.responseSchema }),
       ...(config?.maxOutputTokens && { maxOutputTokens: config.maxOutputTokens }),
     },
@@ -103,8 +107,8 @@ async function handleGenerateContent(
   }
 
   const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.JSON },
     body: JSON.stringify(body),
   });
 
@@ -118,18 +122,22 @@ async function handleGenerateContent(
 }
 
 async function handleGenerateContentStream(
-  params: Record<string, unknown>, 
+  params: GeminiProxyRequest['params'],
   apiKey: string,
   corsHeaders: Record<string, string>
 ): Promise<Response> {
   const { model, contents, config } = params;
   
-  const url = `${GEMINI_API_BASE}/models/${model}:streamGenerateContent?key=${apiKey}`;
+  if (!model) {
+    throw new Error('Model is required');
+  }
+  
+  const url = `${AI_CONFIG.GEMINI.API_BASE_URL}/models/${model}:streamGenerateContent?key=${apiKey}`;
   
   const body: Record<string, unknown> = {
     contents,
     generationConfig: {
-      temperature: config?.temperature ?? 0.7,
+      temperature: config?.temperature ?? AI_CONFIG.GEMINI.DEFAULT_TEMPERATURE,
       ...(config?.maxOutputTokens && { maxOutputTokens: config.maxOutputTokens }),
     },
   };
@@ -139,8 +147,8 @@ async function handleGenerateContentStream(
   }
 
   const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.JSON },
     body: JSON.stringify(body),
   });
 
@@ -154,29 +162,33 @@ async function handleGenerateContentStream(
   response.body?.pipeTo(writable);
 
   return new Response(readable, {
-    headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    headers: { ...corsHeaders, [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.EVENT_STREAM },
   });
 }
 
 async function handleGenerateImage(
-  params: Record<string, unknown>, 
+  params: GeminiProxyRequest['params'],
   apiKey: string
 ): Promise<unknown> {
   const { model, prompt, config } = params;
   
-  const url = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${apiKey}`;
+  if (!model) {
+    throw new Error('Model is required');
+  }
+  
+  const url = `${AI_CONFIG.GEMINI.API_BASE_URL}/models/${model}:generateContent?key=${apiKey}`;
   
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
-      responseModalities: ["Text", "Image"],
-      ...(config?.numberOfImages && { numberOfImages: config.numberOfImages }),
+      responseModalities: ['Text', 'Image'],
+      ...(config?.maxOutputTokens && { numberOfImages: config.maxOutputTokens }),
     },
   };
 
   const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { [HTTP_HEADERS.CONTENT_TYPE]: MIME_TYPES.JSON },
     body: JSON.stringify(body),
   });
 
