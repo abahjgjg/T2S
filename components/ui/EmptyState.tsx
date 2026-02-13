@@ -1,5 +1,6 @@
 import React from 'react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
+import { ANIMATION_DELAYS, SPIN_DURATION } from '../../constants/animationConfig';
 import { Lightbulb, Sparkles } from 'lucide-react';
 
 interface Tip {
@@ -28,8 +29,8 @@ const AnimatedBackground: React.FC<{ variant: 'default' | 'generating' | 'creati
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Animated gradient orbs */}
       <div className={`absolute -top-20 -left-20 w-40 h-40 rounded-full ${colors[variant]} blur-3xl animate-pulse`} />
-      <div className={`absolute -bottom-20 -right-20 w-40 h-40 rounded-full ${colors[variant]} blur-3xl animate-pulse`} style={{ animationDelay: '1s' }} />
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 rounded-full ${colors[variant]} blur-3xl animate-pulse`} style={{ animationDelay: '0.5s' }} />
+      <div className={`absolute -bottom-20 -right-20 w-40 h-40 rounded-full ${colors[variant]} blur-3xl animate-pulse`} style={{ animationDelay: ANIMATION_DELAYS.normal }} />
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 rounded-full ${colors[variant]} blur-3xl animate-pulse`} style={{ animationDelay: ANIMATION_DELAYS.fast }} />
     </div>
   );
 };
@@ -43,7 +44,7 @@ const FloatingParticles: React.FC = () => (
         style={{
           left: `${20 + i * 15}%`,
           top: `${30 + (i % 3) * 20}%`,
-          animationDelay: `${i * 0.5}s`,
+          animationDelay: ANIMATION_DELAYS.particle(i),
           animationDuration: `${3 + i * 0.5}s`
         }}
       />
@@ -78,7 +79,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <div className="mb-6 relative">
             {/* Animated ring around icon */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className={`w-20 h-20 rounded-full border-2 border-dashed ${iconColors[variant]} opacity-30 animate-spin-slow`} style={{ animationDuration: '8s' }} />
+              <div className={`w-20 h-20 rounded-full border-2 border-dashed ${iconColors[variant]} opacity-30 animate-spin-slow`} style={{ animationDuration: SPIN_DURATION.slow }} />
             </div>
             <div className="relative w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center border border-slate-700/50 backdrop-blur-sm">
               {icon}
