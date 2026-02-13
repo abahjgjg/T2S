@@ -50,3 +50,11 @@ node_modules/**/*.bak
 .lighthouseci/
 coverage/
 *.lcov
+
+# Supplemental repositories (reference only, cloned on demand)
+.opencode/supplements/AI-Agents-public/
+.opencode/supplements/UltraRAG/
+.opencode/supplements/oh-my-opencode/
+.opencode/supplements/opencode-antigravity-auth/
+.opencode/supplements/superpowers/
+.opencode/supplements/system_prompts_leaks/
