@@ -102,3 +102,68 @@ evolution:
   optimization_iterations: 3
   refactoring_threshold: 0.8
   modernization_enabled: true
+
+# Workflow agents integration (from iterate.yml insights)
+workflow_agents:
+  RepoKeeper:
+    description: "Maintains repository efficiency and organization"
+    focus:
+      - eliminate_redundant_files
+      - cleanup_temp_files
+      - update_documentation
+      - modularize_hardcoded_values
+  
+  BugFixer:
+    description: "Maintains bug-free codebase"
+    focus:
+      - fix_console_errors
+      - resolve_build_errors
+      - fix_lint_warnings
+      - address_test_failures
+  
+  Palette:
+    description: "UX-focused improvements and accessibility"
+    focus:
+      - micro_ux_improvements
+      - accessibility_enhancements
+      - user_interface_delight
+      - intuitive_design_patterns
+  
+  Flexy:
+    description: "Modularity and hardcoded elimination"
+    focus:
+      - eliminate_hardcoded_values
+      - improve_modularity
+      - configuration_management
+      - reusable_components
+  
+  Brocula:
+    description: "Browser console and performance optimization"
+    focus:
+      - browser_console_errors
+      - lighthouse_optimization
+      - performance_improvements
+      - runtime_error_detection
+
+# Performance optimization from workflow analysis
+performance:
+  cache_enabled: true
+  cache_paths:
+    - ~/.opencode
+    - ~/.npm
+  node_version: "20"
+  dependency_install: "npm ci"
+  
+# Multi-agent coordination
+coordination:
+  enabled: true
+  max_concurrent: 5
+  timeout_minutes: 20
+  retry_attempts: 2
+  
+# Quality gates
+quality_gates:
+  lint_required: true
+  build_required: true
+  typecheck_required: true
+  test_required: false
