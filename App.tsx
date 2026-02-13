@@ -5,6 +5,7 @@ import { TrendSearch } from './components/TrendSearch';
 import { IdeaSelection } from './components/IdeaSelection';
 import { ToastNotifications } from './components/ToastNotifications';
 import { ConnectionStatusIndicator } from './components/ui/ConnectionStatusIndicator';
+import { ScrollProgressIndicator } from './components/ui/ScrollProgressIndicator';
 
 // Lazy load BlueprintView - only needed when viewing a blueprint
 const BlueprintView = React.lazy(() => import('./components/BlueprintView').then(module => ({ default: module.BlueprintView })));
@@ -333,6 +334,10 @@ const App: React.FC = () => {
       >
         Skip to main content
       </a>
+      
+      {/* Scroll Progress Indicator - Micro-UX delight showing reading progress */}
+      <ScrollProgressIndicator colorScheme="default" height={3} showGlow={true} />
+      
       <Header 
         onReset={handleReset}
         showReset={rState.appState !== 'IDLE' && rState.appState !== 'DIRECTORY'}
