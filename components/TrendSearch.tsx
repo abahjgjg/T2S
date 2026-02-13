@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, Mic, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, BrainCircuit, Image as ImageIcon, Newspaper, AlertCircle } from 'lucide-react';
+import { Search, Loader2, Mic, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, BrainCircuit, Image as ImageIcon, Newspaper, AlertCircle, CornerDownLeft } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
@@ -478,6 +478,18 @@ export const TrendSearch: React.FC<Props> = ({
             aria-controls="search-history-list"
             aria-activedescendant={focusedHistoryIndex >= 0 ? `history-item-${focusedHistoryIndex}` : undefined}
           />
+
+          {/* Enter key hint - subtle micro-UX improvement */}
+          {input && !isLoading && (
+            <div 
+              className="flex items-center gap-0.5 text-slate-500 font-mono mr-2 animate-[fadeIn_0.2s_ease-out]"
+              style={{ fontSize: '10px' }}
+              aria-hidden="true"
+            >
+              <CornerDownLeft className="w-3 h-3" />
+              <span>↵</span>
+            </div>
+          )}
 
           {/* Clear Input Button */}
           {input && !isLoading && (
