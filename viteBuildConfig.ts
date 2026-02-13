@@ -43,21 +43,33 @@ export interface ServerConfig {
 }
 
 // Default manual chunks - Flexy: Now configurable!
+// BroCula: Optimized chunk splitting to reduce unused JavaScript
 const DEFAULT_MANUAL_CHUNKS: ManualChunksConfig = {
   'vendor-react': ['react', 'react-dom', '@tanstack/react-query'],
+  // BroCula: Keep charts together but ensure lazy loading
   'vendor-charts': ['recharts'],
   'vendor-markdown': ['react-markdown', 'remark-gfm'],
   'vendor-ui': ['lucide-react'],
+  'vendor-zod': ['zod'],
+  'vendor-supabase': ['@supabase/supabase-js'],
   'feature-admin': ['./components/AdminPanel'],
   'feature-dashboard': ['./components/UserDashboard'],
-  'feature-blueprint': ['./components/BlueprintView'],
+  // BroCula: Split blueprint into smaller chunks
+  'feature-blueprint-core': ['./components/BlueprintView'],
+  'feature-blueprint-modals': ['./components/LivePitchModal', './components/LocationScoutModal', './components/CompetitorAnalysisModal', './components/BlueprintAuditModal'],
+  'feature-blueprint-sections': ['./components/PresentationMode', './components/SwotAnalysis', './components/BlueprintRoadmap', './components/BlueprintRevenue', './components/BlueprintLaunchpad', './components/BlueprintAgents', './components/BusinessModelCanvas', './components/BrandStudio', './components/CustomerPersonas', './components/BlueprintChat'],
 };
 
 // Default lazy loaded patterns - Flexy: Now configurable!
+// BroCula: Updated to match new granular chunk names
 const DEFAULT_LAZY_LOADED_PATTERNS = [
   'vendor-charts',
   'vendor-markdown',
-  'feature-blueprint',
+  'vendor-zod',
+  'vendor-supabase',
+  'feature-blueprint-core',
+  'feature-blueprint-modals',
+  'feature-blueprint-sections',
   'feature-admin',
   'feature-dashboard',
   'TrendAnalysis',
