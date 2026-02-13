@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { TrendSearch } from './components/TrendSearch';
 import { IdeaSelection } from './components/IdeaSelection';
 import { ToastNotifications } from './components/ToastNotifications';
+import { ConnectionStatusIndicator } from './components/ui/ConnectionStatusIndicator';
 
 // Lazy load BlueprintView - only needed when viewing a blueprint
 const BlueprintView = React.lazy(() => import('./components/BlueprintView').then(module => ({ default: module.BlueprintView })));
@@ -497,6 +498,7 @@ const App: React.FC = () => {
           </div>
         </button>
       )}
+      <ConnectionStatusIndicator />
       <ToastNotifications />
     </div>
   );
