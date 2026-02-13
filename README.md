@@ -78,7 +78,7 @@ An AI-powered market intelligence suite that generates business blueprints from 
 
 - [Developer Guide](docs/DEVELOPER_GUIDE.md) - Architecture, setup, and development guidelines
 - [User Guide](docs/USER_GUIDE.md) - End-user documentation
-- [Agent Context](docs/AGENTS.md) - AI agent operational rules and decisions
+- [Agent Context](AGENTS.md) - AI agent operational rules and decisions
 - [Blueprint](docs/blueprint.md) - Technical architecture overview
 - [Roadmap](docs/roadmap.md) - Feature roadmap and completed phases
 
