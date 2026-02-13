@@ -7,6 +7,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { SafeMarkdown } from './SafeMarkdown';
 import { CHAT_ROLES } from '../constants/chatRoles';
 import { DIMENSIONS } from '../constants/dimensionConfig';
+import { TEXT_TRUNCATION } from '../constants/displayLimits';
 
 interface Props {
   niche: string;
@@ -82,7 +83,7 @@ export const ResearchChat: React.FC<Props> = ({
            <div>
              <h3 className="font-bold text-white text-sm">Market Analyst AI</h3>
              <p className="text-xs text-indigo-400 font-mono">
-               Context: {niche.slice(0, 20)}{niche.length > 20 ? '...' : ''}
+                Context: {niche.slice(0, TEXT_TRUNCATION.niche)}{niche.length > TEXT_TRUNCATION.niche ? '...' : ''}
              </p>
            </div>
         </div>

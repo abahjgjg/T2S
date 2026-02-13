@@ -7,6 +7,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { ANIMATION_CLASSES } from '../constants/animationConfig';
 import { SHADOWS } from '../constants/shadowConfig';
 import { DIRECTORY_CONFIG } from '../constants/displayConfig';
+import { UI_TIMING } from '../constants/uiConfig';
 
 interface Props {
   onViewBlueprint: (_id: string) => void;
@@ -28,7 +29,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
       setLimit(DIRECTORY_CONFIG.DEFAULT_PAGE_SIZE); // Reset pagination on search
-    }, 500);
+    }, UI_TIMING.DEBOUNCE_SEARCH);
     return () => clearTimeout(handler);
   }, [searchTerm]);
 

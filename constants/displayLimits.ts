@@ -16,6 +16,7 @@ export const TEXT_TRUNCATION = {
   error: getEnvNumber('VITE_TRUNCATE_ERROR', 50),
   niche: getEnvNumber('VITE_TRUNCATE_NICHE', 20),
   insight: getEnvNumber('VITE_TRUNCATE_INSIGHT', 150),
+  metaDescription: getEnvNumber('VITE_TRUNCATE_META_DESCRIPTION', 160),
 } as const;
 
 // List display limits

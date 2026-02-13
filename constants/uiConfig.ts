@@ -27,6 +27,15 @@ export const UI_TIMING = {
   
   // Retry operations
   RETRY_BASE_DELAY: getEnvNumber('VITE_UI_RETRY_BASE_DELAY_MS', 100),
+  
+  // Focus delays (for accessibility)
+  FOCUS_DELAY: getEnvNumber('VITE_UI_FOCUS_DELAY_MS', 100),
+  
+  // Loading step rotation interval
+  LOADING_STEP_INTERVAL: getEnvNumber('VITE_UI_LOADING_STEP_INTERVAL_MS', 3500),
+  
+  // Connection check interval
+  CONNECTION_CHECK_INTERVAL: getEnvNumber('VITE_UI_CONNECTION_CHECK_INTERVAL_MS', 5000),
 } as const;
 
 export const CACHE_TIMING = {
