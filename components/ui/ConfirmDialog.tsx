@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { AlertTriangle, Trash2, RefreshCw, LogOut, UserX, Save } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
-import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
+import { ANIMATION_TIMING, ANIMATION_EASING, UI_TIMING } from '../../constants/uiConfig';
 
 export type ConfirmVariant = 'danger' | 'warning' | 'info' | 'success';
 
@@ -83,7 +83,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           : document.querySelector('[data-confirm-button]') as HTMLButtonElement;
         
         buttonToFocus?.focus();
-      }, 100);
+      }, UI_TIMING.FOCUS_DELAY);
 
       return () => clearTimeout(focusTimer);
     }

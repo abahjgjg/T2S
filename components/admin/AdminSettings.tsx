@@ -7,6 +7,7 @@ import { AIProvider } from '../../types';
 import { DEV_CONFIG } from '../../constants/appConfig';
 import { useConfirm } from '../../contexts/ConfirmContext';
 import { COLORS } from '../../constants/theme';
+import { DATE_LIMITS } from '../../constants/displayLimits';
 
 interface Props {
   provider: AIProvider;
@@ -26,7 +27,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `trendventures_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `trendventures_backup_${new Date().toISOString().slice(0, DATE_LIMITS.filenameDateSlice)}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

@@ -57,7 +57,7 @@ export const ConnectionStatusIndicator: React.FC = () => {
           handleOffline();
         }
       }
-    }, 5000);
+    }, UI_TIMING.CONNECTION_CHECK_INTERVAL);
 
     return () => {
       window.removeEventListener('online', handleOnline);
