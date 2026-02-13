@@ -45,11 +45,12 @@ An AI-powered market intelligence suite that generates business blueprints from 
 
    The project uses two environment files:
 
-   **`.env`** - Public configuration (already committed)
-   - Contains SEO settings, URLs, and theme colors
+   **`.env`** - Public configuration (committed, safe to share)
+   - Contains only `VITE_` prefixed variables (SEO, URLs, theme colors)
+   - These are injected at build time and visible in browser
    - Already configured with sensible defaults
 
-   **`.env.local`** - Private secrets (create this file):
+   **`.env.local`** - Private secrets (NEVER commit, create this file):
    ```env
    GEMINI_API_KEY=your_gemini_api_key
    SUPABASE_URL=your_supabase_url
