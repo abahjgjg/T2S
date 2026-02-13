@@ -106,7 +106,6 @@ npm run build
 
 ## Resources
 
-- **Supplemental Repos**: `.opencode/supplements/`
 - **Agent Config**: `.opencode/agent/cmz.yaml`
 - **Skills**: `.opencode/skills/`
 
