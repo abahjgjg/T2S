@@ -25,13 +25,23 @@ This project is managed by **CMZ (Cognitive Machine Zero)**, an advanced autonom
 
 The following skills are installed in `.opencode/skills/`:
 
-1. **debugging-strategies** - Systematic debugging approaches
-2. **git-commit-message** - Conventional commit message formatting
-3. **skill-builder** - Creating new agent skills
-4. **backend-models-standards** - Database model best practices
-5. **systematic-debugging** - 4-phase debugging methodology
-6. **moai-foundation-context** - Context window management
-7. **memory-systems** - Agent memory implementation
+1. **madappgang-claude-code-debugging-strategies** - Systematic debugging approaches
+2. **vasilyu1983-ai-agents-public-git-commit-message** - Conventional commit message formatting
+3. **proffesor-for-testing-agentic-qe-skill-builder** - Creating new agent skills
+4. **maxritter-claude-codepro-backend-models-standards** - Database model best practices
+5. **obra-superpowers-systematic-debugging** - 4-phase debugging methodology
+6. **modu-ai-moai-adk-moai-foundation-context** - Context window management
+7. **muratcankoylan-agent-skills-for-context-engineering-memory-systems** - Agent memory implementation
+
+## Workflow Agents
+
+The following agents run in CI/CD via `.github/workflows/iterate.yml`:
+
+1. **RepoKeeper** - Maintains repository efficiency and organization
+2. **BugFixer** - Maintains bug-free codebase
+3. **Palette** - UX-focused improvements and accessibility
+4. **Flexy** - Modularity and hardcoded elimination
+5. **Brocula** - Browser console and performance optimization
 
 ## Project Structure
 
