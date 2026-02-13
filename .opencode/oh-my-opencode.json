@@ -1,0 +1,113 @@
+{
+  "$schema": "https://opencode.ai/schema/oh-my-opencode.json",
+  "version": "3.5.0",
+  
+  "agents": {
+    "sisyphus": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.7,
+      "max_tokens": 8192
+    },
+    "hephaestus": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.6,
+      "max_tokens": 8192
+    },
+    "oracle": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.5,
+      "max_tokens": 4096
+    },
+    "librarian": {
+      "model": "opencode/minimax-m2.1-free",
+      "temperature": 0.3,
+      "max_tokens": 4096
+    },
+    "explore": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.2,
+      "max_tokens": 2048
+    },
+    "frontend_engineer": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.7,
+      "max_tokens": 4096
+    }
+  },
+  
+  "background_tasks": {
+    "enabled": true,
+    "max_concurrent": 5,
+    "providers": {
+      "opencode": {
+        "max_concurrent": 3,
+        "models": [
+          "opencode/kimi-k2.5-free",
+          "opencode/glm-4.7-free",
+          "opencode/minimax-m2.1-free"
+        ]
+      }
+    }
+  },
+  
+  "categories": {
+    "visual": ["frontend_engineer", "oracle"],
+    "business-logic": ["sisyphus", "hephaestus"],
+    "documentation": ["librarian"],
+    "exploration": ["explore"]
+  },
+  
+  "hooks": {
+    "disabled_hooks": [],
+    "pre_tool_use": [],
+    "post_tool_use": [],
+    "user_prompt_submit": [],
+    "stop": []
+  },
+  
+  "lsp": {
+    "enabled": true,
+    "refactoring_enabled": true,
+    "diagnostics_enabled": true
+  },
+  
+  "mcp": {
+    "enabled": true,
+    "servers": {
+      "websearch": {
+        "enabled": true
+      },
+      "context7": {
+        "enabled": true
+      },
+      "grep_app": {
+        "enabled": true
+      }
+    }
+  },
+  
+  "productivity": {
+    "todo_enforcer": {
+      "enabled": true,
+      "strict_mode": false
+    },
+    "comment_checker": {
+      "enabled": true,
+      "aggressive": false
+    },
+    "think_mode": {
+      "enabled": true
+    }
+  },
+  
+  "context_injection": {
+    "enabled": true,
+    "files": ["AGENTS.md", "README.md"],
+    "conditional_rules": true
+  },
+  
+  "experimental": {
+    "aggressive_truncation": false,
+    "auto_resume": true
+  }
+}

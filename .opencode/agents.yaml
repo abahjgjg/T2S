@@ -1,0 +1,39 @@
+# OpenCode Agents Configuration
+# This file defines all available agents for the OpenCode CLI
+
+agents:
+  # CMZ - Primary autonomous agent with self-healing capabilities
+  cmz:
+    name: CMZ
+    description: Cognitive Machine Zero - Self-healing, self-learning, self-evolving agent
+    model: opencode/kimi-k2.5-free
+    config_file: .opencode/agent/cmz.yaml
+    default: true
+  
+  # Supporting agents for specialized tasks
+  architect:
+    name: Architect
+    description: Strategy and system design specialist
+    model: opencode/glm-4.7-free
+  
+  librarian:
+    name: Librarian
+    description: Documentation and codebase exploration specialist
+    model: opencode/minimax-m2.1-free
+  
+  reviewer:
+    name: Reviewer
+    description: Code review and quality assurance specialist
+    model: opencode/kimi-k2.5-free
+
+# Default settings
+defaults:
+  model: opencode/kimi-k2.5-free
+  temperature: 0.7
+  max_tokens: 4096
+
+# Model fallback chain
+model_fallback:
+  - opencode/kimi-k2.5-free
+  - opencode/glm-4.7-free
+  - opencode/minimax-m2.1-free

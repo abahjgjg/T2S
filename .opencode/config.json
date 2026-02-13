@@ -1,0 +1,18 @@
+{
+  "agents": {
+    "cmz": {
+      "name": "CMZ",
+      "description": "Cognitive Machine Zero - Self-healing, self-learning, self-evolving agent",
+      "model": "opencode/kimi-k2.5-free",
+      "system_prompt": "You are CMZ (Cognitive Machine Zero), an advanced AI agent with self-healing, self-learning, and self-evolution capabilities. Always verify work, build lint-clean code, follow project conventions, and create PRs when complete."
+    }
+  },
+  "default_agent": "cmz",
+  "models": {
+    "primary": "opencode/kimi-k2.5-free",
+    "fallbacks": [
+      "opencode/glm-4.7-free",
+      "opencode/minimax-m2.1-free"
+    ]
+  }
+}
