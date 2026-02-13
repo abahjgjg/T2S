@@ -3,12 +3,13 @@ import { ViabilityAudit } from '../types';
 import { Target, Zap, AlertTriangle, ShieldCheck, CheckCircle2, RefreshCcw } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { SCORE_THRESHOLDS } from '../constants/displayLimits';
+import { DIMENSIONS } from '../constants/dimensionConfig';
 
 // Lazy load radar chart to reduce initial bundle
 const AuditRadarChart = lazy(() => import('./AuditRadarChart'));
 
 const ChartFallback = () => (
-  <div className="h-[250px] w-full flex items-center justify-center">
+  <div className="w-full flex items-center justify-center" style={{ height: DIMENSIONS.chart.audit }}>
     <div className="animate-pulse text-slate-500">Loading chart...</div>
   </div>
 );
@@ -62,11 +63,11 @@ export const BlueprintAuditModal: React.FC<Props> = ({ audit, isOpen, onClose, o
                  </div>
               </div>
 
-               <div className="h-[250px] w-full">
-                  <Suspense fallback={<ChartFallback />}>
-                    <AuditRadarChart data={radarData} />
-                  </Suspense>
-               </div>
+                <div className="w-full" style={{ height: DIMENSIONS.chart.audit }}>
+                   <Suspense fallback={<ChartFallback />}>
+                     <AuditRadarChart data={radarData} />
+                   </Suspense>
+                </div>
            </div>
 
            {/* Hard Truths */}

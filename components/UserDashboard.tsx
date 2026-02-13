@@ -9,12 +9,14 @@ import { useConfirm } from '../contexts/ConfirmContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../constants/animationConfig';
+import { DIMENSIONS } from '../constants/dimensionConfig';
+import { TYPOGRAPHY } from '../constants/designTokens';
 
 // Lazy load chart component to reduce initial bundle size
 const DashboardChart = lazy(() => import('./DashboardChart'));
 
 const ChartFallback = () => (
-  <div className="h-[250px] w-full flex items-center justify-center">
+  <div className="w-full flex items-center justify-center" style={{ height: DIMENSIONS.dashboard.chartHeightSmall }}>
     <div className="animate-pulse text-slate-500">Loading chart...</div>
   </div>
 );
@@ -142,16 +144,16 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
               </div>
               
                {topBlueprints.length > 0 && topBlueprints.some(b => b.votes > 0) ? (
-                  <div className="h-[250px] w-full">
+                  <div className="w-full" style={{ height: DIMENSIONS.dashboard.chartHeightSmall }}>
                      <Suspense fallback={<ChartFallback />}>
                         <DashboardChart data={topBlueprints} />
                      </Suspense>
                   </div>
                ) : (
-                <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm italic">
-                  Not enough data to display chart.
-                </div>
-              )}
+                 <div className="flex items-center justify-center text-slate-500 text-sm italic" style={{ height: DIMENSIONS.dashboard.chartHeightEmpty }}>
+                   Not enough data to display chart.
+                 </div>
+               )}
             </div>
 
             {/* Content List */}
@@ -170,9 +172,9 @@ export const UserDashboard: React.FC<Props> = ({ user, onHome }) => {
                         <h4 className="font-bold text-white text-lg group-hover:text-emerald-400 transition-colors">
                           {bp.title}
                         </h4>
-                        <span className="text-[10px] px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-400">
-                          {bp.niche}
-                        </span>
+                         <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-400" style={{ fontSize: TYPOGRAPHY.fontSize['2xs'] }}>
+                           {bp.niche}
+                         </span>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-slate-500">
                         <span className="flex items-center gap-1">

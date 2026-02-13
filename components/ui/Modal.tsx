@@ -12,6 +12,7 @@ interface ModalProps {
   title?: React.ReactNode;
   className?: string; // Additional classes for the container
   hideCloseButton?: boolean;
+  style?: React.CSSProperties; // Flexy: Allow dynamic styling for modularity
 }
 
 export const Modal: React.FC<ModalProps> = ({ 
@@ -20,7 +21,8 @@ export const Modal: React.FC<ModalProps> = ({
   children, 
   title, 
   className = "max-w-2xl",
-  hideCloseButton = false
+  hideCloseButton = false,
+  style
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<Element | null>(null);
@@ -87,6 +89,7 @@ export const Modal: React.FC<ModalProps> = ({
         className={`bg-slate-900 border border-slate-700 w-full rounded-2xl shadow-2xl flex flex-col relative max-h-[90vh] overflow-hidden outline-none ${className}`}
         role="dialog"
         aria-modal="true"
+        style={style}
       >
         {/* Header */}
         {(title || !hideCloseButton) && (

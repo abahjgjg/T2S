@@ -4,6 +4,7 @@ import { Blueprint } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { CHART_COLORS } from '../constants/chartConfig';
 import { SLIDER_RANGES } from '../constants/displayLimits';
+import { DIMENSIONS } from '../constants/dimensionConfig';
 
 // Lazy load recharts components to reduce initial bundle size
 const RechartsComponents = lazy(() => import('./RevenueChartComponents'));
@@ -14,7 +15,7 @@ interface ChartComponentsProps {
 }
 
 const ChartFallback = () => (
-  <div className="h-[300px] w-full flex items-center justify-center">
+  <div className="w-full flex items-center justify-center" style={{ height: DIMENSIONS.chart.revenue }}>
     <div className="animate-pulse text-slate-500">Loading chart...</div>
   </div>
 );
@@ -155,7 +156,7 @@ export const BlueprintRevenue: React.FC<Props> = ({ revenueStreams, onUpdate }) 
         </div>
       )}
 
-      <div className="h-[300px] w-full">
+      <div className="w-full" style={{ height: DIMENSIONS.chart.revenue }}>
         <Suspense fallback={<ChartFallback />}>
           <RechartsComponents data={simulationData} isSimulating={isSimulating} />
         </Suspense>
