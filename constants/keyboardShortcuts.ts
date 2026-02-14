@@ -103,33 +103,6 @@ export const KEYBOARD_SHORTCUTS = {
 } as const;
 
 // ============================================================================
-// SHORTCUT DISPLAY FORMATTING
-// ============================================================================
-
-export const SHORTCUT_DISPLAY = {
-  // Platform detection for displaying correct modifier symbols
-  isMac: typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform),
-  
-  // Modifier symbols
-  symbols: {
-    ctrl: '⌃',
-    cmd: '⌘',
-    alt: '⌥',
-    shift: '⇧',
-    windows: '⊞',
-  },
-  
-  // Modifier labels
-  labels: {
-    ctrl: 'Ctrl',
-    cmd: 'Cmd',
-    alt: 'Alt',
-    shift: 'Shift',
-    windows: 'Win',
-  },
-} as const;
-
-// ============================================================================
 // HELPER TYPES
 // ============================================================================
 
@@ -141,9 +114,6 @@ export interface ShortcutConfig {
   enabled: boolean;
 }
 
-export type ShortcutCategory = keyof typeof KEYBOARD_SHORTCUTS;
-export type ShortcutAction<T extends ShortcutCategory> = keyof typeof KEYBOARD_SHORTCUTS[T];
-
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -153,7 +123,22 @@ export type ShortcutAction<T extends ShortcutCategory> = keyof typeof KEYBOARD_S
  * Flexy loves this modular approach!
  */
 export const formatShortcut = (shortcut: ShortcutConfig): string => {
-  const { isMac, symbols, labels } = SHORTCUT_DISPLAY;
+  // Platform detection for displaying correct modifier symbols
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  
+  // Modifier symbols and labels
+  const symbols = {
+    ctrl: '⌃',
+    cmd: '⌘',
+    alt: '⌥',
+    shift: '⇧',
+  };
+  
+  const labels = {
+    ctrl: 'Ctrl',
+    alt: 'Alt',
+    shift: 'Shift',
+  };
   
   const modifierSymbols = shortcut.modifiers.map(mod => {
     switch (mod) {
@@ -201,62 +186,6 @@ export const matchesShortcut = (
 };
 
 /**
- * Check if the event matches any modifier requirement
- */
-export const hasRequiredModifiers = (
-  event: KeyboardEvent,
-  shortcut: ShortcutConfig
-): boolean => {
-  if (shortcut.modifiers.length === 0) return true;
-  
-  return shortcut.modifiers.some(modifier => {
-    switch (modifier) {
-      case MODIFIERS.ctrl:
-      case MODIFIERS.cmd:
-        return event.ctrlKey || event.metaKey;
-      case MODIFIERS.alt:
-        return event.altKey;
-      case MODIFIERS.shift:
-        return event.shiftKey;
-      default:
-        return false;
-    }
-  });
-};
-
-/**
- * Get all enabled shortcuts as an array for display
- */
-export const getEnabledShortcuts = (): Array<{
-  category: string;
-  action: string;
-  shortcut: ShortcutConfig;
-  display: string;
-}> => {
-  const shortcuts: Array<{
-    category: string;
-    action: string;
-    shortcut: ShortcutConfig;
-    display: string;
-  }> = [];
-  
-  Object.entries(KEYBOARD_SHORTCUTS).forEach(([category, actions]) => {
-    Object.entries(actions).forEach(([action, shortcut]) => {
-      if (shortcut.enabled) {
-        shortcuts.push({
-          category,
-          action,
-          shortcut,
-          display: formatShortcut(shortcut),
-        });
-      }
-    });
-  });
-  
-  return shortcuts;
-};
-
-/**
  * Check if an element is an input field
  */
 export const isInputElement = (element: Element | null): boolean => {
@@ -273,10 +202,7 @@ export const isInputElement = (element: Element | null): boolean => {
 export default {
   MODIFIERS,
   KEYBOARD_SHORTCUTS,
-  SHORTCUT_DISPLAY,
   formatShortcut,
   matchesShortcut,
-  hasRequiredModifiers,
-  getEnabledShortcuts,
   isInputElement,
 };

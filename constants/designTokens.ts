@@ -205,41 +205,6 @@ export const getIconSizeClass = (size: keyof typeof ICON_SIZES): string => {
   return ICON_SIZES[size];
 };
 
-/**
- * Get button padding class based on size key
- */
-export const getButtonPaddingClass = (size: keyof typeof BUTTON_PADDING): string => {
-  return BUTTON_PADDING[size];
-};
-
-/**
- * Get gap class based on size key
- */
-export const getGapClass = (size: keyof typeof GAP_CLASSES): string => {
-  return GAP_CLASSES[size];
-};
-
-/**
- * Get padding class based on size key
- */
-export const getPaddingClass = (size: keyof typeof PADDING_CLASSES): string => {
-  return PADDING_CLASSES[size];
-};
-
-/**
- * Get radius class based on size key
- */
-export const getRadiusClass = (size: keyof typeof RADIUS_CLASSES): string => {
-  return RADIUS_CLASSES[size];
-};
-
-export type DesignTokens = typeof SPACING;
-export type IconSize = keyof typeof ICON_SIZES;
-export type ButtonSize = keyof typeof BUTTON_PADDING;
-export type GapSize = keyof typeof GAP_CLASSES;
-export type PaddingSize = keyof typeof PADDING_CLASSES;
-export type RadiusSize = keyof typeof RADIUS_CLASSES;
-
 export default {
   SPACING,
   ICON_SIZES,
@@ -252,8 +217,4 @@ export default {
   TYPOGRAPHY,
   TRANSITIONS,
   getIconSizeClass,
-  getButtonPaddingClass,
-  getGapClass,
-  getPaddingClass,
-  getRadiusClass,
 };
