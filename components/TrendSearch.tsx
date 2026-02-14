@@ -88,6 +88,10 @@ export const TrendSearch: React.FC<Props> = ({
   const historyItemRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const historyContainerRef = useRef<HTMLDivElement>(null);
   
+  // Palette: Draft auto-save state
+  const [isDraftRestored, setIsDraftRestored] = useState(false);
+  const draftSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Sync state if props change (e.g. from engine restoration)
   useEffect(() => {
     if (initialNiche) setInput(initialNiche);
@@ -96,6 +100,44 @@ export const TrendSearch: React.FC<Props> = ({
     if (initialDeepMode !== undefined) setDeepMode(initialDeepMode);
     if (initialImage) setSelectedImage(initialImage);
   }, [initialNiche, initialRegion, initialTimeframe, initialDeepMode, initialImage]);
+  
+  // Palette: Restore draft on mount (only if no initial niche from URL/state restoration)
+  useEffect(() => {
+    if (!isLoading && !initialNiche) {
+      const savedDraft = localStorage.getItem(STORAGE_KEYS.SEARCH_DRAFT);
+      if (savedDraft) {
+        setInput(savedDraft);
+        setIsDraftRestored(true);
+        // Clear the indicator after a few seconds
+        const timer = setTimeout(() => setIsDraftRestored(false), 3000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isLoading, initialNiche]);
+  
+  // Palette: Auto-save draft with debounce
+  useEffect(() => {
+    // Clear existing timeout
+    if (draftSaveTimeoutRef.current) {
+      clearTimeout(draftSaveTimeoutRef.current);
+    }
+    
+    // Only save if user has typed something and not loading
+    if (input.trim() && !isLoading) {
+      draftSaveTimeoutRef.current = setTimeout(() => {
+        localStorage.setItem(STORAGE_KEYS.SEARCH_DRAFT, input.trim());
+      }, 500); // 500ms debounce
+    } else if (!input.trim()) {
+      // Clear draft if input is empty
+      localStorage.removeItem(STORAGE_KEYS.SEARCH_DRAFT);
+    }
+    
+    return () => {
+      if (draftSaveTimeoutRef.current) {
+        clearTimeout(draftSaveTimeoutRef.current);
+      }
+    };
+  }, [input, isLoading]);
 
   // Close history when clicking outside
   useEffect(() => {
@@ -265,6 +307,10 @@ export const TrendSearch: React.FC<Props> = ({
 
     const cleanTerm = sanitizeInput(term);
     if (cleanTerm) addToHistory(cleanTerm);
+    
+    // Palette: Clear draft when search is triggered
+    localStorage.removeItem(STORAGE_KEYS.SEARCH_DRAFT);
+    setIsDraftRestored(false);
     
     onSearch(cleanTerm, region, timeframe, deepMode, img);
   };
@@ -497,6 +543,9 @@ export const TrendSearch: React.FC<Props> = ({
               type="button"
               onClick={() => {
                 setInput('');
+                // Palette: Clear draft when user manually clears input
+                localStorage.removeItem(STORAGE_KEYS.SEARCH_DRAFT);
+                setIsDraftRestored(false);
                 inputRef.current?.focus();
               }}
               className="mr-2 p-2 hover:bg-slate-800 text-slate-400 hover:text-white rounded-full transition-all"
@@ -561,6 +610,14 @@ export const TrendSearch: React.FC<Props> = ({
         <div className={`flex items-center justify-center gap-2 text-red-400 text-sm mb-6 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}]`} role="alert">
           <AlertCircle className="w-4 h-4" aria-hidden="true" />
           <span>{validationError}</span>
+        </div>
+      )}
+
+      {/* Palette: Draft restored indicator - subtle UX feedback */}
+      {isDraftRestored && (
+        <div className="flex items-center justify-center gap-2 text-emerald-400 text-sm mb-6 animate-[fadeIn_0.3s_ease-out]" role="status" aria-live="polite">
+          <Clock className="w-4 h-4" aria-hidden="true" />
+          <span>Draft restored</span>
         </div>
       )}
 
