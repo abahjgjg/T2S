@@ -70,6 +70,16 @@ export const DIMENSIONS = {
   agent: {
     objectiveMinHeight: getEnvNumber('VITE_DIMENSION_AGENT_OBJECTIVE_MIN', 40),
   },
+  
+  // Live Pitch Modal dimensions
+  livePitch: {
+    modalWidth: getEnvNumber('VITE_DIMENSION_LIVE_PITCH_MODAL_WIDTH', 448), // max-w-md = 448px
+    modalHeight: getEnvNumber('VITE_DIMENSION_LIVE_PITCH_MODAL_HEIGHT', 600),
+    canvasWidth: getEnvNumber('VITE_DIMENSION_LIVE_PITCH_CANVAS_WIDTH', 300),
+    canvasHeight: getEnvNumber('VITE_DIMENSION_LIVE_PITCH_CANVAS_HEIGHT', 60),
+    transcriptMinHeight: getEnvNumber('VITE_DIMENSION_LIVE_PITCH_TRANSCRIPT_MIN', 150),
+    transcriptMaxWidth: getEnvNumber('VITE_DIMENSION_LIVE_PITCH_TRANSCRIPT_MAX_WIDTH', 85), // percentage
+  },
 } as const;
 
 // CSS class builders for Tailwind dimensions

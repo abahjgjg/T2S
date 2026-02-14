@@ -88,6 +88,13 @@ export const COLORS = {
     dark: getEnv('VITE_COLOR_SHADOW_DARK', 'rgba(0, 0, 0, 0.5)'),
     white: getEnv('VITE_COLOR_SHADOW_WHITE', 'rgba(255, 255, 255, 0.05)'),
   },
+  
+  // Ripple effect colors (rgba)
+  ripple: {
+    default: getEnv('VITE_COLOR_RIPPLE_DEFAULT', 'rgba(255, 255, 255, 0.3)'),
+    primary: getEnv('VITE_COLOR_RIPPLE_PRIMARY', 'rgba(255, 255, 255, 0.3)'),
+    secondary: getEnv('VITE_COLOR_RIPPLE_SECONDARY', 'rgba(16, 185, 129, 0.2)'),
+  },
 } as const;
 
 // RGBA color utilities for dynamic alpha values

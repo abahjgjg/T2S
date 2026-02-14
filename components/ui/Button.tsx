@@ -1,6 +1,7 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { ICON_SIZES, BUTTON_PADDING, GAP_CLASSES, RADIUS_CLASSES } from '../../constants/designTokens';
+import { COLORS } from '../../constants/theme';
 import { RippleEffect } from './RippleEffect';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -97,8 +98,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // Wrap with RippleEffect if enabled and not loading/disabled
     if (enableRipple && !disabled && !isLoading) {
       const rippleColor = variant === 'primary' || variant === 'danger'
-        ? 'rgba(255, 255, 255, 0.3)'
-        : 'rgba(16, 185, 129, 0.2)';
+        ? COLORS.ripple.primary
+        : COLORS.ripple.secondary;
 
       return (
         <RippleEffect color={rippleColor}>

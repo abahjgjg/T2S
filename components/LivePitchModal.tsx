@@ -10,6 +10,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { LIVE_AUDIO_CONFIG } from '../constants/appConfig';
 import { AUDIO_VISUALIZER_CONFIG, PERSONA_VOICE_CONFIG, PERSONA_ID_PREFIX } from '../constants/audioVisualizerConfig';
 import { TEXT_TRUNCATION } from '../constants/displayConfig';
+import { DIMENSIONS } from '../constants/dimensionConfig';
 import { COLORS } from '../constants/theme';
 
 interface Props {
@@ -220,10 +221,10 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
           <h2 className="text-xl font-bold text-white mb-1">{status === 'connecting' ? 'Connecting...' : status === 'error' ? 'Connection Failed' : `Speaking with ${selectedPersona.name}`}</h2>
           <p className="text-xs text-slate-400 text-center max-w-xs">{status === 'error' ? errorMsg : `Role: ${selectedPersona.role}. Speak clearly to begin.`}</p>
         </div>
-        <canvas ref={canvasRef} width={300} height={60} className="w-full h-[60px] rounded-lg bg-slate-950/50 mb-4 border border-slate-800 shrink-0" />
-        <div className="flex-1 bg-slate-950/50 border border-slate-800 rounded-xl p-4 overflow-y-auto mb-4 min-h-[150px] relative scrollbar-thin scrollbar-thumb-slate-700">
+         <canvas ref={canvasRef} width={DIMENSIONS.livePitch.canvasWidth} height={DIMENSIONS.livePitch.canvasHeight} className="w-full h-[60px] rounded-lg bg-slate-950/50 mb-4 border border-slate-800 shrink-0" />
+         <div className={`flex-1 bg-slate-950/50 border border-slate-800 rounded-xl p-4 overflow-y-auto mb-4 min-h-[${DIMENSIONS.livePitch.transcriptMinHeight}px] relative scrollbar-thin scrollbar-thumb-slate-700`}>
            {transcripts.length === 0 ? <div className="h-full flex flex-col items-center justify-center text-slate-600"><MessageSquare className="w-8 h-8 mb-2 opacity-20" /><p className="text-xs">Waiting for audio...</p></div> : (
-             <div className="space-y-3">{transcripts.map((t, i) => (<div key={i} className={`flex ${t.isUser ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-lg px-3 py-2 text-xs leading-relaxed shadow-sm ${t.isUser ? 'bg-blue-900/40 text-blue-100 border border-blue-500/20' : 'bg-emerald-900/30 text-emerald-100 border border-emerald-500/20'}`}><span className={`block font-bold opacity-50 text-[10px] mb-0.5 uppercase tracking-wide ${t.isUser ? 'text-blue-300' : 'text-emerald-300'}`}>{t.isUser ? 'You' : selectedPersona.name}</span>{t.text}</div></div>))}<div ref={transcriptEndRef} /></div>
+             <div className="space-y-3">{transcripts.map((t, i) => (<div key={i} className={`flex ${t.isUser ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[${DIMENSIONS.livePitch.transcriptMaxWidth}%] rounded-lg px-3 py-2 text-xs leading-relaxed shadow-sm ${t.isUser ? 'bg-blue-900/40 text-blue-100 border border-blue-500/20' : 'bg-emerald-900/30 text-emerald-100 border border-emerald-500/20'}`}><span className={`block font-bold opacity-50 text-[10px] mb-0.5 uppercase tracking-wide ${t.isUser ? 'text-blue-300' : 'text-emerald-300'}`}>{t.isUser ? 'You' : selectedPersona.name}</span>{t.text}</div></div>))}<div ref={transcriptEndRef} /></div>
            )}
         </div>
         <div className="flex gap-3 w-full shrink-0">
@@ -257,7 +258,7 @@ export const LivePitchModal: React.FC<Props> = ({ blueprint, idea, onClose, onUp
   };
 
   return (
-    <Modal isOpen={true} onClose={onClose} className="max-w-md h-[600px]" hideCloseButton={status !== 'analyzing' && status !== 'results'}>
+    <Modal isOpen={true} onClose={onClose} className={`max-w-[${DIMENSIONS.livePitch.modalWidth}px] h-[${DIMENSIONS.livePitch.modalHeight}px]`} hideCloseButton={status !== 'analyzing' && status !== 'results'}>
       <div className="p-6 h-full flex flex-col relative">
         {status === 'setup' && renderSetup()}
         {(status === 'connecting' || status === 'connected' || status === 'error' || status === 'disconnected') && renderActiveSession()}
