@@ -64,11 +64,16 @@ const htmlEnvPlugin = (env: Record<string, string>): Plugin => ({
   },
 });
 
-// Load configuration from environment variables with defaults
+  // Load configuration from environment variables with defaults
 // Flexy: Now uses modular configuration from viteBuildConfig!
 const loadConfig = () => ({
   // Server configuration - from viteBuildConfig
   server: {
+    port: SERVER_CONFIG.port,
+    host: SERVER_CONFIG.host,
+  },
+  // Preview server configuration - BroCula: Added SPA fallback for proper route handling!
+  preview: {
     port: SERVER_CONFIG.port,
     host: SERVER_CONFIG.host,
   },
