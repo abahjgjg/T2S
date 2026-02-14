@@ -4,6 +4,7 @@ import { supabaseService } from '../services/supabaseService';
 import { Mail, Lock, LogIn, UserPlus, Loader2, AlertCircle } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
+import { UI_TEXT } from '../constants/uiTextConfig';
 
 interface Props {
   isOpen: boolean;
@@ -90,7 +91,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
             error={emailError || undefined}
             success={touched.email && !emailError && !!email}
             leftIcon={<Mail className="w-4 h-4" />}
-            placeholder="you@example.com"
+            placeholder={UI_TEXT.placeholders.email}
             clearable
             required
           />
@@ -103,7 +104,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
               onChange={(e) => setPassword(e.target.value)}
               onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
               leftIcon={<Lock className="w-4 h-4" />}
-              placeholder="••••••••"
+              placeholder={UI_TEXT.placeholders.password}
               clearable
               required
             />
