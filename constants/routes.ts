@@ -3,10 +3,7 @@
  * Route Constants
  * Centralized route path definitions for the application
  * Eliminates hardcoded route strings throughout the codebase
- * Flexy: All external URLs are now configurable via environment variables
  */
-
-import { getEnv } from '../utils/envUtils';
 
 export const ROUTES = {
   // Main routes
@@ -47,21 +44,4 @@ export const buildRoute = {
   },
 } as const;
 
-// Query parameter keys
-export const QUERY_PARAMS = {
-  NICHE: 'niche',
-  ID: 'id',
-  TAB: 'tab',
-  REF: 'ref',
-  SOURCE: 'source',
-} as const;
 
-// External routes - Flexy: Made configurable via environment variables
-export const EXTERNAL_ROUTES = {
-  GITHUB: getEnv('VITE_EXTERNAL_GITHUB', 'https://github.com/trendventures'),
-  DOCUMENTATION: getEnv('VITE_EXTERNAL_DOCS', 'https://docs.trendventures.ai'),
-  SUPPORT: getEnv('VITE_EXTERNAL_SUPPORT', 'https://support.trendventures.ai'),
-} as const;
-
-export type RoutePath = typeof ROUTES[keyof typeof ROUTES];
-export type QueryParamKey = typeof QUERY_PARAMS[keyof typeof QUERY_PARAMS];
