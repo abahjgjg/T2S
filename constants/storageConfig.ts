@@ -16,6 +16,8 @@ export const STORAGE_KEYS = {
   // Flexy added: Centralized preference keys to eliminate hardcoding!
   PREFERENCES_LANGUAGE: getEnv('VITE_STORAGE_KEY_PREFERENCES_LANGUAGE', 'trendventures_lang'),
   PREFERENCES_PROVIDER: getEnv('VITE_STORAGE_KEY_PREFERENCES_PROVIDER', 'trendventures_provider'),
+  // Palette: Auto-save draft for better UX
+  SEARCH_DRAFT: getEnv('VITE_STORAGE_KEY_SEARCH_DRAFT', 'trendventures_search_draft'),
 } as const;
 
 export const ASSET_CONFIG = {
