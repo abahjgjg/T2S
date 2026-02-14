@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, AlertCircle, Check, CornerDownLeft } from 'lucide-react';
 import { ICON_SIZES, TYPOGRAPHY } from '../../constants/designTokens';
+import { AnimatedCharacterCount } from './AnimatedCharacterCount';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -221,18 +222,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </div>
           
           {showCharacterCount && maxLength && (
-            <p
-              id={`${inputId}-count`}
-              className={`text-xs ml-2 shrink-0 ${
-                characterCount >= maxLength 
-                  ? 'text-red-400' 
-                  : characterCount >= maxLength * 0.9 
-                    ? 'text-yellow-400' 
-                    : 'text-slate-500'
-              }`}
-            >
-              {characterCount}/{maxLength}
-            </p>
+            <div id={`${inputId}-count`} className="ml-2 shrink-0">
+              <AnimatedCharacterCount 
+                count={characterCount} 
+                maxLength={maxLength} 
+              />
+            </div>
           )}
         </div>
       </div>
