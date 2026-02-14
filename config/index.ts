@@ -364,3 +364,14 @@ export {
   isInputElement,
   type ShortcutConfig,
 } from '../constants/keyboardShortcuts';
+
+// Re-export typography tokens for convenience (Flexy: Modular typography system!)
+export {
+  FONT_SIZES,
+  FONT_WEIGHTS,
+  LINE_HEIGHTS,
+  LETTER_SPACING,
+  TEXT_COLORS,
+  TYPOGRAPHY_PRESETS,
+  buildTypography,
+} from '../constants/typography';
