@@ -12,6 +12,7 @@ import { Z_INDEX } from '../constants/zIndex';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 import { ANIMATION_DELAYS_MS } from '../constants/animationConfig';
 import { CHAT_ROLES } from '../constants/chatRoles';
+import { UI_TEXT } from '../constants/uiTextConfig';
 
 interface Props {
   blueprint: Blueprint;
@@ -52,7 +53,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
         
         setMessages(prev => [
           ...prev, 
-          { role: CHAT_ROLES.MODEL, content: text || "✅ I've updated the blueprint with your changes." }
+          { role: CHAT_ROLES.MODEL, content: text || UI_TEXT.chat.updatedSuccess }
         ]);
       } else {
         setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: text }]);
@@ -60,7 +61,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
 
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: "Sorry, I encountered an error. Please try again." }]);
+      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: UI_TEXT.chat.errorMessage }]);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +78,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
             ? 'bg-slate-700 text-slate-300'
             : 'bg-emerald-600 text-white shadow-emerald-500/30'
         } print:hidden`}
-        aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
+        aria-label={isOpen ? UI_TEXT.accessibility.closeAI : UI_TEXT.accessibility.openAI}
         aria-expanded={isOpen}
       >
         {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
@@ -89,13 +90,13 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
             <div className="flex items-center gap-2">
                <Bot className="w-5 h-5 text-emerald-400" />
                <div>
-                 <h3 className="font-bold text-white text-sm">Blueprint Editor AI</h3>
+                 <h3 className="font-bold text-white text-sm">{UI_TEXT.chat.blueprintTitle}</h3>
                  <p className="text-xs text-emerald-400 font-mono">
                    {modelDisplayName}
                  </p>
                </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white" aria-label="Minimize Chat">
+             <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white" aria-label={UI_TEXT.accessibility.minimizeChat}>
               <Minimize2 className="w-4 h-4" />
             </button>
           </div>
@@ -104,7 +105,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
             {messages.length === 0 && (
               <div className="text-center text-slate-500 mt-10">
                 <Bot className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                <p className="text-sm">Ask me to modify this blueprint.</p>
+                <p className="text-sm">{UI_TEXT.chat.blueprintIntro}</p>
                 <div className="mt-4 flex flex-col gap-2">
                    <button onClick={() => { setInput("Change revenue model to Subscription"); }} className="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 transition-colors border border-slate-700">"Change revenue model to Subscription"</button>
                    <button onClick={() => { setInput("Add SEO to marketing strategy"); }} className="text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 transition-colors border border-slate-700">"Add SEO to marketing strategy"</button>
@@ -139,7 +140,7 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
                  <div className="w-8 h-8 rounded-full bg-emerald-900/50 border border-emerald-500/20 flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4 text-emerald-400" />
                  </div>
-                 <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-1" aria-label="AI is typing">
+                  <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-1" aria-label={UI_TEXT.accessibility.aiTyping}>
                      <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: `${ANIMATION_DELAYS_MS.bounce.first}ms` }} />
                      <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: `${ANIMATION_DELAYS_MS.bounce.second}ms` }} />
                      <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: `${ANIMATION_DELAYS_MS.bounce.third}ms` }} />
@@ -154,15 +155,15 @@ export const BlueprintChat: React.FC<Props> = ({ blueprint, onUpdateBlueprint })
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask to change something..."
+                placeholder={UI_TEXT.placeholders.chatBlueprint}
                 className="w-full bg-slate-900 border border-slate-700 text-white pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
-                aria-label="Message Blueprint Editor"
+                aria-label={UI_TEXT.accessibility.messageBlueprint}
               />
               <button 
                 type="submit" 
                 disabled={!input.trim() || isLoading}
                 className="absolute right-2 top-1.5 p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                aria-label="Send Message"
+                aria-label={UI_TEXT.accessibility.sendMessage}
               >
                 <Send className="w-4 h-4" />
               </button>

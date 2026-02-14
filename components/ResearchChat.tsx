@@ -8,6 +8,7 @@ import { SafeMarkdown } from './SafeMarkdown';
 import { CHAT_ROLES } from '../constants/chatRoles';
 import { DIMENSIONS } from '../constants/dimensionConfig';
 import { TEXT_TRUNCATION } from '../constants/displayLimits';
+import { UI_TEXT } from '../constants/uiTextConfig';
 
 interface Props {
   niche: string;
@@ -64,7 +65,7 @@ export const ResearchChat: React.FC<Props> = ({
       setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: responseText }]);
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: "I'm having trouble analyzing the data right now. Please try again." }]);
+      setMessages(prev => [...prev, { role: CHAT_ROLES.MODEL, content: UI_TEXT.chat.researchError }]);
     } finally {
       setIsLoading(false);
     }
@@ -81,13 +82,13 @@ export const ResearchChat: React.FC<Props> = ({
              <Sparkles className="w-5 h-5 text-white" />
            </div>
            <div>
-             <h3 className="font-bold text-white text-sm">Market Analyst AI</h3>
+              <h3 className="font-bold text-white text-sm">{UI_TEXT.chat.researchTitle}</h3>
              <p className="text-xs text-indigo-400 font-mono">
                 Context: {niche.slice(0, TEXT_TRUNCATION.niche)}{niche.length > TEXT_TRUNCATION.niche ? '...' : ''}
              </p>
            </div>
         </div>
-         <button onClick={onClose} className="text-slate-300 hover:text-white" aria-label="Close Chat">
+          <button onClick={onClose} className="text-slate-300 hover:text-white" aria-label={UI_TEXT.accessibility.closeChat}>
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -97,8 +98,8 @@ export const ResearchChat: React.FC<Props> = ({
         {messages.length === 0 && (
           <div className="text-center text-slate-500 mt-10">
             <Bot className="w-12 h-12 mx-auto mb-3 opacity-20" />
-            <p className="text-sm">Ask me about these market trends.</p>
-            <p className="text-xs mt-2 opacity-60">I have access to the {trends.length} trends identified.</p>
+            <p className="text-sm">{UI_TEXT.chat.researchIntro}</p>
+            <p className="text-xs mt-2 opacity-60">{UI_TEXT.chat.researchContext} {trends.length} {UI_TEXT.chat.trendsCount}</p>
           </div>
         )}
 
@@ -131,7 +132,7 @@ export const ResearchChat: React.FC<Props> = ({
              </div>
              <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2">
                 <Loader2 className="w-4 h-4 text-indigo-400 animate-spin" />
-                <span className="text-xs text-slate-400">Analyzing trends...</span>
+                 <span className="text-xs text-slate-400">{UI_TEXT.chat.analyzing}</span>
              </div>
           </div>
         )}
@@ -144,8 +145,8 @@ export const ResearchChat: React.FC<Props> = ({
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question..."
-            aria-label="Ask a research question"
+             placeholder={UI_TEXT.placeholders.chatResearch}
+             aria-label={UI_TEXT.accessibility.askResearch}
             className="w-full bg-slate-900 border border-slate-700 text-white pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm"
             autoFocus
           />
@@ -153,7 +154,7 @@ export const ResearchChat: React.FC<Props> = ({
             type="submit"
             disabled={!input.trim() || isLoading}
             className="absolute right-2 top-1.5 p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Send message"
+             aria-label={UI_TEXT.accessibility.sendMessage}
           >
             <Send className="w-4 h-4" />
           </button>

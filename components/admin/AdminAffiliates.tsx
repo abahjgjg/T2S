@@ -6,6 +6,7 @@ import { Plus, Edit2, Save, AlertCircle, BarChart3, Package, MousePointerClick, 
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
 import { DISPLAY_LIMITS } from '../../constants/displayLimits';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { UI_TEXT } from '../../constants/uiTextConfig';
 
 // Lazy load chart component to reduce initial bundle
 const AffiliatesBarChart = lazy(() => import('./AffiliatesBarChart'));
@@ -177,7 +178,7 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g. Bluehost"
+                placeholder={UI_TEXT.placeholders.affiliateName}
               />
             </div>
             
@@ -188,7 +189,7 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
                 className={`w-full bg-slate-950 border rounded-lg px-3 py-2 text-white focus:outline-none transition-colors ${urlError ? 'border-red-500 focus:border-red-500' : 'border-slate-700 focus:border-emerald-500'}`}
                 value={formData.affiliateUrl}
                 onChange={handleUrlChange}
-                placeholder="https://..."
+                placeholder={UI_TEXT.placeholders.affiliateUrl}
               />
               {urlError && (
                 <div className="flex items-center gap-1 mt-1 text-xs text-red-500">
@@ -204,7 +205,7 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
                 value={keywordInput}
                 onChange={handleKeywordChange}
-                placeholder="hosting, server, vps"
+                placeholder={UI_TEXT.placeholders.affiliateTags}
               />
               <p className="text-[10px] text-slate-500 mt-1">Triggers auto-injection in blueprints.</p>
             </div>
@@ -216,7 +217,7 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
                 rows={3}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Short recommendation text..."
+                placeholder={UI_TEXT.placeholders.affiliateDescription}
               />
             </div>
 
