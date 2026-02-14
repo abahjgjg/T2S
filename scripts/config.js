@@ -34,7 +34,7 @@ export const SCRIPT_CONFIG = {
   chrome: {
     path: getEnv(
       'VITE_CHROME_PATH',
-      `${process.env.HOME}/.cache/ms-playwright/chromium-1208/chrome-linux/chrome`
+      `${process.env.HOME}/.cache/ms-playwright/chromium_headless_shell-1208/chrome-linux/headless_shell`
     ),
     debuggingPort: getEnvNumber('VITE_CHROME_DEBUGGING_PORT', 9222),
     flags: getEnvArray('VITE_CHROME_FLAGS', [

@@ -44,34 +44,26 @@ export interface ServerConfig {
 
 // Default manual chunks - Flexy: Now configurable!
 // BroCula: Optimized chunk splitting to reduce unused JavaScript
+// BroCula: Removed feature-* manual chunks to prevent eager loading of lazy components
+// Shared code was causing main chunk to depend on feature chunks
 const DEFAULT_MANUAL_CHUNKS: ManualChunksConfig = {
   'vendor-react': ['react', 'react-dom', '@tanstack/react-query'],
-  // BroCula: Keep charts together but ensure lazy loading
-  'vendor-charts': ['recharts'],
+  // BroCula: Removed vendor-charts manual chunk - it was being loaded eagerly
+  // Let Vite auto-split recharts with the components that use it
   'vendor-markdown': ['react-markdown', 'remark-gfm'],
   'vendor-ui': ['lucide-react'],
   'vendor-zod': ['zod'],
-  'vendor-supabase': ['@supabase/supabase-js'],
-  'feature-admin': ['./components/AdminPanel'],
-  'feature-dashboard': ['./components/UserDashboard'],
-  // BroCula: Split blueprint into smaller chunks
-  'feature-blueprint-core': ['./components/BlueprintView'],
-  'feature-blueprint-modals': ['./components/LivePitchModal', './components/LocationScoutModal', './components/CompetitorAnalysisModal', './components/BlueprintAuditModal'],
-  'feature-blueprint-sections': ['./components/PresentationMode', './components/SwotAnalysis', './components/BlueprintRoadmap', './components/BlueprintRevenue', './components/BlueprintLaunchpad', './components/BlueprintAgents', './components/BusinessModelCanvas', './components/BrandStudio', './components/CustomerPersonas', './components/BlueprintChat'],
+  // BroCula: Removed vendor-supabase manual chunk - it was being loaded eagerly
+  // Let Vite auto-split supabase with the components that use it
 };
 
 // Default lazy loaded patterns - Flexy: Now configurable!
-// BroCula: Updated to match new granular chunk names
+// BroCula: Updated to match new chunk configuration
+// BroCula: Removed vendor-charts and vendor-supabase - let Vite auto-split
 const DEFAULT_LAZY_LOADED_PATTERNS = [
-  'vendor-charts',
   'vendor-markdown',
   'vendor-zod',
-  'vendor-supabase',
-  'feature-blueprint-core',
-  'feature-blueprint-modals',
-  'feature-blueprint-sections',
-  'feature-admin',
-  'feature-dashboard',
+  // BroCula: Auto-split lazy components - Vite handles these automatically
   'TrendAnalysis',
   'ResearchChat',
   'TrendDeepDiveModal',

@@ -50,6 +50,7 @@ node_modules/**/*.bak
 .lighthouseci/
 coverage/
 *.lcov
+lighthouse-report.json
 
 # Supplemental repositories (reference only, cloned on demand)
 .opencode/supplements/AI-Agents-public/
