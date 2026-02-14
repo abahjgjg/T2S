@@ -29,7 +29,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
       setLimit(DIRECTORY_CONFIG.DEFAULT_PAGE_SIZE); // Reset pagination on search
-    }, UI_TIMING.DEBOUNCE_SEARCH);
+    }, UI_TIMING.DEBOUNCE_DIRECTORY_SEARCH);
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
@@ -51,7 +51,7 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
   });
 
   const handleLoadMore = () => {
-    setLimit(prev => prev + 20);
+    setLimit(prev => prev + DIRECTORY_CONFIG.LOAD_MORE_INCREMENT);
   };
 
   const handleVote = async (e: React.MouseEvent, id: string) => {

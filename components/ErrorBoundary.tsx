@@ -4,7 +4,7 @@ import { telemetryService } from '../services/telemetryService';
 import { THEME_COLORS, THEME_RADIUS, THEME_SHADOWS, THEME_TYPOGRAPHY } from '../constants/themeConfig';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../constants/animationConfig';
 import { UI_TEXT } from '../constants/uiTextConfig';
-import { TEXT_TRUNCATION } from '../constants/displayLimits';
+import { TEXT_TRUNCATION } from '../constants/displayConfig';
 
 interface Props {
   children?: ReactNode;
@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    telemetryService.logError(error, `ErrorBoundary: ${errorInfo.componentStack?.slice(0, TEXT_TRUNCATION.short)}...`);
+    telemetryService.logError(error, `ErrorBoundary: ${errorInfo.componentStack?.slice(0, TEXT_TRUNCATION.ERROR_STACK_PREVIEW)}...`);
   }
 
   private handleReload = () => {

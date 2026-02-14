@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { ANIMATION_DURATION } from '../../constants/animationConfig';
+import { COLORS } from '../../constants/theme';
 
 interface Ripple {
   id: number;
@@ -34,7 +35,7 @@ interface RippleEffectProps {
 export const RippleEffect: React.FC<RippleEffectProps> = ({
   children,
   className = '',
-  color = 'rgba(255, 255, 255, 0.3)',
+  color = COLORS.ripple.default,
   disabled = false,
   onClick,
 }) => {
