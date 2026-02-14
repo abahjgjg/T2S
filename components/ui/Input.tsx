@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, AlertCircle, Check, CornerDownLeft } from 'lucide-react';
 import { ICON_SIZES, TYPOGRAPHY } from '../../constants/designTokens';
 import { AnimatedCharacterCount } from './AnimatedCharacterCount';
@@ -19,6 +19,8 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   showEnterHint?: boolean;
   /** Custom text for enter hint (default: "↵") */
   enterHintText?: string;
+  /** Shake animation on error - provides tactile feedback for validation failures */
+  shakeOnError?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -37,6 +39,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     className = '',
     showEnterHint = false,
     enterHintText = '↵',
+    shakeOnError = false,
     value,
     onChange,
     onFocus,
@@ -47,6 +50,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isShaking, setIsShaking] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
     const hasError = !!error;
@@ -54,6 +58,17 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const characterCount = typeof value === 'string' ? value.length : 0;
     const isClearable = clearable && !!value && !disabled;
     const showEnterHintIndicator = showEnterHint && isFocused && !!value && !disabled;
+
+    // Shake animation trigger when error appears
+    useEffect(() => {
+      if (shakeOnError && hasError) {
+        setIsShaking(true);
+        const timer = setTimeout(() => {
+          setIsShaking(false);
+        }, 500); // Match animation duration
+        return () => clearTimeout(timer);
+      }
+    }, [error, shakeOnError, hasError]);
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true);
@@ -92,6 +107,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               ? 'border-slate-500'
               : 'border-slate-700',
       disabled && 'opacity-50 cursor-not-allowed bg-slate-900',
+      isShaking && 'animate-shake',
       containerClassName,
     ].join(' ');
 
