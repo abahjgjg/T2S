@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, AlertCircle, Check, CornerDownLeft } from 'lucide-react';
 import { ICON_SIZES, TYPOGRAPHY } from '../../constants/designTokens';
+import { UI_TIMING } from '../../constants/uiConfig';
 import { AnimatedCharacterCount } from './AnimatedCharacterCount';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -59,16 +60,16 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const isClearable = clearable && !!value && !disabled;
     const showEnterHintIndicator = showEnterHint && isFocused && !!value && !disabled;
 
-    // Shake animation trigger when error appears
-    useEffect(() => {
-      if (shakeOnError && hasError) {
-        setIsShaking(true);
-        const timer = setTimeout(() => {
-          setIsShaking(false);
-        }, 500); // Match animation duration
-        return () => clearTimeout(timer);
-      }
-    }, [error, shakeOnError, hasError]);
+  // Shake animation trigger when error appears
+  useEffect(() => {
+    if (shakeOnError && hasError) {
+      setIsShaking(true);
+      const timer = setTimeout(() => {
+        setIsShaking(false);
+      }, UI_TIMING.SHAKE_ANIMATION_DURATION);
+      return () => clearTimeout(timer);
+    }
+  }, [error, shakeOnError, hasError]);
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true);
