@@ -3,7 +3,7 @@ import { Blueprint, BusinessIdea, CompetitorAnalysis } from '../types';
 import { getAIService } from '../services/aiRegistry';
 import { supabaseService } from '../services/supabaseService';
 import { toast } from './ToastNotifications';
-import { ShieldCheck, Loader2, TrendingUp } from 'lucide-react';
+import { ShieldCheck, Loader2, TrendingUp, Search, FileText } from 'lucide-react';
 import { useVoiceSummary } from '../hooks/useVoiceSummary';
 import { useBlueprintMedia } from '../hooks/useBlueprintMedia';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -15,6 +15,7 @@ import { BlueprintAffiliates } from './blueprint/BlueprintAffiliates';
 import { BlueprintStrategies } from './blueprint/BlueprintStrategies';
 import { TEXT_TRUNCATION } from '../constants/displayConfig';
 import { BRAND_CONFIG } from '../config';
+import { Breadcrumb } from './ui/Breadcrumb';
 
 // Lazy load modal components and heavy sections for better performance
 const LivePitchModal = React.lazy(() => import('./LivePitchModal').then(m => ({ default: m.LivePitchModal })));
@@ -319,6 +320,19 @@ export const BlueprintView: React.FC<Props> = ({ idea, blueprint, onBack, onSave
           onSaveToSWOT={handleSaveCompetitorInsights}
         />
       </Suspense>
+
+      {/* Breadcrumb Navigation - Micro-UX: Contextual wayfinding with keyboard support */}
+      <div className="print:hidden mb-6">
+        <Breadcrumb
+          items={[
+            { id: 'home', label: 'Home', onClick: onBack, icon: <TrendingUp className="w-3.5 h-3.5" /> },
+            { id: 'research', label: 'Research', onClick: onBack, icon: <Search className="w-3.5 h-3.5" /> },
+            { id: 'blueprint', label: idea.name, isCurrent: true, icon: <FileText className="w-3.5 h-3.5" /> },
+          ]}
+          maxItems={4}
+          showHomeIcon={true}
+        />
+      </div>
 
       <div className="print:hidden">
         <BlueprintHeader 
