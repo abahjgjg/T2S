@@ -1,5 +1,5 @@
 
-import { supabase } from './client';
+import { getSupabaseClient } from './client';
 import { STORAGE_CONFIG, SUPABASE_STORAGE_CONFIG } from '../../constants/appConfig';
 
 const BUCKET_NAME = SUPABASE_STORAGE_CONFIG.BUCKET_NAME;
@@ -9,6 +9,7 @@ const BUCKET_NAME = SUPABASE_STORAGE_CONFIG.BUCKET_NAME;
  * Requires the 'public-assets' bucket to be public in Supabase.
  */
 export const uploadPublicAsset = async (file: Blob, folder: 'images' | 'videos', extension: string): Promise<string | null> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return null;
 
   try {

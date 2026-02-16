@@ -46,12 +46,11 @@ export interface ServerConfig {
 // BroCula: Optimized chunk splitting to reduce unused JavaScript
 const DEFAULT_MANUAL_CHUNKS: ManualChunksConfig = {
   'vendor-react': ['react', 'react-dom', '@tanstack/react-query'],
-  // BroCula: Keep charts together but ensure lazy loading
-  'vendor-charts': ['recharts'],
+  // BroCula: Removed vendor-charts from manual chunks - let it lazy load with components
   'vendor-markdown': ['react-markdown', 'remark-gfm'],
   'vendor-ui': ['lucide-react'],
   'vendor-zod': ['zod'],
-  'vendor-supabase': ['@supabase/supabase-js'],
+  // BroCula: Removed vendor-supabase - will be dynamically imported when needed
   'feature-admin': ['./components/AdminPanel'],
   'feature-dashboard': ['./components/UserDashboard'],
   // BroCula: Split blueprint into smaller chunks
@@ -63,10 +62,8 @@ const DEFAULT_MANUAL_CHUNKS: ManualChunksConfig = {
 // Default lazy loaded patterns - Flexy: Now configurable!
 // BroCula: Updated to match new granular chunk names
 const DEFAULT_LAZY_LOADED_PATTERNS = [
-  'vendor-charts',
   'vendor-markdown',
   'vendor-zod',
-  'vendor-supabase',
   'feature-blueprint-core',
   'feature-blueprint-modals',
   'feature-blueprint-sections',

@@ -1,6 +1,6 @@
 
 import { BusinessIdea, Blueprint, PublishedBlueprint, Comment } from '../../types';
-import { supabase } from './client';
+import { getSupabaseClient } from './client';
 import { QUERY_LIMITS } from '../../constants/aiConfig';
 import { DATABASE_TABLES } from '../../constants/databaseTables';
 import { STORAGE_KEYS } from '../../constants/storageConfig';
@@ -37,10 +37,10 @@ interface PublishPayload {
 }
 
 export const publishBlueprint = async (niche: string, idea: BusinessIdea, blueprint: Blueprint, userId?: string): Promise<string | null> => {
-  if (!supabase) return null; // Fail silently if not configured
+  if (!getSupabaseClient()) return null; // Fail silently if not configured
 
   // Check if duplicate exists to prevent spamming DB with same generations
-  const { data: existing } = await supabase
+  const { data: existing } = await getSupabaseClient()
     .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('id')
     .eq('niche', niche)
@@ -63,7 +63,7 @@ export const publishBlueprint = async (niche: string, idea: BusinessIdea, bluepr
     payload.user_id = userId;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .insert([payload])
     .select('id')
@@ -78,9 +78,9 @@ export const publishBlueprint = async (niche: string, idea: BusinessIdea, bluepr
 };
 
 export const fetchBlueprint = async (id: string): Promise<PublishedBlueprint | null> => {
-  if (!supabase) return null;
+  if (!getSupabaseClient()) return null;
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .eq('id', id)
@@ -95,10 +95,10 @@ export const fetchBlueprint = async (id: string): Promise<PublishedBlueprint | n
 };
 
 export const findBlueprintsByNiche = async (niche: string): Promise<BusinessIdea[]> => {
-  if (!supabase) return [];
+  if (!getSupabaseClient()) return [];
 
   // Simple text search on niche column
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .ilike('niche', `%${niche}%`) 
@@ -126,12 +126,12 @@ export const searchPublicBlueprints = async (
   page: number = 0,
   limit: number = QUERY_LIMITS.DEFAULT_PAGE_SIZE
 ): Promise<PublishedBlueprint[]> => {
-  if (!supabase) return [];
+  if (!getSupabaseClient()) return [];
 
   const from = page * limit;
   const to = from + limit - 1;
 
-  let query = supabase
+  let query = getSupabaseClient()
     .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .range(from, to);
@@ -159,9 +159,9 @@ export const searchPublicBlueprints = async (
 };
 
 export const getUserPublishedBlueprints = async (userId: string): Promise<PublishedBlueprint[]> => {
-  if (!supabase) return [];
+  if (!getSupabaseClient()) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .select('*')
     .eq('user_id', userId)
@@ -176,9 +176,9 @@ export const getUserPublishedBlueprints = async (userId: string): Promise<Publis
 };
 
 export const deletePublishedBlueprint = async (id: string, userId: string): Promise<boolean> => {
-  if (!supabase) return false;
+  if (!getSupabaseClient()) return false;
 
-  const { error } = await supabase
+  const { error } = await getSupabaseClient()
     .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
     .delete()
     .eq('id', id)
@@ -199,12 +199,12 @@ export const hasVoted = (id: string): boolean => {
 };
 
 export const voteBlueprint = async (id: string): Promise<number | null> => {
-  if (!supabase) return null;
+  if (!getSupabaseClient()) return null;
   if (hasVoted(id)) return null;
 
   try {
     // 1. Fetch current
-    const { data } = await supabase
+    const { data } = await getSupabaseClient()
       .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
       .select('votes')
       .eq('id', id)
@@ -214,7 +214,7 @@ export const voteBlueprint = async (id: string): Promise<number | null> => {
       const newCount = (data.votes || 0) + 1;
       
       // 2. Update
-      const { error } = await supabase
+      const { error } = await getSupabaseClient()
         .from(DATABASE_TABLES.PUBLISHED_BLUEPRINTS)
         .update({ votes: newCount })
         .eq('id', id);
@@ -237,11 +237,11 @@ export const voteBlueprint = async (id: string): Promise<number | null> => {
 // --- Comment System ---
 
 export const fetchComments = async (blueprintId: string): Promise<Comment[]> => {
-  if (!supabase) return [];
+  if (!getSupabaseClient()) return [];
   
   // We try to fetch. If table doesn't exist, it will return error, we catch it.
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from(DATABASE_TABLES.COMMENTS)
       .select('*')
       .eq('blueprint_id', blueprintId)
@@ -258,10 +258,10 @@ export const fetchComments = async (blueprintId: string): Promise<Comment[]> => 
 };
 
 export const postComment = async (blueprintId: string, authorName: string, content: string): Promise<Comment | null> => {
-  if (!supabase) return null;
+  if (!getSupabaseClient()) return null;
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from(DATABASE_TABLES.COMMENTS)
       .insert([{
         blueprint_id: blueprintId,
