@@ -109,7 +109,7 @@ export const TrendSearch: React.FC<Props> = ({
         setInput(savedDraft);
         setIsDraftRestored(true);
         // Clear the indicator after a few seconds
-        const timer = setTimeout(() => setIsDraftRestored(false), 3000);
+        const timer = setTimeout(() => setIsDraftRestored(false), UI_TIMING.DRAFT_RESTORED_DURATION);
         return () => clearTimeout(timer);
       }
     }
@@ -126,7 +126,7 @@ export const TrendSearch: React.FC<Props> = ({
     if (input.trim() && !isLoading) {
       draftSaveTimeoutRef.current = setTimeout(() => {
         localStorage.setItem(STORAGE_KEYS.SEARCH_DRAFT, input.trim());
-      }, 500); // 500ms debounce
+      }, UI_TIMING.DEBOUNCE_DRAFT_SAVE);
     } else if (!input.trim()) {
       // Clear draft if input is empty
       localStorage.removeItem(STORAGE_KEYS.SEARCH_DRAFT);

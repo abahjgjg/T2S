@@ -11,30 +11,35 @@ export const UI_TIMING = {
   // Toast notifications
   TOAST_DURATION: getEnvNumber('VITE_UI_TOAST_DURATION_MS', 4000),
   TOAST_ANIMATION: getEnvNumber('VITE_UI_TOAST_ANIMATION_MS', 300),
-  
+
   // Copy feedback
   COPY_FEEDBACK_DURATION: getEnvNumber('VITE_UI_COPY_FEEDBACK_DURATION_MS', 2000),
-  
+
   // Debounce delays
   DEBOUNCE_SEARCH: getEnvNumber('VITE_UI_DEBOUNCE_SEARCH_MS', 300),
   DEBOUNCE_SAVE: getEnvNumber('VITE_UI_DEBOUNCE_SAVE_MS', 5000),
   DEBOUNCE_DIRECTORY_SEARCH: getEnvNumber('VITE_UI_DEBOUNCE_DIRECTORY_SEARCH_MS', 500),
-  
+  DEBOUNCE_DRAFT_SAVE: getEnvNumber('VITE_UI_DEBOUNCE_DRAFT_SAVE_MS', 500),
+
   // Loading animations
   LOADING_TEXT_ROTATION: getEnvNumber('VITE_UI_LOADING_TEXT_ROTATION_MS', 3000),
-  
+  LOADING_STEP_INTERVAL: getEnvNumber('VITE_UI_LOADING_STEP_INTERVAL_MS', 800),
+
   // Transitions
   PAGE_RELOAD_DELAY: getEnvNumber('VITE_UI_PAGE_RELOAD_DELAY_MS', 1000),
-  
+
   // Retry operations
   RETRY_BASE_DELAY: getEnvNumber('VITE_UI_RETRY_BASE_DELAY_MS', 100),
-  
+
   // Focus delays (for accessibility)
   FOCUS_DELAY: getEnvNumber('VITE_UI_FOCUS_DELAY_MS', 100),
-  
-  // Loading step rotation interval
-  LOADING_STEP_INTERVAL: getEnvNumber('VITE_UI_LOADING_STEP_INTERVAL_MS', 3500),
-  
+
+  // Draft restoration indicator display duration
+  DRAFT_RESTORED_DURATION: getEnvNumber('VITE_UI_DRAFT_RESTORED_DURATION_MS', 3000),
+
+  // Shake animation duration for validation errors
+  SHAKE_ANIMATION_DURATION: getEnvNumber('VITE_UI_SHAKE_ANIMATION_DURATION_MS', 500),
+
   // Connection check interval
   CONNECTION_CHECK_INTERVAL: getEnvNumber('VITE_UI_CONNECTION_CHECK_INTERVAL_MS', 5000),
 } as const;
