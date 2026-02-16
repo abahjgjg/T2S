@@ -5,7 +5,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { Tooltip } from './ui/Tooltip';
-import { BRAND_CONFIG, KEYBOARD_SHORTCUTS, matchesShortcut, isInputElement, formatShortcut } from '../config';
+import { BRAND_CONFIG, KEYBOARD_SHORTCUTS, matchesShortcut, isInputElement, formatShortcut, FONT_SIZES } from '../config';
 
 interface Props {
   onReset: () => void;
@@ -116,8 +116,8 @@ export const Header: React.FC<Props> = ({
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{uiText.newResearch}</span>
-              <kbd className="hidden md:inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-slate-900 rounded text-slate-400 group-hover:text-slate-300 transition-colors">
-                <span className="text-[8px]">Ctrl</span>+
+              <kbd className={`hidden md:inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 ${FONT_SIZES['2xs']} font-mono bg-slate-900 rounded text-slate-400 group-hover:text-slate-300 transition-colors`}>
+                <span className={FONT_SIZES['3xs']}>Ctrl</span>+
                 <span>R</span>
               </kbd>
             </button>
@@ -153,24 +153,24 @@ export const Header: React.FC<Props> = ({
           </div>
 
           {/* Language Switcher */}
-           <div className="flex items-center bg-slate-900/50 border border-white/5 rounded-xl p-1" role="group" aria-label="Language Selection">
-              <button
-                onClick={() => setLanguage('id')}
-                className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:text-white'}`}
-                aria-label="ID - Switch to Indonesian"
-                aria-pressed={language === 'id'}
-              >
-                ID
-              </button>
-              <button
-                onClick={() => setLanguage('en')}
-                className={`w-8 h-7 flex items-center justify-center rounded-lg text-[10px] font-black transition-all ${language === 'en' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:text-white'}`}
-                aria-label="Switch to English"
-                aria-pressed={language === 'en'}
-              >
-                EN
-              </button>
-           </div>
+          <div className="flex items-center bg-slate-900/50 border border-white/5 rounded-xl p-1" role="group" aria-label="Language Selection">
+               <button
+                 onClick={() => setLanguage('id')}
+                 className={`w-8 h-7 flex items-center justify-center rounded-lg ${FONT_SIZES['2xs']} font-black transition-all ${language === 'id' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:text-white'}`}
+                 aria-label="ID - Switch to Indonesian"
+                 aria-pressed={language === 'id'}
+               >
+                 ID
+               </button>
+               <button
+                 onClick={() => setLanguage('en')}
+                 className={`w-8 h-7 flex items-center justify-center rounded-lg ${FONT_SIZES['2xs']} font-black transition-all ${language === 'en' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:text-white'}`}
+                 aria-label="Switch to English"
+                 aria-pressed={language === 'en'}
+               >
+                 EN
+               </button>
+            </div>
 
           {/* Keyboard Shortcuts Button */}
           <Tooltip content={language === 'id' ? 'Pintasan Keyboard (?)' : 'Keyboard Shortcuts (?)'} position="bottom">

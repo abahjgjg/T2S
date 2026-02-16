@@ -2,9 +2,10 @@
 import React, { useMemo } from 'react';
 import { Globe, ExternalLink, Newspaper, Zap, CheckCircle2, Radio, BarChart2, ShieldCheck } from 'lucide-react';
 import { AIProvider } from '../types';
-import { API_ENDPOINTS } from '../constants/apiConfig';
+
 import { DISPLAY_LIMITS, FAVICON_CONFIG } from '../constants/displayLimits';
 import { ANIMATION_CLASSES } from '../constants/animationConfig';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   sources: { title: string; url: string }[];
@@ -56,7 +57,7 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
             </div>
             
             {/* Live Status Badge */}
-            <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded ${FONT_SIZES['2xs']} font-bold uppercase tracking-wider border ${
               isGroundingActive 
                 ? 'bg-emerald-950/50 text-emerald-400 border-emerald-500/30' 
                 : 'bg-blue-900/20 text-blue-400 border-blue-500/20'
@@ -82,7 +83,7 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
               <BarChart2 className="w-3 h-3 text-slate-500 shrink-0" />
               {domainStats.map(([domain, count], i) => (
-                <div key={i} className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-900 rounded border border-slate-800 text-[10px] text-slate-400 whitespace-nowrap">
+                <div key={i} className={`flex items-center gap-1.5 px-2 py-0.5 bg-slate-900 rounded border border-slate-800 ${FONT_SIZES['2xs']} text-slate-400 whitespace-nowrap`}>
                    <span className="font-bold text-slate-300">{domain}</span>
                    <span className="bg-slate-800 text-blue-400 px-1 rounded-sm">{count}</span>
                 </div>
@@ -93,7 +94,7 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
        
        {sources.length > 0 ? (
          <div className="divide-y divide-slate-800 max-h-[500px] overflow-y-auto custom-scrollbar bg-slate-950/30">
-           <div className="px-4 py-2 bg-slate-900/50 text-[10px] text-slate-500 font-mono flex items-center justify-between border-b border-slate-800/50">
+           <div className={`px-4 py-2 bg-slate-900/50 ${FONT_SIZES['2xs']} text-slate-500 font-mono flex items-center justify-between border-b border-slate-800/50`}>
               <span>DETECTED SIGNALS: {sources.length}</span>
               <span>{new Date().toLocaleDateString()}</span>
            </div>
@@ -131,7 +132,7 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
                           {source.title || domain}
                         </h5>
                         {trusted && (
-                          <div className="text-[10px] bg-blue-900/30 text-blue-300 px-1.5 py-0.5 rounded flex items-center gap-1 border border-blue-500/20" title="Trusted Source">
+                          <div className={`${FONT_SIZES['2xs']} bg-blue-900/30 text-blue-300 px-1.5 py-0.5 rounded flex items-center gap-1 border border-blue-500/20`} title="Trusted Source">
                              <ShieldCheck className="w-3 h-3" />
                           </div>
                         )}
@@ -142,8 +143,8 @@ export const NewsWire: React.FC<Props> = ({ sources, provider }) => {
                      </p>
                      
                      <div className="mt-2 flex items-center gap-2">
-                        <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 font-medium">News</span>
-                        <span className="text-[10px] px-1.5 py-0.5 bg-emerald-900/20 text-emerald-500/80 rounded font-medium">High Relevance</span>
+                        <span className={`${FONT_SIZES['2xs']} px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 font-medium`}>News</span>
+                        <span className={`${FONT_SIZES['2xs']} px-1.5 py-0.5 bg-emerald-900/20 text-emerald-500/80 rounded font-medium`}>High Relevance</span>
                      </div>
                    </div>
                  </div>

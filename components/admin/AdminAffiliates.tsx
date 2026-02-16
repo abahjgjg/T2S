@@ -7,6 +7,7 @@ import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationC
 import { DISPLAY_LIMITS } from '../../constants/displayLimits';
 import { useConfirm } from '../../contexts/ConfirmContext';
 import { UI_TEXT } from '../../constants/uiTextConfig';
+import { FONT_SIZES } from '../../config';
 
 // Lazy load chart component to reduce initial bundle
 const AffiliatesBarChart = lazy(() => import('./AffiliatesBarChart'));
@@ -207,7 +208,7 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
                 onChange={handleKeywordChange}
                 placeholder={UI_TEXT.placeholders.affiliateTags}
               />
-              <p className="text-[10px] text-slate-500 mt-1">Triggers auto-injection in blueprints.</p>
+              <p className={`${FONT_SIZES['2xs']} text-slate-500 mt-1`}>Triggers auto-injection in blueprints.</p>
             </div>
 
             <div>
@@ -285,7 +286,7 @@ export const AdminAffiliates: React.FC<Props> = ({ products, onRefresh }) => {
                      </div>
                      <div className="flex flex-wrap gap-1 mt-1">
                        {product.keywords.map((k, i) => (
-                         <span key={i} className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 flex items-center gap-1">
+                         <span key={i} className={`${FONT_SIZES['2xs']} bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 flex items-center gap-1`}>
                            <Tag className="w-2 h-2" /> {k}
                          </span>
                        ))}

@@ -196,7 +196,7 @@ export const ToastNotifications: React.FC = () => {
     }, UI_TIMING.TOAST_ANIMATION);
   };
 
-  const handleMouseEnter = (id: string, type: ToastType) => {
+  const handleMouseEnter = (id: string, _type: ToastType) => {
     pausedToastsRef.current.add(id);
   };
 
