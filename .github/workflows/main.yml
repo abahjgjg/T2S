@@ -334,7 +334,7 @@ jobs:
           END OF PROMPT
           PROMPT
           )" \
-            --model opencode/kimi-k2.5-free \
+            --model opencode/minimax-m2.5-free \
             --share false \
 
       - name: iterate1
@@ -343,7 +343,7 @@ jobs:
             ## PHASE 1
             Steps:
             1. Create/optimize .opencode/opencode.jsonc for current repository following schema https://opencode.ai/config.json
-            2. Install and configure oh-my-opencode by following the instructions here: https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/refs/heads/master/docs/guide/installation.md. configure all agents using models: opencode/glm-4.7-free, opencode/kimi-k2.5-free or opencode/minimax-m2.1-free
+            2. Install and configure oh-my-opencode by following the instructions here: https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/refs/heads/master/docs/guide/installation.md. configure all agents using models: opencode/glm-4.7-free, opencode/minimax-m2.5-free or opencode/minimax-m2.1-free
             3. Remove temporary and unused file/folder. 
             4. Review and self reflection
             5. Fix/optimize your work if needed
@@ -360,6 +360,6 @@ jobs:
             - If all check pass, no conflict with 'main', merge or set to automerge
           PROMPT
           )" \
-            --model opencode/kimi-k2.5-free \
+            --model opencode/minimax-m2.5-free \
             --agent cmz
             --share false \
