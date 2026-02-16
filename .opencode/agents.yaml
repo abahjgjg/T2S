@@ -1,5 +1,6 @@
 # OpenCode Agents Configuration
 # This file defines all available agents for the OpenCode CLI
+# These agents work in conjunction with the iterate.yml CI/CD workflow
 
 agents:
   # CMZ - Primary autonomous agent with self-healing capabilities
@@ -7,28 +8,126 @@ agents:
     name: CMZ
     description: Cognitive Machine Zero - Self-healing, self-learning, self-evolving agent
     model: opencode/kimi-k2.5-free
+    temperature: 0.7
+    max_tokens: 8192
     config_file: .opencode/agent/cmz.md
     default: true
+    mode: primary
+    color: primary
   
   # Supporting agents for specialized tasks
   architect:
     name: Architect
     description: Strategy and system design specialist
     model: opencode/glm-4.7-free
+    temperature: 0.6
+    max_tokens: 8192
+    mode: subagent
+    color: secondary
   
   librarian:
     name: Librarian
     description: Documentation and codebase exploration specialist
     model: opencode/minimax-m2.1-free
+    temperature: 0.3
+    max_tokens: 4096
+    mode: subagent
+    color: info
   
   reviewer:
     name: Reviewer
     description: Code review and quality assurance specialist
     model: opencode/kimi-k2.5-free
+    temperature: 0.5
+    max_tokens: 4096
+    mode: subagent
+    color: warning
+  
+  # CI/CD Workflow Agents (from iterate.yml)
+  repokeeper:
+    name: RepoKeeper
+    description: Maintains repository efficiency and organization
+    model: opencode/glm-4.7-free
+    temperature: 0.4
+    max_tokens: 4096
+    mode: subagent
+    color: success
+    capabilities:
+      - eliminate_redundant_files
+      - cleanup_temp_files
+      - update_documentation
+      - modularize_hardcoded_values
+  
+  bugfixer:
+    name: BugFixer
+    description: Maintains bug-free codebase
+    model: opencode/kimi-k2.5-free
+    temperature: 0.6
+    max_tokens: 4096
+    mode: subagent
+    color: error
+    capabilities:
+      - fix_console_errors
+      - resolve_build_errors
+      - fix_lint_warnings
+      - address_test_failures
+  
+  palette:
+    name: Palette
+    description: UX-focused improvements and accessibility
+    model: opencode/kimi-k2.5-free
+    temperature: 0.7
+    max_tokens: 4096
+    mode: subagent
+    color: accent
+    capabilities:
+      - micro_ux_improvements
+      - accessibility_enhancements
+      - user_interface_delight
+      - intuitive_design_patterns
+  
+  flexy:
+    name: Flexy
+    description: Modularity and hardcoded elimination
+    model: opencode/glm-4.7-free
+    temperature: 0.5
+    max_tokens: 4096
+    mode: subagent
+    color: secondary
+    capabilities:
+      - eliminate_hardcoded_values
+      - improve_modularity
+      - configuration_management
+      - reusable_components
+  
+  brocula:
+    name: Brocula
+    description: Browser console and performance optimization
+    model: opencode/minimax-m2.1-free
+    temperature: 0.4
+    max_tokens: 4096
+    mode: subagent
+    color: info
+    capabilities:
+      - browser_console_errors
+      - lighthouse_optimization
+      - performance_improvements
+      - runtime_error_detection
+  
+  # Additional utility agents
+  explore:
+    name: Explore
+    description: Fast codebase exploration agent
+    model: opencode/glm-4.7-free
+    temperature: 0.2
+    max_tokens: 2048
+    mode: subagent
+    color: info
 
 # Default settings
 defaults:
   model: opencode/kimi-k2.5-free
+  small_model: opencode/glm-4.7-free
   temperature: 0.7
   max_tokens: 4096
 
@@ -37,3 +136,10 @@ model_fallback:
   - opencode/kimi-k2.5-free
   - opencode/glm-4.7-free
   - opencode/minimax-m2.1-free
+
+# Agent categories for quick selection
+categories:
+  primary: [cmz]
+  support: [architect, librarian, reviewer]
+  cicd: [repokeeper, bugfixer, palette, flexy, brocula]
+  utility: [explore]

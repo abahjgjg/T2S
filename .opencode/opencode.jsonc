@@ -1,0 +1,257 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/kimi-k2.5-free",
+  "small_model": "opencode/glm-4.7-free",
+  "default_agent": "cmz",
+  "username": "CMZ",
+  "autoupdate": "notify",
+  "share": "manual",
+  "logLevel": "INFO",
+  
+  "mode": {
+    "cmz": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.7,
+      "steps": 50,
+      "description": "Cognitive Machine Zero - Self-healing, self-learning, self-evolving autonomous agent",
+      "mode": "primary",
+      "color": "primary",
+      "prompt": "You are CMZ (Cognitive Machine Zero), an advanced AI agent with three core capabilities:\n\n## SELF-HEAL\n- Automatically detect and fix errors in code, configuration, and logic\n- Monitor system health and proactively address issues\n- Implement defensive programming patterns to prevent future errors\n- When encountering failures, analyze root causes and implement permanent fixes\n- Maintain error logs and create prevention strategies\n\n## SELF-LEARN\n- Analyze successful patterns and incorporate them into future actions\n- Study codebase architecture, conventions, and best practices\n- Learn from failures to improve decision-making\n- Continuously update knowledge base about the project\n- Adapt to new technologies and frameworks quickly\n\n## SELF-EVOLVE\n- Optimize performance through iterative improvements\n- Refactor and modernize code continuously\n- Identify opportunities for capability enhancement\n- Implement new features that extend functionality\n- Stay ahead of technical debt and maintain high code quality\n\n## CORE PRINCIPLES\n- Always verify your work before considering it complete\n- Build lint-clean, error-free code\n- Follow existing project conventions and patterns\n- Document significant changes and reasoning\n- Create/update PRs after completing work\n- Ensure branch is up to date with main before creating PRs\n\n## BEHAVIORAL GUIDELINES\n- Be proactive, not reactive\n- Think several steps ahead\n- Consider edge cases and failure modes\n- Balance short-term fixes with long-term solutions\n- Prioritize maintainability and clarity",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "ask",
+        "task": "allow",
+        "external_directory": "ask",
+        "todowrite": "allow",
+        "todoread": "allow",
+        "question": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
+        "codesearch": "allow",
+        "lsp": "allow",
+        "doom_loop": "allow",
+        "skill": "allow"
+      }
+    },
+    "architect": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.6,
+      "steps": 30,
+      "description": "Strategy and system design specialist",
+      "mode": "subagent",
+      "color": "secondary",
+      "prompt": "You are the Architect agent. Your role is to analyze requirements and design system architecture, data models, and technical strategies. Focus on scalability, maintainability, and best practices. Always provide clear rationale for your design decisions.",
+      "permission": "allow"
+    },
+    "librarian": {
+      "model": "opencode/minimax-m2.1-free",
+      "temperature": 0.3,
+      "steps": 20,
+      "description": "Documentation and codebase exploration specialist",
+      "mode": "subagent",
+      "color": "info",
+      "prompt": "You are the Librarian agent. Your role is to explore the codebase, find relevant files, understand project structure, and retrieve documentation. You excel at search, navigation, and information retrieval. Be thorough but concise in your findings.",
+      "permission": "allow"
+    },
+    "reviewer": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.5,
+      "steps": 25,
+      "description": "Code review and quality assurance specialist",
+      "mode": "subagent",
+      "color": "warning",
+      "prompt": "You are the Reviewer agent. Your role is to perform code reviews, identify bugs, security issues, and quality concerns. Be thorough, constructive, and actionable in your feedback. Check for: code style, best practices, potential bugs, security vulnerabilities, performance issues, and maintainability.",
+      "permission": "allow"
+    },
+    "repokeeper": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.4,
+      "steps": 30,
+      "description": "Repository maintenance and cleanup specialist",
+      "mode": "subagent",
+      "hidden": false,
+      "color": "success",
+      "prompt": "You are the RepoKeeper agent. Your role is to maintain repository efficiency by eliminating redundant files, cleaning up temporary files, updating documentation, and modularizing hardcoded values. Keep the codebase clean and organized.",
+      "permission": "allow"
+    },
+    "bugfixer": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.6,
+      "steps": 40,
+      "description": "Bug fixing and error resolution specialist",
+      "mode": "subagent",
+      "hidden": false,
+      "color": "error",
+      "prompt": "You are the BugFixer agent. Your role is to fix console errors, resolve build errors, fix lint warnings, and address test failures. You excel at debugging and finding root causes. Always verify fixes and ensure no regressions.",
+      "permission": "allow"
+    },
+    "palette": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.7,
+      "steps": 35,
+      "description": "UX-focused improvements and accessibility specialist",
+      "mode": "subagent",
+      "hidden": false,
+      "color": "accent",
+      "prompt": "You are the Palette agent. Your role is to improve micro-UX, enhance accessibility, add user interface delight, and implement intuitive design patterns. Focus on creating delightful user experiences.",
+      "permission": "allow"
+    },
+    "flexy": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.5,
+      "steps": 30,
+      "description": "Modularity and configuration management specialist",
+      "mode": "subagent",
+      "hidden": false,
+      "color": "secondary",
+      "prompt": "You are the Flexy agent. Your role is to eliminate hardcoded values, improve modularity, manage configuration, and create reusable components. Make the codebase flexible and maintainable.",
+      "permission": "allow"
+    },
+    "brocula": {
+      "model": "opencode/minimax-m2.1-free",
+      "temperature": 0.4,
+      "steps": 25,
+      "description": "Browser console and performance optimization specialist",
+      "mode": "subagent",
+      "hidden": false,
+      "color": "info",
+      "prompt": "You are the Brocula agent. Your role is to fix browser console errors, optimize Lighthouse scores, improve performance, and detect runtime errors. Keep web applications fast and error-free.",
+      "permission": "allow"
+    },
+    "explore": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.2,
+      "steps": 20,
+      "description": "Fast codebase exploration agent",
+      "mode": "subagent",
+      "hidden": false,
+      "color": "info",
+      "prompt": "You are the Explore agent. Your role is to quickly explore and understand the codebase structure. Focus on finding files, understanding patterns, and providing concise summaries. Be fast and efficient.",
+      "permission": "allow"
+    }
+  },
+  
+  "keybinds": {
+    "leader": "ctrl+x",
+    "app_exit": "ctrl+c,ctrl+d,<leader>q",
+    "editor_open": "<leader>e",
+    "theme_list": "<leader>t",
+    "sidebar_toggle": "<leader>b",
+    "status_view": "<leader>s",
+    "session_export": "<leader>x",
+    "session_new": "<leader>n",
+    "session_list": "<leader>l",
+    "session_timeline": "<leader>g",
+    "session_rename": "ctrl+r",
+    "session_delete": "ctrl+d",
+    "session_interrupt": "escape",
+    "session_compact": "<leader>c",
+    "messages_page_up": "pageup,ctrl+alt+b",
+    "messages_page_down": "pagedown,ctrl+alt+f",
+    "messages_copy": "<leader>y",
+    "messages_undo": "<leader>u",
+    "messages_redo": "<leader>r",
+    "messages_toggle_conceal": "<leader>h",
+    "model_list": "<leader>m",
+    "model_cycle_recent": "f2",
+    "model_cycle_recent_reverse": "shift+f2",
+    "command_list": "ctrl+p",
+    "agent_list": "<leader>a",
+    "agent_cycle": "tab",
+    "agent_cycle_reverse": "shift+tab",
+    "input_submit": "return",
+    "input_newline": "shift+return,ctrl+return,alt+return,ctrl+j",
+    "input_line_home": "ctrl+a",
+    "input_line_end": "ctrl+e",
+    "input_undo": "ctrl+-,super+z",
+    "input_redo": "ctrl+.,super+shift+z"
+  },
+  
+  "skills": {
+    "paths": [
+      ".opencode/skills"
+    ]
+  },
+  
+  "plugin": [
+    "oh-my-opencode"
+  ],
+  
+  "watcher": {
+    "ignore": [
+      "node_modules",
+      ".git",
+      "dist",
+      "build",
+      ".next",
+      "coverage",
+      "*.log"
+    ]
+  },
+  
+  "tui": {
+    "scroll_speed": 1.0,
+    "scroll_acceleration": {
+      "enabled": true
+    },
+    "diff_style": "auto"
+  },
+  
+  "server": {
+    "port": 8080,
+    "hostname": "localhost",
+    "mdns": false
+  },
+  
+  "command": {
+    "ultrawork": {
+      "template": "Analyze this request and execute it with full orchestration using appropriate agents: {{prompt}}",
+      "description": "Ultra-work mode - automatic orchestration for complex tasks",
+      "agent": "cmz",
+      "subtask": false
+    },
+    "ulw": {
+      "template": "{{prompt}}",
+      "description": "Shorthand for ultrawork",
+      "agent": "cmz",
+      "subtask": false
+    },
+    "review": {
+      "template": "Review the following code or changes: {{prompt}}",
+      "description": "Code review mode",
+      "agent": "reviewer",
+      "subtask": true
+    },
+    "explore": {
+      "template": "Explore and understand: {{prompt}}",
+      "description": "Fast exploration mode",
+      "agent": "explore",
+      "subtask": true
+    },
+    "plan": {
+      "template": "Create a detailed work plan for: {{prompt}}",
+      "description": "Create execution plan",
+      "agent": "architect",
+      "subtask": true
+    },
+    "fix": {
+      "template": "Fix the following issue: {{prompt}}",
+      "description": "Bug fixing mode",
+      "agent": "bugfixer",
+      "subtask": true
+    },
+    "cleanup": {
+      "template": "Clean up and optimize: {{prompt}}",
+      "description": "Repository cleanup mode",
+      "agent": "repokeeper",
+      "subtask": true
+    }
+  },
+  
+  "disabled_providers": [],
+  "enabled_providers": []
+}
