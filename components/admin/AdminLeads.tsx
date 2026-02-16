@@ -2,7 +2,7 @@ import React, { useMemo, Suspense, lazy } from 'react';
 import { Lead } from '../../types';
 import { TrendingUp, Mail, Download } from 'lucide-react';
 import { toast } from '../ToastNotifications';
-import { COLORS } from '../../constants/theme';
+
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants/animationConfig';
 import { DIMENSIONS } from '../../constants/dimensionConfig';
 

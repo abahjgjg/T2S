@@ -2,17 +2,14 @@ import React, { useState, useMemo, Suspense, lazy } from 'react';
 import { BarChart as BarChartIcon, RefreshCcw, Save, Calculator } from 'lucide-react';
 import { Blueprint } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
-import { CHART_COLORS } from '../constants/chartConfig';
+
 import { SLIDER_RANGES } from '../constants/displayLimits';
 import { DIMENSIONS } from '../constants/dimensionConfig';
 
 // Lazy load recharts components to reduce initial bundle size
 const RechartsComponents = lazy(() => import('./RevenueChartComponents'));
 
-interface ChartComponentsProps {
-  data: any[];
-  isSimulating: boolean;
-}
+
 
 const ChartFallback = () => (
   <div className="w-full flex items-center justify-center" style={{ height: DIMENSIONS.chart.revenue }}>

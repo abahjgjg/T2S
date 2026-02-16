@@ -57,7 +57,7 @@ export const LocationScoutModal: React.FC<Props> = ({ isOpen, onClose, idea, onS
         setLocation(`${latitude.toFixed(COORDINATE_PRECISION.latitude)}, ${longitude.toFixed(COORDINATE_PRECISION.longitude)}`);
         toast.success("Coordinates acquired!");
       },
-      (error) => {
+      () => {
         toast.error("Unable to retrieve your location");
       }
     );

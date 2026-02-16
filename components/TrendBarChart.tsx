@@ -1,7 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
 import { COLORS } from '../constants/theme';
-import { CHART_RANGES, CHART_MARGINS, CHART_AXIS, CHART_GRID, CHART_HEIGHTS } from '../constants/chartConfig';
+import { CHART_RANGES, CHART_MARGINS, CHART_AXIS, CHART_GRID } from '../constants/chartConfig';
 
 interface ChartDataItem {
   name: string;

@@ -17,7 +17,7 @@ interface Props {
 
 export const BusinessModelCanvas: React.FC<Props> = ({ idea, blueprint, bmc, onUpdateBlueprint }) => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const { provider, language, uiText } = usePreferences();
+  const { provider, language } = usePreferences();
 
   const handleGenerate = async () => {
     setIsGenerating(true);

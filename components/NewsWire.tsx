@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { Globe, ExternalLink, Newspaper, Zap, CheckCircle2, Radio, BarChart2, ShieldCheck } from 'lucide-react';
 import { AIProvider } from '../types';
-import { API_ENDPOINTS } from '../constants/apiConfig';
+
 import { DISPLAY_LIMITS, FAVICON_CONFIG } from '../constants/displayLimits';
 import { ANIMATION_CLASSES } from '../constants/animationConfig';
 import { FONT_SIZES } from '../config';
