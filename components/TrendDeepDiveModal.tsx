@@ -8,6 +8,7 @@ import { Modal } from './ui/Modal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { DISPLAY_LIMITS } from '../constants/displayConfig';
 import { COLORS } from '../constants/theme';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   trend: Trend;
@@ -30,8 +31,8 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
   const HeaderContent = (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
-        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-900/30 text-emerald-400 border border-emerald-500/30">{uiText.marketIntel}</span>
-        <span className="flex items-center gap-1 text-[10px] font-mono text-slate-500"><TrendingUp className="w-3 h-3" />{trend.relevanceScore}% Relevance</span>
+        <span className={`px-2 py-0.5 rounded ${FONT_SIZES['2xs']} font-bold uppercase tracking-wider bg-emerald-900/30 text-emerald-400 border border-emerald-500/30`}>{uiText.marketIntel}</span>
+        <span className={`flex items-center gap-1 ${FONT_SIZES['2xs']} font-mono text-slate-500`}><TrendingUp className="w-3 h-3" />{trend.relevanceScore}% Relevance</span>
       </div>
       <h2 className="text-2xl font-black text-white leading-tight">{trend.title}</h2>
       <p className="text-slate-400 text-sm line-clamp-1 font-normal">{trend.triggerEvent}</p>
@@ -57,7 +58,7 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
               <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-5"><h3 className="text-sm font-bold text-orange-400 uppercase tracking-wider mb-3 flex items-center gap-2"><Users className="w-4 h-4" /> Key Players</h3><div className="flex flex-wrap gap-2">{deepDive.keyPlayers.map((player, i) => (<span key={i} className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-sm font-medium shadow-sm">{player}</span>))}</div></div>
             )}
             {trend.sources && trend.sources.length > 0 && (
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-5"><h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2"><Globe className="w-4 h-4" /> Primary Sources</h3><div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{trend.sources.slice(0, DISPLAY_LIMITS.DEEP_DIVE_SOURCES).map((source, i) => (<a key={i} href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-slate-900 border border-slate-800 rounded-lg hover:border-blue-500/30 hover:bg-slate-800 transition-all group"><div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center shrink-0 text-slate-500 border border-slate-700 group-hover:text-blue-400 group-hover:border-blue-500/30"><LinkIcon className="w-4 h-4" /></div><div className="min-w-0"><p className="text-sm text-slate-300 font-medium truncate group-hover:text-white">{source.title}</p><p className="text-[10px] text-slate-500 truncate font-mono">{new URL(source.url).hostname}</p></div></a>))}</div></div>
+              <div className="bg-slate-950 border border-slate-800 rounded-xl p-5"><h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2"><Globe className="w-4 h-4" /> Primary Sources</h3><div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{trend.sources.slice(0, DISPLAY_LIMITS.DEEP_DIVE_SOURCES).map((source, i) => (<a key={i} href={source.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-slate-900 border border-slate-800 rounded-lg hover:border-blue-500/30 hover:bg-slate-800 transition-all group"><div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center shrink-0 text-slate-500 border border-slate-700 group-hover:text-blue-400 group-hover:border-blue-500/30"><LinkIcon className="w-4 h-4" /></div><div className="min-w-0"><p className="text-sm text-slate-300 font-medium truncate group-hover:text-white">{source.title}</p><p className={`${FONT_SIZES['2xs']} text-slate-500 truncate font-mono`}>{new URL(source.url).hostname}</p></div></a>))}</div></div>
             )}
             {onAskQuestion && deepDive.suggestedQuestions && deepDive.suggestedQuestions.length > 0 && (
               <div><h3 className="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4" /> Ask Research Analyst</h3><div className="flex flex-wrap gap-2">{deepDive.suggestedQuestions.map((q, i) => (<button key={i} onClick={() => onAskQuestion(q)} className="text-left bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/30 hover:border-indigo-500/50 text-indigo-200 rounded-lg px-4 py-3 text-sm transition-all flex items-start gap-2 group w-full sm:w-auto"><MessageSquare className="w-4 h-4 mt-0.5 opacity-50 group-hover:opacity-100 transition-opacity" />{q}</button>))}</div></div>
@@ -68,7 +69,7 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> {uiText.keyEvents}</h3>
-              <div className="relative pl-4 space-y-8"><div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-500/50 via-slate-700 to-transparent"></div>{deepDive.keyEvents.map((event, idx) => (<div key={idx} className="relative pl-6 group"><div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-blue-500 group-hover:bg-blue-500 transition-colors z-10 shadow-[0_0_10px_${COLORS.shadow.blue}]`}></div><span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-blue-900/20 text-blue-400 border border-blue-500/20 mb-1">{event.date}</span><h4 className="text-white font-medium text-base mb-1 group-hover:text-blue-300 transition-colors">{event.title}</h4>{event.url && (<a href={event.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-400 transition-colors">Read Source <ExternalLink className="w-3 h-3" /></a>)}</div>))}</div>
+              <div className="relative pl-4 space-y-8"><div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-500/50 via-slate-700 to-transparent"></div>{deepDive.keyEvents.map((event, idx) => (<div key={idx} className="relative pl-6 group"><div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-blue-500 group-hover:bg-blue-500 transition-colors z-10 shadow-[0_0_10px_${COLORS.shadow.blue}]`}></div><span className={`inline-block px-2 py-0.5 rounded ${FONT_SIZES['2xs']} font-mono bg-blue-900/20 text-blue-400 border border-blue-500/20 mb-1`}>{event.date}</span><h4 className="text-white font-medium text-base mb-1 group-hover:text-blue-300 transition-colors">{event.title}</h4>{event.url && (<a href={event.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-400 transition-colors">Read Source <ExternalLink className="w-3 h-3" /></a>)}</div>))}</div>
             </div>
           </div>
         ) : (

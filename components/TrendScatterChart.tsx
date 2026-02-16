@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Label } from 'recharts';
 import { COLORS } from '../constants/theme';
-import { CHART_RANGES, CHART_MARGINS, CHART_GRID, CHART_AXIS } from '../constants/chartConfig';
+import { CHART_RANGES, CHART_MARGINS, CHART_GRID } from '../constants/chartConfig';
 
 interface ScatterDataItem {
   name: string;

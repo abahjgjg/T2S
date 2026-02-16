@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { ImageOff, Loader2, RefreshCw } from 'lucide-react';
 import { MEDIA_CONFIG } from '../../constants/aiConfig';
 import { ANIMATION_DURATION } from '../../constants/animationConfig';
+import { FONT_SIZES } from '../../config';
 
 interface SmartImageProps {
   src: string;
@@ -80,10 +81,10 @@ export const SmartImage: React.FC<SmartImageProps> = ({
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
             <span>Retry</span>
-            <span className="text-[10px] text-slate-500">({retryCount}/{maxRetries})</span>
+            <span className={`${FONT_SIZES['2xs']} text-slate-500`}>({retryCount}/{maxRetries})</span>
           </button>
         ) : (
-          <span className="text-[10px] text-slate-600">Failed to load</span>
+          <span className={`${FONT_SIZES['2xs']} text-slate-600`}>Failed to load</span>
         )}
       </div>
     );

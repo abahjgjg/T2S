@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { SavedProject, UserProfile } from '../types';
 import { supabaseService } from '../services/supabaseService';
-import { FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, Loader2, AlertTriangle, LogIn, Search, History, Clock } from 'lucide-react';
+import { FolderOpen, Calendar, ArrowRight, Cloud, HardDrive, AlertTriangle, LogIn, Search, History, Clock } from 'lucide-react';
 import { ProjectCardSkeleton } from './ui/ProjectCardSkeleton';
 import { ConfirmDeleteButton } from './ui/ConfirmDeleteButton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

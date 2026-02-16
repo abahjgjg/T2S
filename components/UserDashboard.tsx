@@ -8,7 +8,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { CACHE_CONFIG } from '../constants/appConfig';
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
-import { ANIMATION_DURATION, ANIMATION_EASING } from '../constants/animationConfig';
+
 import { DIMENSIONS } from '../constants/dimensionConfig';
 import { TYPOGRAPHY } from '../constants/designTokens';
 
