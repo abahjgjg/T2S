@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, Sparkles, Zap, Brain, Rocket } from 'lucide-react';
-import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
+import { UI_TIMING, ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
 import { ANIMATION_DURATION } from '../../constants/animationConfig';
 
 interface FullScreenLoaderProps {
@@ -61,7 +61,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
 
     intervalRef.current = setInterval(() => {
       setCurrentStep((prev) => (prev + 1) % 4);
-    }, 800);
+    }, UI_TIMING.LOADING_STEP_INTERVAL);
 
     return () => {
       if (intervalRef.current) {
