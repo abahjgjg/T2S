@@ -46,22 +46,30 @@ export interface ServerConfig {
 // BroCula: Optimized chunk splitting to reduce unused JavaScript
 const DEFAULT_MANUAL_CHUNKS: ManualChunksConfig = {
   'vendor-react': ['react', 'react-dom', '@tanstack/react-query'],
-  // BroCula: Keep charts together but ensure lazy loading
+  // BroCula: Keep charts together but ensure lazy loading - exclude from initial load
   'vendor-charts': ['recharts'],
   'vendor-markdown': ['react-markdown', 'remark-gfm'],
   'vendor-ui': ['lucide-react'],
   'vendor-zod': ['zod'],
+  // BroCula: Supabase should be in its own chunk and lazy loaded
   'vendor-supabase': ['@supabase/supabase-js'],
   'feature-admin': ['./components/AdminPanel'],
   'feature-dashboard': ['./components/UserDashboard'],
-  // BroCula: Split blueprint into smaller chunks
+  // BroCula: Split blueprint into smaller chunks for granular loading
   'feature-blueprint-core': ['./components/BlueprintView'],
   'feature-blueprint-modals': ['./components/LivePitchModal', './components/LocationScoutModal', './components/CompetitorAnalysisModal', './components/BlueprintAuditModal'],
   'feature-blueprint-sections': ['./components/PresentationMode', './components/SwotAnalysis', './components/BlueprintRoadmap', './components/BlueprintRevenue', './components/BlueprintLaunchpad', './components/BlueprintAgents', './components/BusinessModelCanvas', './components/BrandStudio', './components/CustomerPersonas', './components/BlueprintChat'],
+  // BroCula: Split chart components to load on demand
+  'charts-bar': ['./components/TrendBarChart', './components/admin/AffiliatesBarChart'],
+  'charts-area': ['./components/admin/LeadsAreaChart'],
+  'charts-scatter': ['./components/TrendScatterChart'],
+  'charts-radar': ['./components/AuditRadarChart'],
+  'charts-revenue': ['./components/RevenueChartComponents'],
+  'charts-dashboard': ['./components/DashboardChart'],
 };
 
 // Default lazy loaded patterns - Flexy: Now configurable!
-// BroCula: Updated to match new granular chunk names
+// BroCula: Updated to match new granular chunk names - ensure NO preloading of heavy chunks
 const DEFAULT_LAZY_LOADED_PATTERNS = [
   'vendor-charts',
   'vendor-markdown',
@@ -72,6 +80,13 @@ const DEFAULT_LAZY_LOADED_PATTERNS = [
   'feature-blueprint-sections',
   'feature-admin',
   'feature-dashboard',
+  // BroCula: Chart chunks should NOT be preloaded
+  'charts-bar',
+  'charts-area',
+  'charts-scatter',
+  'charts-radar',
+  'charts-revenue',
+  'charts-dashboard',
   'TrendAnalysis',
   'ResearchChat',
   'TrendDeepDiveModal',
@@ -103,17 +118,19 @@ export const LAZY_LOADED_PATTERNS: string[] = getEnvArray(
 
 /**
  * Build optimization configuration
+ * BroCula: Enhanced for better tree-shaking and reduced unused JavaScript
  */
 export const BUILD_OPTIMIZATION: BuildOptimization = {
   sourcemap: getEnv('VITE_BUILD_SOURCEMAP', 'true') !== 'false',
-  chunkSizeWarningLimit: getEnvNumber('VITE_CHUNK_SIZE_WARNING_LIMIT', 1500),
+  chunkSizeWarningLimit: getEnvNumber('VITE_CHUNK_SIZE_WARNING_LIMIT', 1000),
   cssCodeSplit: getEnv('VITE_CSS_CODE_SPLIT', 'true') !== 'false',
-  target: getEnv('VITE_BUILD_TARGET', 'es2020'),
+  target: getEnv('VITE_BUILD_TARGET', 'es2022'),
   minify: getEnv('VITE_BUILD_MINIFY', 'terser') as 'terser' | 'esbuild' | false,
 };
 
 /**
  * Terser minification options
+ * BroCula: Enhanced compression for smaller bundles
  */
 export const TERSER_OPTIONS = {
   compress: {
@@ -125,11 +142,20 @@ export const TERSER_OPTIONS = {
       'console.debug',
       'console.trace',
     ]),
-    passes: getEnvNumber('VITE_BUILD_COMPRESS_PASSES', 2),
+    passes: getEnvNumber('VITE_BUILD_COMPRESS_PASSES', 3),
+    // BroCula: Better tree-shaking
+    unused: true,
+    dead_code: true,
+    side_effects: true,
+    toplevel: true,
+    module: true,
   },
   format: {
     comments: getEnv('VITE_BUILD_KEEP_COMMENTS', 'false') === 'true',
   },
+  // BroCula: Enable module-level optimization
+  module: true,
+  toplevel: true,
 };
 
 /**
