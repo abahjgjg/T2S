@@ -9,14 +9,30 @@ import {
 const SUPABASE_URL = process.env.SUPABASE_URL || ''; 
 const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
 
-// Flexy: Using modular validation functions from supabaseConfig
-// All validation rules are now configurable via environment variables!
+// BroCula: Lazy initialization - client created only when first accessed
+let supabaseInstance: ReturnType<typeof createClient> | null = null;
 
-export const supabase = (isValidSupabaseUrl(SUPABASE_URL) && isValidSupabaseKey(SUPABASE_KEY)) 
-  ? createClient(SUPABASE_URL, SUPABASE_KEY) 
-  : null;
+export const getSupabaseClient = () => {
+  if (!supabaseInstance && isValidSupabaseUrl(SUPABASE_URL) && isValidSupabaseKey(SUPABASE_KEY)) {
+    supabaseInstance = createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return supabaseInstance;
+};
 
-export const isConfigured = () => !!supabase;
+// Backward compatibility - but now lazy
+export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+  get(target, prop) {
+    const client = getSupabaseClient();
+    if (!client) {
+      throw new Error('Supabase not configured');
+    }
+    return client[prop as keyof typeof client];
+  }
+});
+
+export const isConfigured = () => {
+  return isValidSupabaseUrl(SUPABASE_URL) && isValidSupabaseKey(SUPABASE_KEY);
+};
 
 // Re-export validation functions for external use
 export { isValidSupabaseUrl, isValidSupabaseKey };

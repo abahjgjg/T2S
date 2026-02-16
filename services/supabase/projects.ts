@@ -1,10 +1,11 @@
 
 import { SavedProject } from '../../types';
-import { supabase } from './client';
+import { getSupabaseClient } from './client';
 
 // --- Cloud Library (Personal Collections) ---
 
 export const saveCloudProject = async (project: SavedProject, userId: string): Promise<{ error: any }> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return { error: "Database not configured" };
   
   // We assume a 'saved_projects' table exists with: id (uuid), user_id (uuid), data (jsonb), created_at
@@ -21,6 +22,7 @@ export const saveCloudProject = async (project: SavedProject, userId: string): P
 };
 
 export const getCloudProjects = async (userId: string): Promise<{ data: SavedProject[], error: any }> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return { data: [], error: "Database not configured" };
 
   const { data, error } = await supabase
@@ -37,6 +39,7 @@ export const getCloudProjects = async (userId: string): Promise<{ data: SavedPro
 };
 
 export const deleteCloudProject = async (id: string, userId: string): Promise<{ error: any }> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return { error: "Database not configured" };
 
   const { error } = await supabase

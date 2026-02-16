@@ -1,7 +1,8 @@
 
-import { supabase } from './client';
+import { getSupabaseClient } from './client';
 
 export const getRemotePrompts = async (): Promise<Record<string, string>> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return {};
 
   try {
@@ -27,6 +28,7 @@ export const getRemotePrompts = async (): Promise<Record<string, string>> => {
 };
 
 export const saveRemotePrompt = async (key: string, template: string): Promise<boolean> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return false;
 
   const { error } = await supabase
@@ -45,6 +47,7 @@ export const saveRemotePrompt = async (key: string, template: string): Promise<b
 };
 
 export const deleteRemotePrompt = async (key: string): Promise<boolean> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return false;
 
   const { error } = await supabase

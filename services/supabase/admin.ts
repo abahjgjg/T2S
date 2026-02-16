@@ -1,6 +1,6 @@
 
 import { AffiliateProduct, Lead } from '../../types';
-import { supabase } from './client';
+import { getSupabaseClient } from './client';
 import { APP_URLS } from '../../constants/appConfig';
 import { DATABASE_TABLES, DATABASE_SPECIAL_IDS } from '../../constants/databaseTables';
 
@@ -12,6 +12,7 @@ import { DATABASE_TABLES, DATABASE_SPECIAL_IDS } from '../../constants/databaseT
  * If Supabase is not connected or the lock table doesn't exist, returns null.
  */
 export const getAdminOwner = async (): Promise<string | null> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return null;
 
   try {
@@ -40,6 +41,7 @@ export const getAdminOwner = async (): Promise<string | null> => {
  * STRICT SECURITY: Only succeeds if Supabase write succeeds.
  */
 export const claimAdminLock = async (email: string): Promise<boolean> => {
+  const supabase = getSupabaseClient();
   if (!supabase) {
     console.error("Cannot claim admin lock: Database not configured.");
     return false;
@@ -67,6 +69,7 @@ export const claimAdminLock = async (email: string): Promise<boolean> => {
  * Releases the admin lock.
  */
 export const releaseAdminLock = async (): Promise<boolean> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return false;
   
   const { error } = await supabase.from(DATABASE_TABLES.AFFILIATE_PRODUCTS).delete().eq('id', DATABASE_SPECIAL_IDS.ADMIN_LOCK);
@@ -76,6 +79,7 @@ export const releaseAdminLock = async (): Promise<boolean> => {
 // --- Affiliate System (Supabase Only) ---
 
 export const getAffiliateProducts = async (): Promise<AffiliateProduct[]> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return [];
 
   try {
@@ -93,6 +97,7 @@ export const getAffiliateProducts = async (): Promise<AffiliateProduct[]> => {
 };
 
 export const saveAffiliateProduct = async (product: AffiliateProduct): Promise<void> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return;
 
   const { error } = await supabase.from(DATABASE_TABLES.AFFILIATE_PRODUCTS).upsert(product);
@@ -100,6 +105,7 @@ export const saveAffiliateProduct = async (product: AffiliateProduct): Promise<v
 };
 
 export const deleteAffiliateProduct = async (id: string): Promise<void> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return;
 
   const { error } = await supabase.from(DATABASE_TABLES.AFFILIATE_PRODUCTS).delete().eq('id', id);
@@ -107,6 +113,7 @@ export const deleteAffiliateProduct = async (id: string): Promise<void> => {
 };
 
 export const incrementAffiliateClick = async (id: string): Promise<void> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return;
 
   try {
@@ -128,6 +135,7 @@ export const incrementAffiliateClick = async (id: string): Promise<void> => {
 // --- Lead Capture System (Supabase Only) ---
 
 export const saveLead = async (blueprintId: string, email: string, sourceTitle?: string): Promise<boolean> => {
+  const supabase = getSupabaseClient();
   const lead: Lead = {
     id: crypto.randomUUID(),
     blueprintId: blueprintId,
@@ -156,6 +164,7 @@ export const saveLead = async (blueprintId: string, email: string, sourceTitle?:
 };
 
 export const getLeads = async (): Promise<Lead[]> => {
+  const supabase = getSupabaseClient();
   if (!supabase) return [];
 
   try {

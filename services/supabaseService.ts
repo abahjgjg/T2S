@@ -1,5 +1,5 @@
 
-import { supabase, isConfigured } from './supabase/client';
+import { getSupabaseClient, isConfigured } from './supabase/client';
 import { auth } from './supabase/auth';
 import { saveCloudProject, getCloudProjects, deleteCloudProject } from './supabase/projects';
 import { 
@@ -18,7 +18,7 @@ import { uploadPublicAsset } from './supabase/storage';
 // Unified Service Facade for Backward Compatibility
 export const supabaseService = {
   isConfigured,
-  client: supabase, // Expose client for direct usage if needed
+  get client() { return getSupabaseClient(); }, // Lazy getter for client
   
   // Auth Module
   auth,
