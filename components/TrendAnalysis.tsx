@@ -8,10 +8,10 @@ const TrendDeepDiveModal = lazy(() => import('./TrendDeepDiveModal').then(m => (
 const TrendBarChart = lazy(() => import('./TrendBarChart').then(m => ({ default: m.TrendBarChart })));
 const TrendScatterChart = lazy(() => import('./TrendScatterChart').then(m => ({ default: m.TrendScatterChart })));
 import { usePreferences } from '../contexts/PreferencesContext';
-import { COLORS } from '../constants/theme';
+
 import { TEXT_TRUNCATION, DISPLAY_LIMITS } from '../constants/displayConfig';
 import { getSentimentStyle, getSentimentIconConfig, SENTIMENT_COLORS } from '../constants/sentimentConfig';
-import { CHART_RANGES, CHART_MARGINS, CHART_AXIS, CHART_GRID, CHART_HEIGHTS } from '../constants/chartConfig';
+import { CHART_HEIGHTS } from '../constants/chartConfig';
 import { isHotTrend } from '../constants/thresholds';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
 import { FONT_SIZES } from '../config';

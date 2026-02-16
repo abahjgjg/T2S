@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PublishedBlueprint, BusinessIdea, Comment } from '../types';
-import { ArrowLeft, Calendar, Share2, TrendingUp, Layers, DollarSign, ArrowRight, Heart, Mail, CheckCircle, Copy, Check, MessageSquare, Send, User, Swords, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Share2, TrendingUp, Layers, DollarSign, ArrowRight, Heart, Mail, CheckCircle, Check, MessageSquare, Send, User, Swords, Loader2 } from 'lucide-react';
 // Note: All icons are used in this component
 import { supabaseService } from '../services/supabaseService';
 import { useMetaTags } from '../hooks/useMetaTags';
