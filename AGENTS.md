@@ -48,7 +48,7 @@ The following agents run in CI/CD via `.github/workflows/iterate.yml`:
 ```
 .opencode/
 ├── agent/
-│   ├── cmz.yaml              # CMZ agent configuration
+│   ├── cmz.md                # CMZ agent configuration
 │   └── cmz/knowledge/        # Learning knowledge base
 ├── agents.yaml               # All agent definitions
 ├── config.json               # OpenCode configuration
@@ -106,8 +106,8 @@ npm run build
 
 ## Resources
 
-- **Agent Config**: `.opencode/agent/cmz.yaml`
+- **Agent Config**: `.opencode/agent/cmz.md`
 - **Skills**: `.opencode/skills/`
 
 ---
-*This file is maintained by CMZ agent. Last updated: 2026-02-13*
+*This file is maintained by CMZ agent. Last updated: 2026-02-16*
