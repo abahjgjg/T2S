@@ -42,7 +42,6 @@ export const SegmentedProgressBar: React.FC<SegmentedProgressBarProps> = ({
           {Array.from({ length: totalSteps }, (_, index) => {
             const isCompleted = index < currentStep;
             const isCurrent = index === currentStep;
-            const isPending = index > currentStep;
             
             return (
               <div 

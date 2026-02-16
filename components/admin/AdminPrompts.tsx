@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { promptService } from '../../services/promptService';
 import { PromptKey, DEFAULT_PROMPTS } from '../../constants/systemPrompts';
-import { Save, RotateCcw, MessageSquareCode, Info, Cloud, Check } from 'lucide-react';
+import { Save, RotateCcw, MessageSquareCode, Info, Cloud } from 'lucide-react';
 import { toast } from '../ToastNotifications';
 import { supabaseService } from '../../services/supabaseService';
 import { useConfirm } from '../../contexts/ConfirmContext';

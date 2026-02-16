@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Loader2, Mic, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, BrainCircuit, Image as ImageIcon, Newspaper, AlertCircle, CornerDownLeft } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
 import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
 import { toast } from './ToastNotifications';
 import { REGIONS, TIMEFRAMES, DEFAULT_SEARCH_CONFIG, UI_FALLBACKS } from '../constants/searchConfig';
-import { getAIService } from '../services/aiRegistry';
+
 import { usePreferences } from '../contexts/PreferencesContext';
 import { indexedDBService } from '../utils/storageUtils';
 import { useAsset } from '../hooks/useAsset';
@@ -17,7 +17,7 @@ import { detectSearchRegion } from '../constants/dateTimeConfig';
 import { Z_INDEX } from '../constants/zIndex';
 import { SPEECH_CONFIG } from '../constants/apiConfig';
 import { STORAGE_CONFIG, ASSET_ID_PREFIX } from '../constants/appConfig';
-import { DATE_FORMATS, formatDate } from '../constants/dateTimeConfig';
+import { formatDate } from '../constants/dateTimeConfig';
 import { DISPLAY_LIMITS, TICKER_TOPICS } from '../constants/displayConfig';
 import { COLORS } from '../constants/theme';
 import { ANIMATION_DURATION } from '../constants/animationConfig';
@@ -76,7 +76,7 @@ export const TrendSearch: React.FC<Props> = ({
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
   const [isErrorFading, setIsErrorFading] = useState(false);
   
-  const { language, uiText, provider } = usePreferences();
+  const { uiText, provider } = usePreferences();
   
   const [loadingText, setLoadingText] = useState(uiText.scanning);
   const [isListening, setIsListening] = useState(false);
