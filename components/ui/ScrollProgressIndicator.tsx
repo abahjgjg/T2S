@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Z_INDEX } from '../../constants/zIndex';
+import { 
+  RGB_EMERALD, 
+  RGB_BLUE, 
+  RGB_PURPLE, 
+  rgb 
+} from '../../constants/rgbColors';
+import { SCROLL_INDICATOR } from '../../constants/visualEffects';
+import { ANIMATION_DURATION } from '../../constants/animationConfig';
 
 /**
  * ScrollProgressIndicator - A delightful micro-UX component that shows reading progress
@@ -11,6 +19,8 @@ import { Z_INDEX } from '../../constants/zIndex';
  * - Respects reduced motion preferences
  * - Minimal performance impact with passive scroll listeners
  * - Hidden at top of page for clean initial view
+ * 
+ * Flexy Refactor: Using centralized RGB colors and thresholds for modularity
  */
 interface ScrollProgressIndicatorProps {
   /** Color theme for the progress bar */
@@ -51,13 +61,13 @@ export const ScrollProgressIndicator: React.FC<ScrollProgressIndicatorProps> = (
     rafRef.current = requestAnimationFrame(() => {
       const newProgress = calculateProgress();
       
-      // Only update state if progress changed significantly (0.1% threshold)
-      if (Math.abs(newProgress - lastScrollRef.current) > 0.1) {
+      // Only update state if progress changed significantly (using centralized threshold)
+      if (Math.abs(newProgress - lastScrollRef.current) > SCROLL_INDICATOR.progressThreshold / 100) {
         setProgress(newProgress);
         lastScrollRef.current = newProgress;
         
-        // Show indicator only after some scrolling
-        setIsVisible(newProgress > 0.5);
+        // Show indicator only after some scrolling (using centralized threshold)
+        setIsVisible(newProgress > SCROLL_INDICATOR.visibilityThreshold / 100);
       }
       
       rafRef.current = undefined;
@@ -89,28 +99,28 @@ export const ScrollProgressIndicator: React.FC<ScrollProgressIndicatorProps> = (
     };
   }, [handleScroll, calculateProgress]);
 
-  // Dynamic gradient based on progress
+  // Dynamic gradient based on progress using centralized RGB colors
   const getGradient = () => {
     const baseColors = {
       default: {
-        start: 'rgb(16, 185, 129)', // emerald-500
-        mid: 'rgb(59, 130, 246)',   // blue-500
-        end: 'rgb(168, 85, 247)',   // purple-500
+        start: rgb(RGB_EMERALD[500]),
+        mid: rgb(RGB_BLUE[500]),
+        end: rgb(RGB_PURPLE[500]),
       },
       emerald: {
-        start: 'rgb(16, 185, 129)',
-        mid: 'rgb(52, 211, 153)',
-        end: 'rgb(110, 231, 183)',
+        start: rgb(RGB_EMERALD[500]),
+        mid: rgb(RGB_EMERALD[400]),
+        end: rgb(RGB_EMERALD[300]),
       },
       blue: {
-        start: 'rgb(59, 130, 246)',
-        mid: 'rgb(96, 165, 250)',
-        end: 'rgb(147, 197, 253)',
+        start: rgb(RGB_BLUE[500]),
+        mid: rgb(RGB_BLUE[400]),
+        end: rgb(RGB_BLUE[300]),
       },
       purple: {
-        start: 'rgb(168, 85, 247)',
-        mid: 'rgb(192, 132, 252)',
-        end: 'rgb(216, 180, 254)',
+        start: rgb(RGB_PURPLE[500]),
+        mid: rgb(RGB_PURPLE[400]),
+        end: rgb(RGB_PURPLE[300]),
       },
     };
 
@@ -135,7 +145,7 @@ export const ScrollProgressIndicator: React.FC<ScrollProgressIndicatorProps> = (
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 ${Z_INDEX.TOAST} pointer-events-none transition-opacity duration-300 ${className}`}
+      className={`fixed top-0 left-0 right-0 ${Z_INDEX.TOAST} pointer-events-none transition-opacity duration-${ANIMATION_DURATION.standard.normal} ${className}`}
       style={{
         opacity: isVisible ? 1 : 0,
         height: `${height}px`,
@@ -149,7 +159,7 @@ export const ScrollProgressIndicator: React.FC<ScrollProgressIndicatorProps> = (
     >
       {/* Progress bar */}
       <div
-        className="h-full transition-transform duration-150 ease-out will-change-transform"
+        className="h-full transition-transform duration-${ANIMATION_DURATION.micro.normal} ease-out will-change-transform"
         style={{
           width: '100%',
           transform: `scaleX(${progress / 100})`,
@@ -161,7 +171,7 @@ export const ScrollProgressIndicator: React.FC<ScrollProgressIndicatorProps> = (
       {/* Glow effect */}
       {showGlow && (
         <div
-          className="absolute inset-0 blur-sm transition-opacity duration-300"
+          className="absolute inset-0 blur-sm transition-opacity duration-${ANIMATION_DURATION.standard.normal}"
           style={{
             background: getGradient(),
             opacity: getGlowOpacity(),

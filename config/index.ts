@@ -375,3 +375,44 @@ export {
   TYPOGRAPHY_PRESETS,
   buildTypography,
 } from '../constants/typography';
+
+// Re-export RGB color tokens for convenience (Flexy: Modular RGB color system!)
+export {
+  RGB_EMERALD,
+  RGB_BLUE,
+  RGB_PURPLE,
+  RGB_INDIGO,
+  RGB_ORANGE,
+  RGB_RED,
+  RGB_SLATE,
+  RGB_WHITE,
+  RGB_BLACK,
+  SHADOW_COLORS,
+  rgba,
+  rgb,
+} from '../constants/rgbColors';
+
+// Re-export visual effects tokens for convenience (Flexy: Modular visual effects!)
+export {
+  OPACITY,
+  SCALE,
+  BLUR,
+  SHADOW_OFFSET,
+  SHADOW_SPREAD,
+  GRADIENT_STOPS,
+  SCROLL_INDICATOR,
+  opacityToDecimal,
+  scaleToDecimal,
+  getTailwindOpacity,
+  getTailwindScale,
+} from '../constants/visualEffects';
+
+// Re-export dimension tokens for convenience (Flexy: Modular dimensions!)
+export {
+  DIMENSIONS,
+  BREAKPOINTS,
+  VIEWPORT,
+  parseDimension,
+  addUnit,
+  clampDimension,
+} from '../constants/dimensions';

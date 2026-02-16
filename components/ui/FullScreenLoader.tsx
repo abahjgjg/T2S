@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, Sparkles, Zap, Brain, Rocket } from 'lucide-react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
-import { ANIMATION_DURATION } from '../../constants/animationConfig';
+import { ANIMATION_DURATION, ANIMATION_DELAYS, ANIMATION_DELAYS_MS } from '../../constants/animationConfig';
+import { RGB_EMERALD, rgba } from '../../constants/rgbColors';
 
 interface FullScreenLoaderProps {
   /** Text to display below the loader */
@@ -157,7 +158,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
               style={{
                 left: `${15 + i * 10}%`,
                 top: `${20 + (i % 4) * 15}%`,
-                animationDelay: `${i * 0.3}s`,
+                animationDelay: ANIMATION_DELAYS.particle(i),
                 animationDuration: `${3 + i * 0.5}s`,
               }}
             />
@@ -191,7 +192,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
             `}
             style={{
               boxShadow: `0 0 40px -10px var(--tw-shadow-color)`,
-              '--tw-shadow-color': 'rgb(16 185 129 / 0.3)',
+              '--tw-shadow-color': rgba(RGB_EMERALD[500], 0.3),
             } as React.CSSProperties}
           >
             <CurrentIcon 
@@ -256,8 +257,8 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
                 key={i}
                 className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
                 style={{
-                  animationDelay: `${i * 0.15}s`,
-                  animationDuration: '0.6s',
+                  animationDelay: `${i * ANIMATION_DELAYS_MS.bounce.first}ms`,
+                  animationDuration: `${ANIMATION_DURATION.loading.pulse / 1000}s`,
                 }}
               />
             ))}
