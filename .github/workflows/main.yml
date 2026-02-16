@@ -341,23 +341,13 @@ jobs:
         run: |
           opencode run "$(cat <<'PROMPT'
             ## PHASE 1
-            Act as an automation specialist using OpenCode CLI. You work on current workspace, dont do machine configuration. Your task is:
-            1. Check if agent 'CMZ' is exist, create opencode agent 'CMZ' if no exist. behavior: self heal, self learning, self evolve. maximize its potential.
-                - confirm .opencode/agent in workspace root
-                - confirm "CMZ" agent is exist, create if not exist.
-                - optimize based 3 last github action logs 'iterate.yml'. skip if not exist or run <3
-            2. Check and Manage the following repositories as supplements to 'CMZ' agent. Ensure no conflict or redundant. if already implemented, skip it. must be in harmony.:
-                - https://github.com/code-yeongyu/oh-my-opencode.git
-                - https://github.com/NoeFabris/opencode-antigravity-auth.git
-                - https://github.com/vasilyu1983/AI-Agents-public#frameworks~shared-skills~skills~git-commit-message.git
-                - https://github.com/obra/superpowers.git
-                - https://github.com/asgeirtj/system_prompts_leaks.git
-                - https://github.com/OpenBMB/UltraRAG.git
-            3. Check 'oh my opencode' configuration, if already implemented, skip it. create in current workspace if no exist (analyze https://github.com/code-yeongyu/oh-my-opencode.git before creating). 
-                - check if .opencode folder is exist
-                - configure all agents using models: opencode/glm-4.7-free, opencode/kimi-k2.5-free or opencode/minimax-m2.1-free
-            4. Remove temporary and unused file/folder. Review and self reflection. fix/optimize your work if needed
-            5. Verify if all configuration working, your task fail if not verified
+            Steps:
+            1. Create/optimize .opencode/opencode.jsonc for current repository following schema https://opencode.ai/config.json
+            2. Install and configure oh-my-opencode by following the instructions here: https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/refs/heads/master/docs/guide/installation.md. configure all agents using models: opencode/glm-4.7-free, opencode/kimi-k2.5-free or opencode/minimax-m2.1-free
+            3. Remove temporary and unused file/folder. 
+            4. Review and self reflection
+            5. Fix/optimize your work if needed
+            6. Confirm all configuration working, your task fail if not verified
             ## PHASE 2
             After all tasks are completed:
             1.  **Push**:
@@ -368,13 +358,6 @@ jobs:
             - Wait and monitor check if check fail fix until all check pass
             3. 	**Merge**
             - If all check pass, no conflict with 'main', merge or set to automerge
-
-            ## Anti-Patterns (NEVER Do)
-            - ❌ Circular dependencies
-            - ❌ God classes
-            - ❌ Mix presentation with business logic
-            - ❌ Break existing functionality
-            - ❌ Over-engineer
           PROMPT
           )" \
             --model opencode/kimi-k2.5-free \

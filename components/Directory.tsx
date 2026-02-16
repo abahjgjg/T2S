@@ -8,6 +8,7 @@ import { ANIMATION_CLASSES } from '../constants/animationConfig';
 import { SHADOWS } from '../constants/shadowConfig';
 import { DIRECTORY_CONFIG } from '../constants/displayConfig';
 import { UI_TIMING } from '../constants/uiConfig';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   onViewBlueprint: (_id: string) => void;
@@ -144,10 +145,10 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
                       {bp.niche}
                     </span>
                     <div className="flex items-center gap-3">
-                       <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(bp.created_at).toLocaleDateString()}
-                      </span>
+<span className={`${FONT_SIZES['2xs']} text-slate-500 flex items-center gap-1`}>
+                         <Calendar className="w-3 h-3" />
+                         {new Date(bp.created_at).toLocaleDateString()}
+                       </span>
                       <button 
                         onClick={(e) => handleVote(e, bp.id)}
                         disabled={hasVoted}
@@ -173,10 +174,10 @@ export const Directory: React.FC<Props> = ({ onViewBlueprint }) => {
 
                   <div className="mt-auto pt-4 border-t border-slate-800/50 flex items-center justify-between relative z-10">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-900/20 text-blue-400 border border-blue-500/20">
+                      <span className={`px-2 py-0.5 rounded ${FONT_SIZES['2xs']} font-mono bg-blue-900/20 text-blue-400 border border-blue-500/20`}>
                         {bp.full_data.idea.type}
                       </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-purple-900/20 text-purple-400 border border-purple-500/20">
+                      <span className={`px-2 py-0.5 rounded ${FONT_SIZES['2xs']} font-mono bg-purple-900/20 text-purple-400 border border-purple-500/20`}>
                          {bp.full_data.idea.monetizationModel}
                       </span>
                     </div>

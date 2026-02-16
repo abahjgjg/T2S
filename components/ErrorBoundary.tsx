@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 import { telemetryService } from '../services/telemetryService';
-import { THEME_COLORS, THEME_RADIUS, THEME_SHADOWS, THEME_TYPOGRAPHY } from '../constants/themeConfig';
+import { THEME_COLORS, THEME_RADIUS, THEME_SHADOWS } from '../constants/themeConfig';
 import { ANIMATION_DURATION, ANIMATION_EASING } from '../constants/animationConfig';
 import { UI_TEXT } from '../constants/uiTextConfig';
 import { TEXT_TRUNCATION } from '../constants/displayConfig';

@@ -46,7 +46,7 @@ export const BlueprintMarkdownViewer: React.FC<Props> = React.memo(({ content, a
            content={content}
            onLinkClick={handleLinkClick}
            components={{
-             a: ({node, href, ...props}) => {
+              a: ({href, ...props}) => {
                return (
                  <a 
                    href={href} 
