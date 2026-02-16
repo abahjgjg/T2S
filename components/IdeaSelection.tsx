@@ -12,6 +12,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { Z_INDEX } from '../constants/zIndex';
 import { ANIMATION_CLASSES } from '../constants/animationConfig';
 import { UI_TIMING } from '../constants/uiConfig';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   niche: string;
@@ -247,7 +248,7 @@ export const IdeaSelection: React.FC<Props> = ({
                onClick={() => setActiveTab('news')}
                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'news' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
              >
-               <Newspaper className="w-4 h-4" /> News Wire <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{allNewsSources.length}</span>
+               <Newspaper className="w-4 h-4" /> News Wire <span className={`bg-white/20 px-1.5 py-0.5 rounded ${FONT_SIZES['2xs']}`}>{allNewsSources.length}</span>
              </button>
               <button
                 onClick={handleExportReport}

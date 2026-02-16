@@ -9,6 +9,7 @@ import { SafeMarkdown } from './SafeMarkdown';
 import { EmptyState } from './ui/EmptyState';
 import { copyWithFeedback } from '../utils/clipboardUtils';
 import { ANIMATION_CLASSES } from '../constants/animationConfig';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   idea: BusinessIdea;
@@ -362,8 +363,8 @@ export const BlueprintLaunchpad: React.FC<Props> = ({ idea, blueprint, assets, o
                                    {post.platform === 'Twitter' ? <Twitter className="w-4 h-4 text-blue-400" /> : 
                                     post.platform === 'LinkedIn' ? <Layout className="w-4 h-4 text-blue-600" /> :
                                     <FileText className="w-4 h-4 text-emerald-400" />}
-                                   <span className="text-[10px] uppercase font-bold text-slate-500">{post.platform}</span>
-                                   <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">{post.type}</span>
+<span className={`${FONT_SIZES['2xs']} uppercase font-bold text-slate-500`}>{post.platform}</span>
+                                    <span className={`${FONT_SIZES['2xs']} bg-slate-800 px-1.5 py-0.5 rounded text-slate-400`}>{post.type}</span>
                                 </div>
                                 <div className="text-xs text-slate-300 leading-relaxed prose prose-invert prose-p:my-0">
                                   <SafeMarkdown content={post.content} />
