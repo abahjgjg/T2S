@@ -11,7 +11,8 @@ import { FullScreenLoader } from './components/ui/FullScreenLoader';
 // Lazy load BlueprintView - only needed when viewing a blueprint
 const BlueprintView = React.lazy(() => import('./components/BlueprintView').then(module => ({ default: module.BlueprintView })));
 import { getAIService } from './services/aiRegistry';
-import { supabaseService } from './services/supabaseService';
+// BroCula: Lazy load supabaseService to prevent eager loading of Supabase client
+const supabaseServicePromise = import('./services/supabaseService').then(m => m.supabaseService);
 import { promptService } from './services/promptService';
 import { SavedProject, SearchRegion, SearchTimeframe } from './types';
 import { XCircle, Loader2, ArrowUp } from 'lucide-react';
@@ -223,7 +224,8 @@ const App: React.FC = () => {
       setSavedProjects(prev => [...prev, newProject]);
       
       if (user) {
-        const { error } = await supabaseService.saveCloudProject(newProject, user.id);
+        const supabaseSvc = await supabaseServicePromise;
+        const { error } = await supabaseSvc.saveCloudProject(newProject, user.id);
         if (error) {
            console.warn("Failed to save to cloud:", error);
            rSetters.setError(uiText.cloudSyncFailed);
@@ -243,7 +245,8 @@ const App: React.FC = () => {
              idea: rState.selectedIdea,
              blueprint: rState.blueprint
           };
-          supabaseService.saveCloudProject(updatedProject, user.id);
+          const supabaseSvc = await supabaseServicePromise;
+          supabaseSvc.saveCloudProject(updatedProject, user.id);
        }
     }
   };
