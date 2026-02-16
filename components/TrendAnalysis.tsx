@@ -14,6 +14,7 @@ import { getSentimentStyle, getSentimentIconConfig, SENTIMENT_COLORS } from '../
 import { CHART_RANGES, CHART_MARGINS, CHART_AXIS, CHART_GRID, CHART_HEIGHTS } from '../constants/chartConfig';
 import { isHotTrend } from '../constants/thresholds';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../constants/uiConfig';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   trends: Trend[];
@@ -107,7 +108,7 @@ export const TrendAnalysis: React.FC<Props> = ({
       <div className="w-full bg-slate-900 border-y border-slate-800 mb-8 overflow-hidden py-2 relative flex items-center group">
         <div className="absolute left-0 z-10 bg-slate-900 px-3 py-1 flex items-center gap-2 border-r border-slate-800 h-full shadow-xl">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Live Signals</span>
+          <span className={`${FONT_SIZES['2xs']} font-black text-red-500 uppercase tracking-widest`}>Live Signals</span>
         </div>
         
         <div className="whitespace-nowrap flex animate-marquee group-hover:[animation-play-state:paused] items-center">
@@ -119,7 +120,7 @@ export const TrendAnalysis: React.FC<Props> = ({
              >
                <Radio className="w-3 h-3 text-slate-600" />
                <span className="font-bold">{trend.title.toUpperCase()}</span>: {trend.triggerEvent}
-               <span className={`text-[10px] px-1.5 rounded border ${
+               <span className={`${FONT_SIZES['2xs']} px-1.5 rounded border ${
                  trend.sentiment === 'Positive' ? 'text-emerald-400 border-emerald-500/30' :
                  trend.sentiment === 'Negative' ? 'text-red-400 border-red-500/30' :
                  'text-slate-500 border-slate-700'
@@ -153,12 +154,12 @@ export const TrendAnalysis: React.FC<Props> = ({
               <div className="flex gap-4">
                  <div>
                     <div className="text-2xl font-black text-white">{trends.length}</div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">Signals</div>
+                    <div className={`${FONT_SIZES['2xs']} text-slate-500 uppercase tracking-wider`}>Signals</div>
                  </div>
                  {scatterData.length > 0 && scatterData[0].y !== 50 && (
                    <div>
                       <div className="text-2xl font-black text-emerald-500">{avgGrowth}%</div>
-                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Avg Velocity</div>
+                      <div className={`${FONT_SIZES['2xs']} text-slate-500 uppercase tracking-wider`}>Avg Velocity</div>
                    </div>
                  )}
               </div>
@@ -195,8 +196,8 @@ export const TrendAnalysis: React.FC<Props> = ({
                          <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-slate-900 border-2 border-slate-700 group-hover:border-blue-400 group-hover:bg-blue-900/30 transition-colors z-10"></div>
                          <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-800 group-hover:border-blue-500/30 hover:bg-slate-800/50 transition-all">
                             <div className="flex justify-between items-start mb-1">
-                               <span className="text-[10px] font-mono text-blue-400 flex items-center gap-1"><Clock className="w-3 h-3" /> {trend.date || 'Recent Update'}</span>
-                               <span className={`text-[10px] font-bold ${trend.sentiment === 'Positive' ? 'text-emerald-400' : trend.sentiment === 'Negative' ? 'text-red-400' : 'text-slate-500'}`}>{trend.sentiment}</span>
+                               <span className={`${FONT_SIZES['2xs']} font-mono text-blue-400 flex items-center gap-1`}><Clock className="w-3 h-3" /> {trend.date || 'Recent Update'}</span>
+                               <span className={`${FONT_SIZES['2xs']} font-bold ${trend.sentiment === 'Positive' ? 'text-emerald-400' : trend.sentiment === 'Negative' ? 'text-red-400' : 'text-slate-500'}`}>{trend.sentiment}</span>
                             </div>
                             <h5 className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">{trend.title}</h5>
                             <p className="text-xs text-slate-400 line-clamp-1 mt-1">{trend.triggerEvent}</p>
@@ -224,17 +225,17 @@ export const TrendAnalysis: React.FC<Props> = ({
               
               <div className="mb-4 pr-8">
                  {hot && (
-                  <div className="inline-flex items-center gap-1 mb-2 px-2 py-0.5 rounded-full bg-orange-950/40 border border-orange-500/30 text-[10px] font-bold text-orange-400 uppercase tracking-wider animate-pulse">
+                  <div className={`inline-flex items-center gap-1 mb-2 px-2 py-0.5 rounded-full bg-orange-950/40 border border-orange-500/30 ${FONT_SIZES['2xs']} font-bold text-orange-400 uppercase tracking-wider animate-pulse`}>
                     <Flame className="w-3 h-3" /> Trending Now
                   </div>
                 )}
                 <h4 className="font-bold text-white text-lg leading-tight group-hover:text-emerald-400 transition-colors">{trend.title}</h4>
                 <div className="flex flex-wrap items-center gap-2 mt-2 mb-3">
-                    <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border ${getSentimentStyle(trend.sentiment).bg} ${getSentimentStyle(trend.sentiment).text} ${getSentimentStyle(trend.sentiment).border}`}>
+                    <div className={`px-2 py-0.5 rounded ${FONT_SIZES['2xs']} font-bold uppercase tracking-wider flex items-center gap-1 border ${getSentimentStyle(trend.sentiment).bg} ${getSentimentStyle(trend.sentiment).text} ${getSentimentStyle(trend.sentiment).border}`}>
                        <SentimentIconComponent sentiment={trend.sentiment} /> {trend.sentiment || 'News'} Signal
                     </div>
                    {trend.date && (
-                     <div className="px-2 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-950 border border-slate-800 flex items-center gap-1">
+                     <div className={`px-2 py-0.5 rounded ${FONT_SIZES['2xs']} font-mono text-slate-400 bg-slate-950 border border-slate-800 flex items-center gap-1`}>
                        <Clock className="w-3 h-3" /> {trend.date}
                      </div>
                    )}
@@ -253,7 +254,7 @@ export const TrendAnalysis: React.FC<Props> = ({
                     <Activity className="w-3.5 h-3.5" /> {trend.relevanceScore}%
                   </div>
                   {sourceCount > 0 && (
-                    <div className="flex items-center gap-1 text-[10px] text-slate-500" title="News Sources">
+                    <div className={`flex items-center gap-1 ${FONT_SIZES['2xs']} text-slate-500`} title="News Sources">
                       <Globe className="w-3 h-3" /> {sourceCount} Srcs
                     </div>
                   )}

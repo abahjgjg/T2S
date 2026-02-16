@@ -12,7 +12,10 @@ import { getEnv } from '../utils/envUtils';
 // ============================================================================
 
 export const FONT_SIZES = {
+  '3xs': getEnv('VITE_FONT_SIZE_3XS_CLASS', 'text-[8px]'),
+  micro: getEnv('VITE_FONT_SIZE_MICRO_CLASS', 'text-[9px]'),
   '2xs': getEnv('VITE_FONT_SIZE_2XS_CLASS', 'text-[10px]'),
+  '2xsAlt': getEnv('VITE_FONT_SIZE_2XS_ALT_CLASS', 'text-[11px]'),
   xs: getEnv('VITE_FONT_SIZE_XS_CLASS', 'text-xs'),
   sm: getEnv('VITE_FONT_SIZE_SM_CLASS', 'text-sm'),
   base: getEnv('VITE_FONT_SIZE_BASE_CLASS', 'text-base'),
@@ -111,10 +114,15 @@ export const TYPOGRAPHY_PRESETS = {
   body: `${FONT_SIZES.base} ${FONT_WEIGHTS.normal} ${TEXT_COLORS.slate[300]}`,
   bodySmall: `${FONT_SIZES.sm} ${FONT_WEIGHTS.normal} ${TEXT_COLORS.slate[400]}`,
   caption: `${FONT_SIZES.xs} ${FONT_WEIGHTS.normal} ${TEXT_COLORS.slate[500]}`,
+  captionSmall: `${FONT_SIZES['2xs']} ${FONT_WEIGHTS.normal} ${TEXT_COLORS.slate[500]}`,
+  captionMicro: `${FONT_SIZES.micro} ${FONT_WEIGHTS.normal} ${TEXT_COLORS.slate[500]}`,
+  captionTiny: `${FONT_SIZES['3xs']} ${FONT_WEIGHTS.normal} ${TEXT_COLORS.slate[500]}`,
   
   // Labels
   label: `${FONT_SIZES.xs} ${FONT_WEIGHTS.bold} ${LETTER_SPACING.wider} ${TEXT_COLORS.slate[400]} uppercase`,
   labelSmall: `${FONT_SIZES['2xs']} ${FONT_WEIGHTS.bold} ${LETTER_SPACING.wider} ${TEXT_COLORS.slate[500]} uppercase`,
+  labelMicro: `${FONT_SIZES.micro} ${FONT_WEIGHTS.bold} ${LETTER_SPACING.wider} ${TEXT_COLORS.slate[500]} uppercase`,
+  labelTiny: `${FONT_SIZES['3xs']} ${FONT_WEIGHTS.bold} ${LETTER_SPACING.wider} ${TEXT_COLORS.slate[500]} uppercase`,
   
   // Interactive
   button: `${FONT_SIZES.sm} ${FONT_WEIGHTS.bold}`,

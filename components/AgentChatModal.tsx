@@ -9,6 +9,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { CHAT_ROLES } from '../constants/chatRoles';
 import { DIMENSIONS } from '../constants/dimensionConfig';
 import { UI_TEXT } from '../constants/uiTextConfig';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   agent: AgentProfile;
@@ -73,7 +74,7 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, initia
   const Header = (
     <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700"><Bot className="w-6 h-6 text-pink-500" /></div>
-        <div><h3 className="font-bold text-white flex items-center gap-2">{agent.name} {initialMessage && <span className="text-[10px] bg-emerald-900/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 font-mono flex items-center gap-1"><PlayCircle className="w-3 h-3" /> WORKING</span>}</h3><p className="text-xs text-slate-400">{agent.role}</p></div>
+        <div><h3 className="font-bold text-white flex items-center gap-2">{agent.name} {initialMessage && <span className={`${FONT_SIZES['2xs']} bg-emerald-900/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 font-mono flex items-center gap-1`}><PlayCircle className="w-3 h-3" /> WORKING</span>}</h3><p className="text-xs text-slate-400">{agent.role}</p></div>
     </div>
   );
 
@@ -91,7 +92,7 @@ export const AgentChatModal: React.FC<Props> = ({ agent, isOpen, onClose, initia
         </div>
         <form onSubmit={handleSend} className="p-4 bg-slate-900 border-t border-slate-800 shrink-0">
             <div className="relative"><input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder={`${UI_TEXT.placeholders.chatAgent} ${agent.name}...`} aria-label={`${UI_TEXT.accessibility.messageAgent} ${agent.name}`} className="w-full bg-slate-900 border border-slate-700 text-white pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all" autoFocus /><button type="submit" disabled={!input.trim() || isLoading} className="absolute right-2 top-1.5 p-1.5 bg-pink-600 hover:bg-pink-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors" aria-label={UI_TEXT.accessibility.sendMessage}><Send className="w-4 h-4" /></button></div>
-           <div className="mt-2 flex items-center gap-1 justify-center text-[10px] text-slate-500"><Sparkles className="w-3 h-3" /><span>Interacting with {agent.name}</span></div>
+           <div className={`mt-2 flex items-center gap-1 justify-center ${FONT_SIZES['2xs']} text-slate-500`}><Sparkles className="w-3 h-3" /><span>Interacting with {agent.name}</span></div>
         </form>
       </div>
     </Modal>

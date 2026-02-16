@@ -6,6 +6,7 @@ import { Loader2, LayoutGrid, Users, Link, Activity, Box, Heart, Megaphone, Wall
 import { toast } from './ToastNotifications';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { EmptyState } from './ui/EmptyState';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   idea: BusinessIdea;
@@ -72,7 +73,7 @@ export const BusinessModelCanvas: React.FC<Props> = ({ idea, blueprint, bmc, onU
 
   const renderBlock = (title: string, icon: React.ReactNode, items: string[], className: string) => (
     <div className={`bg-slate-950/50 p-4 border border-slate-800 flex flex-col h-full ${className}`}>
-      <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+      <h4 className={`${FONT_SIZES['2xs']} font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2`}>
         {icon} {title}
       </h4>
       <ul className="space-y-2 flex-1">

@@ -4,6 +4,7 @@ import { BusinessIdea } from '../types';
 import { Briefcase, Loader2, Play, Database, Swords, DollarSign, Target, ArrowRight, Zap, LayoutGrid, Table } from 'lucide-react';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SegmentedProgressBar } from './SegmentedProgressBar';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   ideas: BusinessIdea[];
@@ -109,7 +110,7 @@ export const BusinessOpportunities: React.FC<Props> = ({
                   <tbody className="divide-y divide-slate-800">
                     {ideas.map((idea) => (
                        <tr key={idea.id} className="hover:bg-slate-800/30 transition-colors">
-                          <td className="p-4"><div className="font-bold text-white">{idea.name}</div><div className="text-[10px] text-slate-500 mt-1">{idea.type}</div></td>
+                          <td className="p-4"><div className="font-bold text-white">{idea.name}</div><div className={`${FONT_SIZES['2xs']} text-slate-500 mt-1`}>{idea.type}</div></td>
                           <td className="p-4 text-sm text-slate-300">{idea.monetizationModel}</td>
                           <td className="p-4"><span className={`text-xs px-2 py-1 rounded border ${idea.difficulty === 'Low' ? 'bg-emerald-900/20 text-emerald-400 border-emerald-500/20' : idea.difficulty === 'Medium' ? 'bg-yellow-900/20 text-yellow-400 border-yellow-500/20' : 'bg-red-900/20 text-red-400 border-red-500/20'}`}>{idea.difficulty}</span></td>
                           <td className="p-4 text-sm text-slate-300 font-mono">{idea.potentialRevenue}</td>
@@ -126,8 +127,8 @@ export const BusinessOpportunities: React.FC<Props> = ({
                 return (
                   <div key={idea.id} className={`group relative bg-slate-900 border rounded-2xl p-6 transition-all hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.2)] flex flex-col ${isCached ? 'border-indigo-500/30 hover:border-indigo-500/60' : 'border-slate-800 hover:border-emerald-500/50'}`}>
                     <div className="absolute top-4 right-4 flex gap-2">
-                      {isCached && <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 border border-indigo-500/30 px-2 py-1 rounded flex items-center gap-1"><Database className="w-3 h-3" /> Cached</span>}
-                      <span className="text-[10px] font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded">{idea.type}</span>
+                      {isCached && <span className={`${FONT_SIZES['2xs']} font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 border border-indigo-500/30 px-2 py-1 rounded flex items-center gap-1`}><Database className="w-3 h-3" /> Cached</span>}
+                      <span className={`${FONT_SIZES['2xs']} font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded`}>{idea.type}</span>
                     </div>
                     <h4 className={`text-xl font-bold mb-2 transition-colors ${isCached ? 'text-indigo-100 group-hover:text-indigo-300' : 'text-white group-hover:text-emerald-400'}`}>{idea.name}</h4>
                     <p className="text-slate-400 text-sm mb-4 flex-grow">{idea.description}</p>
@@ -136,7 +137,7 @@ export const BusinessOpportunities: React.FC<Props> = ({
                         <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2 font-bold uppercase tracking-wider"><Swords className="w-3 h-3" /> Challengers</div>
                         <div className="flex flex-wrap gap-1.5">
                           {idea.competitors.map((comp, idx) => (
-                            <span key={idx} className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-400 border border-slate-700/50">{comp}</span>
+                            <span key={idx} className={`${FONT_SIZES['2xs']} px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-400 border border-slate-700/50`}>{comp}</span>
                           ))}
                         </div>
                       </div>
