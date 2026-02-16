@@ -74,6 +74,7 @@ export const TrendSearch: React.FC<Props> = ({
   const [shakeInput, setShakeInput] = useState(false);
   const [focusedHistoryIndex, setFocusedHistoryIndex] = useState<number>(-1);
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
+  const [isErrorFading, setIsErrorFading] = useState(false);
   
   const { language, uiText, provider } = usePreferences();
   
@@ -139,6 +140,25 @@ export const TrendSearch: React.FC<Props> = ({
       }
     };
   }, [input, isLoading]);
+
+  // Palette: Auto-dismiss validation error with fade animation after 4 seconds
+  useEffect(() => {
+    if (validationError) {
+      setIsErrorFading(false);
+      const fadeTimer = setTimeout(() => {
+        setIsErrorFading(true);
+      }, 3500); // Start fading at 3.5s
+      const clearTimer = setTimeout(() => {
+        setValidationError(null);
+        setIsErrorFading(false);
+      }, 4000); // Fully clear at 4s
+      
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(clearTimer);
+      };
+    }
+  }, [validationError]);
 
   // Close history when clicking outside
   useEffect(() => {
@@ -608,7 +628,13 @@ export const TrendSearch: React.FC<Props> = ({
       </form>
 
       {validationError && (
-        <div className={`flex items-center justify-center gap-2 text-red-400 text-sm mb-6 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}]`} role="alert">
+        <div 
+          className={`flex items-center justify-center gap-2 text-red-400 text-sm mb-6 transition-all duration-500 ${
+            isErrorFading ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'
+          }`}
+          role="alert"
+          aria-live="polite"
+        >
           <AlertCircle className="w-4 h-4" aria-hidden="true" />
           <span>{validationError}</span>
         </div>
