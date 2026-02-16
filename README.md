@@ -45,10 +45,11 @@ An AI-powered market intelligence suite that generates business blueprints from 
 
    The project uses two environment files:
 
-   **`.env`** - Public configuration (committed, safe to share)
+   **`.env`** - Public configuration (create from `.env.example`)
    - Contains only `VITE_` prefixed variables (SEO, URLs, theme colors)
    - These are injected at build time and visible in browser
-   - Already configured with sensible defaults
+   - Copy from `.env.example` and customize as needed
+   - **Note**: This file should NOT be committed to git
 
    **`.env.local`** - Private secrets (NEVER commit, create this file):
    ```env
