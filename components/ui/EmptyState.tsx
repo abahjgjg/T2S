@@ -2,6 +2,7 @@ import React from 'react';
 import { ANIMATION_TIMING, ANIMATION_EASING } from '../../constants/uiConfig';
 import { ANIMATION_DELAYS, SPIN_DURATION } from '../../constants/animationConfig';
 import { Lightbulb, Sparkles } from 'lucide-react';
+import { TYPOGRAPHY_PRESETS, FONT_SIZES, FONT_WEIGHTS, TEXT_COLORS } from '../../constants/typography';
 
 interface Tip {
   icon?: React.ReactNode;
@@ -87,10 +88,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           </div>
         )}
         
-        <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+        <h3 className={TYPOGRAPHY_PRESETS.h4}>{title}</h3>
         
         {description && (
-          <p className="text-slate-300 max-w-md mx-auto mb-6">{description}</p>
+          <p className={`${TEXT_COLORS.slate[300]} max-w-md mx-auto mb-6`}>{description}</p>
         )}
         
         {action && <div className="mb-6">{action}</div>}
@@ -100,11 +101,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <div className="mt-4 p-4 bg-slate-950/50 rounded-lg border border-slate-800/50 max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-3 text-left">
               <Lightbulb className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pro Tips</span>
+              <span className={`${FONT_SIZES.xs} ${FONT_WEIGHTS.bold} ${TEXT_COLORS.slate[400]} uppercase tracking-wider`}>Pro Tips</span>
             </div>
             <ul className="space-y-2 text-left">
               {tips.map((tip, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-slate-400">
+                <li key={index} className={`flex items-start gap-2 ${FONT_SIZES.sm} ${TEXT_COLORS.slate[400]}`}>
                   {tip.icon || <Sparkles className="w-3 h-3 text-slate-500 mt-1 shrink-0" />}
                   <span>{tip.text}</span>
                 </li>
