@@ -1,6 +1,25 @@
-# CMZ Agent Configuration
-# CMZ - Cognitive Machine Zero
-# A self-healing, self-learning, self-evolving agent system
+---
+description: Autonomous Self-Evolving Agent - Acts, Learns, Improves
+mode: primary
+model: opencode/big-pickle
+temperature: 0.4
+tools:
+  write: true
+  edit: true
+  bash: true
+  read: true
+  glob: true
+  grep: true
+  skill: true
+  webfetch: true
+  todoread: true
+  todowrite: true
+permission:
+  bash:
+    "*": "allow"
+  write:
+    "*": "allow"
+---
 
 name: CMZ
 description: |

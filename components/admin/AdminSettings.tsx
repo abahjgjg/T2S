@@ -8,6 +8,7 @@ import { DEV_CONFIG } from '../../constants/appConfig';
 import { useConfirm } from '../../contexts/ConfirmContext';
 import { COLORS } from '../../constants/theme';
 import { DATE_LIMITS } from '../../constants/displayLimits';
+import { FONT_SIZES } from '../../config';
 
 interface Props {
   provider: AIProvider;
@@ -130,7 +131,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
           >
             <ShieldAlert className="w-4 h-4" /> Reset Ownership
           </button>
-          <p className="text-[10px] text-slate-500 mt-2 text-center">
+          <p className={`${FONT_SIZES['2xs']} text-slate-500 mt-2 text-center`}>
             <AlertTriangle className="w-3 h-3 inline mr-1" />
             Warning: This releases the lock. Anyone can claim admin rights.
           </p>
@@ -164,7 +165,7 @@ export const AdminSettings: React.FC<Props> = ({ provider, setProvider, ownerEma
               className="hidden" 
             />
           </div>
-          <p className="text-[10px] text-slate-500 mt-3 text-center">
+          <p className={`${FONT_SIZES['2xs']} text-slate-500 mt-3 text-center`}>
             Backups include local history, prompts, and settings. Cloud data remains on Supabase.
           </p>
         </div>

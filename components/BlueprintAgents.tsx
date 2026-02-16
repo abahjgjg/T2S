@@ -10,6 +10,7 @@ import { DISPLAY_LIMITS } from '../constants/displayLimits';
 import { AgentChatModal } from './AgentChatModal';
 import { Z_INDEX } from '../constants/zIndex';
 import { EmptyState } from './ui/EmptyState';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   agents: AgentProfile[];
@@ -157,17 +158,17 @@ export const BlueprintAgents: React.FC<Props> = ({ agents, isGenerating, onGener
               <p className="text-sm text-slate-400 mb-4 line-clamp-2 min-h-[40px]">{agent.objective}</p>
               {agent.suggestedTasks && agent.suggestedTasks.length > 0 && (
                 <div className="mb-4 space-y-2">
-                   <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider flex items-center gap-1"><PlayCircle className="w-3 h-3" /> Action Items</p>
+                   <p className={`${FONT_SIZES['2xs']} uppercase font-bold text-slate-500 tracking-wider flex items-center gap-1`}><PlayCircle className="w-3 h-3" /> Action Items</p>
                    <div className="flex flex-col gap-1.5">
                       {agent.suggestedTasks.slice(0, DISPLAY_LIMITS.blueprint.tasks).map((task, t) => (
-                        <button key={t} onClick={() => startTask(agent, task)} className="text-left text-[10px] px-2 py-1.5 bg-slate-900 hover:bg-pink-900/20 hover:text-pink-300 border border-slate-800 rounded transition-colors text-slate-300 truncate">• {task}</button>
+                        <button key={t} onClick={() => startTask(agent, task)} className={`text-left ${FONT_SIZES['2xs']} px-2 py-1.5 bg-slate-900 hover:bg-pink-900/20 hover:text-pink-300 border border-slate-800 rounded transition-colors text-slate-300 truncate`}>• {task}</button>
                       ))}
                    </div>
                 </div>
               )}
-               <div className="mt-auto"><div className="flex flex-wrap gap-1.5">{agent.recommendedTools.slice(0, DISPLAY_LIMITS.blueprint.tools).map((tool, i) => (<span key={i} className="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500">{tool}</span>))}</div></div>
+               <div className="mt-auto"><div className="flex flex-wrap gap-1.5">{agent.recommendedTools.slice(0, DISPLAY_LIMITS.blueprint.tools).map((tool, i) => (<span key={i} className={`${FONT_SIZES['2xs']} px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500`}>{tool}</span>))}</div></div>
               <div className="mt-4 pt-3 border-t border-slate-900 flex justify-between items-center gap-2">
-                <button onClick={() => handleCopySystemPrompt(agent.systemPrompt, index)} className="text-[10px] text-slate-500 hover:text-white flex items-center gap-1 transition-colors">{copiedAgentIndex === index ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} System Prompt</button>
+                <button onClick={() => handleCopySystemPrompt(agent.systemPrompt, index)} className={`${FONT_SIZES['2xs']} text-slate-500 hover:text-white flex items-center gap-1 transition-colors`}>{copiedAgentIndex === index ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} System Prompt</button>
                 <button onClick={() => setSelectedAgent(agent)} className="px-3 py-1.5 bg-pink-600/10 hover:bg-pink-600/20 text-pink-400 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 border border-pink-500/20"><MessageSquare className="w-3 h-3" /> Chat</button>
               </div>
             </div>

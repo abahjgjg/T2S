@@ -7,7 +7,7 @@ agents:
     name: CMZ
     description: Cognitive Machine Zero - Self-healing, self-learning, self-evolving agent
     model: opencode/kimi-k2.5-free
-    config_file: .opencode/agent/cmz.yaml
+    config_file: .opencode/agent/cmz.md
     default: true
   
   # Supporting agents for specialized tasks

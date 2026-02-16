@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import type { Components } from 'react-markdown';
+import { FONT_SIZES } from '../config';
 
 // Lazy load ReactMarkdown to reduce initial bundle size
 const ReactMarkdown = lazy(() => import('react-markdown'));
@@ -50,7 +51,7 @@ export const SafeMarkdown: React.FC<Props> = ({ content, className, components, 
       <thead className="bg-slate-800/50 text-slate-200 border-b border-slate-700" {...props} />
     ),
     th: ({ node, ...props }) => (
-      <th className="px-4 py-3 font-bold uppercase tracking-wider text-[10px]" {...props} />
+      <th className={`px-4 py-3 font-bold uppercase tracking-wider ${FONT_SIZES['2xs']}`} {...props} />
     ),
     td: ({ node, ...props }) => (
       <td className="px-4 py-3 border-b border-slate-800/50 text-slate-300" {...props} />

@@ -21,6 +21,7 @@ import { DATE_FORMATS, formatDate } from '../constants/dateTimeConfig';
 import { DISPLAY_LIMITS, TICKER_TOPICS } from '../constants/displayConfig';
 import { COLORS } from '../constants/theme';
 import { ANIMATION_DURATION } from '../constants/animationConfig';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   onSearch: (niche: string, region: SearchRegion, timeframe: SearchTimeframe, deepMode: boolean, image?: string) => void;
@@ -407,7 +408,7 @@ export const TrendSearch: React.FC<Props> = ({
            {allTickerTopics.length > 0 ? (
              <div className="flex animate-marquee whitespace-nowrap gap-12">
                 {allTickerTopics.map((topic, i) => (
-                   <span key={i} className="text-[10px] font-mono text-slate-400 flex items-center gap-2 uppercase tracking-wider">
+                   <span key={i} className={`${FONT_SIZES['2xs']} font-mono text-slate-400 flex items-center gap-2 uppercase tracking-wider`}>
                        <TrendingUp className="w-3 h-3 text-emerald-400" /> {topic}
                    </span>
                 ))}
@@ -430,12 +431,12 @@ export const TrendSearch: React.FC<Props> = ({
            <Globe className="w-3 h-3" />
            Live Intelligence
            <span className="w-px h-3 bg-emerald-500/30 mx-1"></span>
-            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+            <span className={`${FONT_SIZES['2xs']} text-emerald-400 font-mono flex items-center gap-1`}>
               {currentDate}
             </span>
         </div>
         
-         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-300 text-[10px] font-bold uppercase tracking-wider">
+         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700 text-slate-300 ${FONT_SIZES['2xs']} font-bold uppercase tracking-wider`}>
            <Cpu className="w-3 h-3" />
            {uiText.modelDisplay?.[provider] || (provider === 'gemini' ? 'Gemini 3' : 'OpenAI GPT-4o')}
         </div>
@@ -458,7 +459,7 @@ export const TrendSearch: React.FC<Props> = ({
                 type="button"
                 onClick={() => setRegion(r)}
                 aria-pressed={region === r}
-                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 ${FONT_SIZES['2xs']} font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
                   region === r
                   ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-900/50'
                   : 'bg-slate-800/50 text-slate-100 hover:text-white hover:bg-slate-700'
@@ -478,7 +479,7 @@ export const TrendSearch: React.FC<Props> = ({
                 type="button"
                 onClick={() => setTimeframe(t.value)}
                 aria-pressed={timeframe === t.value}
-                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 ${FONT_SIZES['2xs']} font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 ${
                   timeframe === t.value
                   ? 'bg-blue-700 text-white shadow-lg shadow-blue-900/50'
                   : 'bg-slate-800/50 text-slate-100 hover:text-white hover:bg-slate-700'
@@ -493,7 +494,7 @@ export const TrendSearch: React.FC<Props> = ({
          {/* Deep Mode Toggle */}
           <button 
             onClick={() => setDeepMode(!deepMode)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all shadow-xl ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${FONT_SIZES['2xs']} font-bold uppercase tracking-wider transition-all shadow-xl ${
               deepMode 
               ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-900/50' 
               : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-slate-600'
@@ -660,7 +661,7 @@ export const TrendSearch: React.FC<Props> = ({
                 <Newspaper className="w-6 h-6 text-blue-400" />
              </div>
              <span className="text-sm font-black text-white uppercase tracking-wider">{uiText.headlines || "Global Headlines"}</span>
-             <span className="text-[10px] text-blue-300 mt-1 opacity-70">Real-time Pulse</span>
+             <span className={`${FONT_SIZES['2xs']} text-blue-300 mt-1 opacity-70`}>Real-time Pulse</span>
           </button>
           
           {/* Category Cards */}
@@ -692,7 +693,7 @@ export const TrendSearch: React.FC<Props> = ({
           aria-label="Recent searches"
           className={`flex flex-col items-center gap-3 animate-[fadeIn_${ANIMATION_TIMING.FADE_NORMAL}s_${ANIMATION_EASING.DEFAULT}] border-t border-slate-900 pt-6 max-w-sm mx-auto relative ${Z_INDEX.CONTENT}`}
         >
-           <div className="flex items-center gap-2 text-[10px] text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2">
+           <div className={`flex items-center gap-2 ${FONT_SIZES['2xs']} text-slate-600 uppercase font-bold tracking-widest w-full justify-between px-2`}>
               <span>{uiText.recent}</span>
               <button 
                 onClick={clearHistory} 
@@ -729,7 +730,7 @@ export const TrendSearch: React.FC<Props> = ({
                </button>
              ))}
            </div>
-              <div className="text-[10px] text-slate-600 flex items-center gap-1">
+              <div className={`${FONT_SIZES['2xs']} text-slate-600 flex items-center gap-1`}>
               <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">↑</span>
               <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">↓</span>
              <span>to navigate</span>
@@ -757,12 +758,12 @@ export const TrendSearch: React.FC<Props> = ({
             }`}></div>
           </div>
           <div className="flex items-center gap-4 mt-3">
-             <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
-               <MapPin className="w-3 h-3" /> {region.toUpperCase()}
-             </div>
-             <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
-               <Clock4 className="w-3 h-3" /> {uiText.timeframes?.[timeframe] || timeframe}
-             </div>
+<div className={`flex items-center gap-1 ${FONT_SIZES['2xs']} text-slate-500 font-mono`}>
+                <MapPin className="w-3 h-3" /> {region.toUpperCase()}
+              </div>
+              <div className={`flex items-center gap-1 ${FONT_SIZES['2xs']} text-slate-500 font-mono`}>
+                <Clock4 className="w-3 h-3" /> {uiText.timeframes?.[timeframe] || timeframe}
+              </div>
           </div>
         </div>
       )}

@@ -27,6 +27,7 @@ import { SEO_CONFIG, getOgImageUrl, SCROLL_CONFIG } from './constants/appConfig'
 import { DEFAULT_SEARCH_CONFIG } from './constants/searchConfig';
 import { ROUTES, buildRoute } from './constants/routes';
 import { Z_INDEX } from './constants/zIndex';
+import { FONT_SIZES } from './config';
 
 // Lazy Load Heavy Route Components
 const PublicBlogView = React.lazy(() => import('./components/PublicBlogView').then(module => ({ default: module.PublicBlogView })));
@@ -492,7 +493,7 @@ const App: React.FC = () => {
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-6 h-6" />
-          <div className="absolute -top-10 right-0 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+          <div className={`absolute -top-10 right-0 bg-slate-800 text-white ${FONT_SIZES['2xs']} px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap`}>
             Scroll Top
           </div>
         </button>

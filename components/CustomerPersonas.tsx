@@ -9,6 +9,7 @@ import { useAsset } from '../hooks/useAsset';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { EmptyState } from './ui/EmptyState';
 import { SmartImage } from './ui/SmartImage';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   idea: BusinessIdea;
@@ -65,19 +66,19 @@ const PersonaCard: React.FC<{
       </div>
       <div className="space-y-4">
          <div>
-            <h5 className="text-[10px] uppercase font-bold text-red-400 tracking-wider mb-2 flex items-center gap-1"><HeartCrack className="w-3 h-3" /> Pain Points</h5>
+            <h5 className={`${FONT_SIZES['2xs']} uppercase font-bold text-red-400 tracking-wider mb-2 flex items-center gap-1`}><HeartCrack className="w-3 h-3" /> Pain Points</h5>
             <div className="flex flex-wrap gap-1.5">
-              {persona.painPoints.map((pt, i) => <span key={i} className="text-[10px] bg-red-900/10 text-red-300 px-2 py-1 rounded border border-red-500/20">{pt}</span>)}
+              {persona.painPoints.map((pt, i) => <span key={i} className={`${FONT_SIZES['2xs']} bg-red-900/10 text-red-300 px-2 py-1 rounded border border-red-500/20`}>{pt}</span>)}
             </div>
          </div>
          <div>
-            <h5 className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider mb-2 flex items-center gap-1"><Target className="w-3 h-3" /> Goals</h5>
+            <h5 className={`${FONT_SIZES['2xs']} uppercase font-bold text-emerald-400 tracking-wider mb-2 flex items-center gap-1`}><Target className="w-3 h-3" /> Goals</h5>
             <div className="flex flex-wrap gap-1.5">
-              {persona.goals.map((g, i) => <span key={i} className="text-[10px] bg-emerald-900/10 text-emerald-300 px-2 py-1 rounded border border-emerald-500/20">{g}</span>)}
+              {persona.goals.map((g, i) => <span key={i} className={`${FONT_SIZES['2xs']} bg-emerald-900/10 text-emerald-300 px-2 py-1 rounded border border-emerald-500/20`}>{g}</span>)}
             </div>
          </div>
          <div className="pt-2 border-t border-slate-800">
-            <h5 className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-2 flex items-center gap-1"><MessageSquare className="w-3 h-3" /> Hangout Channels</h5>
+            <h5 className={`${FONT_SIZES['2xs']} uppercase font-bold text-slate-500 tracking-wider mb-2 flex items-center gap-1`}><MessageSquare className="w-3 h-3" /> Hangout Channels</h5>
             <div className="flex flex-wrap gap-2 text-xs text-slate-400">{persona.channels.join(' • ')}</div>
          </div>
       </div>
