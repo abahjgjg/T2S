@@ -7,6 +7,7 @@ import { toast } from '../ToastNotifications';
 import { supabaseService } from '../../services/supabaseService';
 import { useConfirm } from '../../contexts/ConfirmContext';
 import { DIMENSIONS } from '../../constants/dimensionConfig';
+import { FONT_SIZES } from '../../config';
 
 export const AdminPrompts: React.FC = () => {
   const [prompts, setPrompts] = useState<Record<string, string>>({});
@@ -142,14 +143,14 @@ export const AdminPrompts: React.FC = () => {
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-white">{selectedKey}</h2>
                 {isCloudEnabled && (
-                  <span className="text-[10px] flex items-center gap-1 bg-blue-900/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20" title="Syncs to Cloud">
+                  <span className={`${FONT_SIZES['2xs']} flex items-center gap-1 bg-blue-900/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20`} title="Syncs to Cloud">
                     <Cloud className="w-3 h-3" /> Cloud
                   </span>
                 )}
               </div>
               <div className="flex gap-2 mt-1 flex-wrap">
                 {variablesMap[selectedKey]?.map(v => (
-                   <span key={v} className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">
+                   <span key={v} className={`${FONT_SIZES['2xs']} bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono`}>
                      {`{{${v}}}`}
                    </span>
                 ))}
@@ -182,7 +183,7 @@ export const AdminPrompts: React.FC = () => {
             onChange={(e) => handlePromptChange(e.target.value)}
           />
 
-          <div className="mt-4 flex items-start gap-2 text-[11px] text-slate-500 bg-slate-950/50 p-3 rounded border border-slate-800">
+          <div className={`mt-4 flex items-start gap-2 ${FONT_SIZES['2xsAlt']} text-slate-500 bg-slate-950/50 p-3 rounded border border-slate-800`}>
             <Info className="w-4 h-4 shrink-0 text-blue-400" />
             <p>
               Modifying system prompts affects how the AI generates content. 

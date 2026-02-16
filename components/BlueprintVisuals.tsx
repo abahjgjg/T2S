@@ -5,6 +5,7 @@ import { toast } from './ToastNotifications';
 import { useAsset } from '../hooks/useAsset';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SmartImage } from './ui/SmartImage';
+import { FONT_SIZES } from '../config';
 
 interface Props {
   blueprint: Blueprint;
@@ -69,7 +70,7 @@ export const BlueprintVisuals: React.FC<Props> = ({
                isResolvingImage ? (
                   <div className="flex flex-col items-center">
                     <Loader2 className="w-6 h-6 text-pink-500 animate-spin" />
-                    <p className="text-[10px] text-slate-500 mt-2">Loading asset...</p>
+                    <p className={`${FONT_SIZES['2xs']} text-slate-500 mt-2`}>Loading asset...</p>
                   </div>
                ) : imageError ? (
                   <div className="text-center p-4 text-red-400 text-xs">
@@ -120,7 +121,7 @@ export const BlueprintVisuals: React.FC<Props> = ({
                 isResolvingVideo ? (
                   <div className="flex flex-col items-center">
                     <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
-                    <p className="text-[10px] text-slate-500 mt-2">Loading asset...</p>
+                    <p className={`${FONT_SIZES['2xs']} text-slate-500 mt-2`}>Loading asset...</p>
                   </div>
                 ) : videoError ? (
                   <div className="text-center p-4 text-red-400 text-xs">
@@ -144,7 +145,7 @@ export const BlueprintVisuals: React.FC<Props> = ({
                 <div className="flex flex-col items-center p-4 text-center">
                    <Loader2 className="w-8 h-8 text-purple-500 animate-spin mb-2" />
                    <p className="text-xs text-slate-500 animate-pulse">{uiText.generatingVideo}</p>
-                   <p className="text-[10px] text-slate-600 mt-1">This takes about a minute.</p>
+                   <p className={`${FONT_SIZES['2xs']} text-slate-600 mt-1`}>This takes about a minute.</p>
                 </div>
              ) : (
                 <div className="text-center p-4">
@@ -159,7 +160,7 @@ export const BlueprintVisuals: React.FC<Props> = ({
                        <Play className="w-3 h-3" /> {uiText.generateVideo}
                      </button>
                    ) : (
-                     <p className="text-[10px] text-slate-600">Switch to Gemini for Veo Video.</p>
+                     <p className={`${FONT_SIZES['2xs']} text-slate-600`}>Switch to Gemini for Veo Video.</p>
                    )}
                 </div>
              )}
@@ -169,7 +170,7 @@ export const BlueprintVisuals: React.FC<Props> = ({
        {/* Warning / Prompt */}
        <div className="mt-4">
           {(blueprint.brandImageUrl || blueprint.marketingVideoUrl) ? (
-             <div className="flex items-start gap-2 bg-yellow-900/10 border border-yellow-500/20 p-2 rounded-lg text-[10px] text-yellow-500/80">
+             <div className={`flex items-start gap-2 bg-yellow-900/10 border border-yellow-500/20 p-2 rounded-lg ${FONT_SIZES['2xs']} text-yellow-500/80`}>
                 <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
                 <p>Media assets are saved locally. Clearing browser data will remove them.</p>
              </div>
