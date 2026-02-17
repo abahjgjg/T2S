@@ -64,10 +64,6 @@ jobs:
           fi
           git merge origin/develop --no-edit || echo "Merge conflict or already up to date"
 
-      - name: Install Dependencies
-        continue-on-error: true
-        run: npm ci
-
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
