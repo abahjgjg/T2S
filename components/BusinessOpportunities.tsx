@@ -5,6 +5,7 @@ import { Briefcase, Loader2, Play, Database, Swords, DollarSign, Target, ArrowRi
 import { usePreferences } from '../contexts/PreferencesContext';
 import { SegmentedProgressBar } from './SegmentedProgressBar';
 import { FONT_SIZES } from '../config';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   ideas: BusinessIdea[];
@@ -33,13 +34,13 @@ export const BusinessOpportunities: React.FC<Props> = ({
       {ideas.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 bg-gradient-to-b from-slate-900 to-slate-950 rounded-2xl border border-slate-800">
            {isGeneratingIdeas ? (
-             <div className="flex flex-col items-center animate-[fadeIn_0.5s_ease-out]">
+             <div className={`flex flex-col items-center ${ANIMATION_CLASSES.fadeIn.slow}`}>
                <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-4" />
                <h3 className="text-xl font-bold text-white mb-2">Generating Opportunities...</h3>
                <p className="text-slate-400 text-sm">Synthesizing selected trends into business models.</p>
              </div>
            ) : (
-             <div className="flex flex-col items-center text-center max-w-lg px-4 animate-[slideUp_0.4s_ease-out]">
+             <div className={`flex flex-col items-center text-center max-w-lg px-4 ${ANIMATION_CLASSES.slideUp.normal}`}>
                <div className="w-16 h-16 bg-emerald-900/20 rounded-full flex items-center justify-center mb-6">
                  <Briefcase className="w-8 h-8 text-emerald-400" />
                </div>
@@ -96,7 +97,7 @@ export const BusinessOpportunities: React.FC<Props> = ({
                 <p className="text-slate-500 text-xs max-w-xs text-center">{uiText.buildingDesc}</p>
               </div>
           ) : viewMode === 'compare' ? (
-             <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 animate-[fadeIn_0.3s_ease-out]">
+             <div className={`overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 ${ANIMATION_CLASSES.fadeIn.normal}`}>
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider">
@@ -121,7 +122,7 @@ export const BusinessOpportunities: React.FC<Props> = ({
                 </table>
              </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-[fadeIn_0.5s_ease-out]">
+            <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${ANIMATION_CLASSES.fadeIn.slow}`}>
               {ideas.map((idea) => {
                 const isCached = !!idea.cachedBlueprint;
                 return (

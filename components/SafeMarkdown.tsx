@@ -43,18 +43,18 @@ export const SafeMarkdown: React.FC<Props> = ({ content, className, components, 
   const safeComponents: Components = {
     ...components,
     table: ({ ...props }) => (
-      <div className="overflow-x-auto my-6 rounded-xl border border-slate-800">
-        <table className="w-full border-collapse text-sm text-left" {...props} />
+      <div className="overflow-x-auto my-6 rounded-xl border border-slate-800 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+        <table className="min-w-full border-collapse text-sm text-left table-auto" {...props} />
       </div>
     ),
     thead: ({ ...props }) => (
       <thead className="bg-slate-800/50 text-slate-200 border-b border-slate-700" {...props} />
     ),
     th: ({ ...props }) => (
-      <th className={`px-4 py-3 font-bold uppercase tracking-wider ${FONT_SIZES['2xs']}`} {...props} />
+      <th className={`px-4 py-3 font-bold uppercase tracking-wider whitespace-nowrap ${FONT_SIZES['2xs']}`} {...props} />
     ),
     td: ({ ...props }) => (
-      <td className="px-4 py-3 border-b border-slate-800/50 text-slate-300" {...props} />
+      <td className="px-4 py-3 border-b border-slate-800/50 text-slate-300 break-words max-w-[300px]" {...props} />
     ),
     tr: ({ ...props }) => (
       <tr className="hover:bg-slate-800/30 transition-colors even:bg-slate-900/30" {...props} />

@@ -145,9 +145,30 @@ export const TrendAnalysis: React.FC<Props> = ({
             </p>
             
             <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex gap-1 mb-4">
-               <button onClick={() => setViewMode('list')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}><List className="w-3 h-3" /></button>
-               <button onClick={() => setViewMode('matrix')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${viewMode === 'matrix' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}><LayoutGrid className="w-3 h-3" /></button>
-               <button onClick={() => setViewMode('timeline')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${viewMode === 'timeline' ? 'bg-slate-800 text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}><Calendar className="w-3 h-3" /></button>
+               <button
+                 onClick={() => setViewMode('list')}
+                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                 aria-label="List view"
+                 aria-pressed={viewMode === 'list'}
+               >
+                 <List className="w-3 h-3" />
+               </button>
+               <button
+                 onClick={() => setViewMode('matrix')}
+                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${viewMode === 'matrix' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                 aria-label="Matrix view"
+                 aria-pressed={viewMode === 'matrix'}
+               >
+                 <LayoutGrid className="w-3 h-3" />
+               </button>
+               <button
+                 onClick={() => setViewMode('timeline')}
+                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-all ${viewMode === 'timeline' ? 'bg-slate-800 text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                 aria-label="Timeline view"
+                 aria-pressed={viewMode === 'timeline'}
+               >
+                 <Calendar className="w-3 h-3" />
+               </button>
             </div>
 
             <div className="mt-auto">

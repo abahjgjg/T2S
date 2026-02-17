@@ -274,6 +274,9 @@ export interface ISpeechRecognition {
   onend: () => void;
 }
 
+// Custom Event Types
+export type ReSearchEvent = CustomEvent<string>;
+
 export interface AIService {
   fetchMarketTrends(niche: string, lang: Language, region?: SearchRegion, timeframe?: SearchTimeframe, deepMode?: boolean, image?: string): Promise<Trend[]>;
   getTrendDeepDive(trend: string, niche: string, lang: Language): Promise<TrendDeepDive>;

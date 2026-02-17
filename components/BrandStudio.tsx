@@ -9,6 +9,8 @@ import { useConfirm } from '../contexts/ConfirmContext';
 import { EmptyState } from './ui/EmptyState';
 import { Tooltip } from './ui/Tooltip';
 import { UI_TIMING } from '../constants/uiConfig';
+import { copyWithFeedback } from '../utils/clipboardUtils';
+import { ANIMATION_CLASSES } from '../constants/animationConfig';
 
 interface Props {
   idea: BusinessIdea;
@@ -57,18 +59,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
   };
 
   const handleCopyHex = useCallback(async (hex: string) => {
-    try {
-      await navigator.clipboard.writeText(hex);
-      setCopiedColor(hex);
-      toast.success(`Hex code ${hex} copied!`);
-      
-      // Reset copied state after animation duration
-      setTimeout(() => {
-        setCopiedColor(null);
-      }, UI_TIMING.COPY_FEEDBACK_DURATION);
-    } catch (err) {
-      toast.error('Failed to copy to clipboard');
-    }
+    await copyWithFeedback(hex, (copied) => setCopiedColor(copied ? hex : null));
   }, []);
 
   if (isGenerating) {
@@ -108,7 +99,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid animate-[fadeIn_0.3s_ease-out]">
+    <div className={`bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8 print:break-inside-avoid ${ANIMATION_CLASSES.fadeIn.normal}`}>
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
           <Palette className="w-5 h-5 text-pink-400" /> Brand Identity

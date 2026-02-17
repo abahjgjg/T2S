@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Loader2, Mic, MapPin, Clock4, X, Globe, Zap, Cpu, ArrowRight, Clock, TrendingUp, BrainCircuit, Image as ImageIcon, Newspaper, AlertCircle, CornerDownLeft } from 'lucide-react';
 
 import { sanitizeInput, validateInput } from '../utils/securityUtils';
-import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition } from '../types';
+import { SearchRegion, SearchTimeframe, IWindow, ISpeechRecognition, ReSearchEvent } from '../types';
 import { toast } from './ToastNotifications';
 import { REGIONS, TIMEFRAMES, DEFAULT_SEARCH_CONFIG, UI_FALLBACKS } from '../constants/searchConfig';
 
@@ -174,6 +174,21 @@ export const TrendSearch: React.FC<Props> = ({
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isHistoryVisible]);
+
+  // StorX: Listen for re-search event to populate and trigger search from Library
+  useEffect(() => {
+    const handleReSearch = (e: Event) => {
+      const customEvent = e as ReSearchEvent;
+      const term = customEvent.detail;
+      if (term) {
+        setInput(term);
+        handleSearchTrigger(term);
+      }
+    };
+
+    window.addEventListener('re-search', handleReSearch);
+    return () => window.removeEventListener('re-search', handleReSearch);
+  }, []); // Only on mount
 
   useEffect(() => {
     // Load History
