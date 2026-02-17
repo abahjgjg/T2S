@@ -64,10 +64,6 @@ jobs:
           fi
           git merge origin/develop --no-edit || echo "Merge conflict or already up to date"
 
-      - name: Install Dependencies
-        continue-on-error: true
-        run: npm ci
-
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
@@ -334,8 +330,8 @@ jobs:
           END OF PROMPT
           PROMPT
           )" \
-            --model opencode/kimi-k2.5-free \
-            --share false
+            --model opencode/glm-5-free \
+            --share false \
 
       - name: iterate1
         run: |
@@ -360,6 +356,6 @@ jobs:
             - If all check pass, no conflict with 'main', merge or set to automerge
           PROMPT
           )" \
-            --model opencode/kimi-k2.5-free \
-            --agent cmz \
-            --share false
+            --model opencode/glm-5-free \
+            --agent cmz
+            --share false \
