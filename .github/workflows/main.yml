@@ -330,6 +330,8 @@ jobs:
           END OF PROMPT
           PROMPT
           )" \
+            --model opencode/glm-5-free \
+            --share false \
 
       - name: iterate1
         run: |
