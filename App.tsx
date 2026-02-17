@@ -13,7 +13,7 @@ const BlueprintView = React.lazy(() => import('./components/BlueprintView').then
 import { getAIService } from './services/aiRegistry';
 import { supabaseService } from './services/supabaseService';
 import { promptService } from './services/promptService';
-import { SavedProject, SearchRegion, SearchTimeframe } from './types';
+import { SavedProject, SearchRegion, SearchTimeframe, ReSearchEvent } from './types';
 import { XCircle, Loader2, ArrowUp } from 'lucide-react';
 import { useMetaTags } from './hooks/useMetaTags';
 import { useResearch } from './hooks/useResearch';
@@ -184,8 +184,9 @@ const App: React.FC = () => {
     const onPopState = () => handleRouting(false);
     window.addEventListener('popstate', onPopState);
 
-    const onReSearch = (e: any) => {
-      handleSearch(e.detail, DEFAULT_SEARCH_CONFIG.REGION, DEFAULT_SEARCH_CONFIG.TIMEFRAME, DEFAULT_SEARCH_CONFIG.DEEP_MODE);
+    const onReSearch = (e: Event) => {
+      const customEvent = e as ReSearchEvent;
+      handleSearch(customEvent.detail, DEFAULT_SEARCH_CONFIG.REGION, DEFAULT_SEARCH_CONFIG.TIMEFRAME, DEFAULT_SEARCH_CONFIG.DEEP_MODE);
     };
     window.addEventListener('re-search', onReSearch);
 

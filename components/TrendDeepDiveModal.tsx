@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { TrendingUp, Calendar, ExternalLink, Loader2, Newspaper, ArrowRight, Copy, Telescope, Lightbulb, Target, Sparkles, MessageSquare, Globe, Link as LinkIcon, Bot, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, Calendar, ExternalLink, Loader2, Newspaper, ArrowRight, Copy, Telescope, Lightbulb, Target, Sparkles, MessageSquare, Globe, Link as LinkIcon, Bot, Users, Check } from 'lucide-react';
 import { Trend } from '../types';
 import { toast } from './ToastNotifications';
 import { SafeMarkdown } from './SafeMarkdown';
@@ -9,6 +9,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { DISPLAY_LIMITS } from '../constants/displayConfig';
 import { COLORS } from '../constants/theme';
 import { FONT_SIZES } from '../config';
+import { copyWithFeedback } from '../utils/clipboardUtils';
 
 interface Props {
   trend: Trend;
@@ -20,11 +21,11 @@ interface Props {
 export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading, onAskQuestion }) => {
   const deepDive = trend.deepDive;
   const { uiText } = usePreferences();
+  const [isCopied, setIsCopied] = useState(false);
 
-  const handleCopySummary = () => {
+  const handleCopySummary = async () => {
     if (deepDive?.summary) {
-      navigator.clipboard.writeText(`${trend.title}\n\n${deepDive.summary}`);
-      toast.success("Summary copied to clipboard");
+      await copyWithFeedback(`${trend.title}\n\n${deepDive.summary}`, setIsCopied);
     }
   };
 
@@ -50,7 +51,19 @@ export const TrendDeepDiveModal: React.FC<Props> = ({ trend, onClose, isLoading,
         ) : deepDive ? (
           <div className="space-y-8 animate-[fadeIn_0.3s_ease-out]">
             <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-800">
-              <div className="flex justify-between items-center mb-4"><h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2"><Newspaper className="w-4 h-4 text-emerald-400" /> Executive Summary</h3><button onClick={handleCopySummary} className="text-xs flex items-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors"><Copy className="w-3 h-3" /> Copy</button></div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                  <Newspaper className="w-4 h-4 text-emerald-400" /> Executive Summary
+                </h3>
+                <button
+                  onClick={handleCopySummary}
+                  className={`text-xs flex items-center gap-1 transition-colors ${isCopied ? 'text-emerald-400' : 'text-slate-500 hover:text-emerald-400'}`}
+                  aria-label={isCopied ? "Copied" : "Copy summary"}
+                >
+                  {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {isCopied ? "Copied" : "Copy"}
+                </button>
+              </div>
               <div className="prose prose-invert prose-sm max-w-none text-slate-200 leading-relaxed"><SafeMarkdown content={deepDive.summary} /></div>
               <div className="mt-6 flex items-center gap-3"><span className="text-xs text-slate-500 uppercase font-bold">{uiText.sentiment}:</span><div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold ${deepDive.sentiment === 'Positive' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : deepDive.sentiment === 'Negative' ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-slate-700/50 border-slate-600 text-slate-300'}`}>{deepDive.sentiment === 'Positive' && <TrendingUp className="w-3.5 h-3.5" />}{deepDive.sentiment === 'Negative' && <TrendingUp className="w-3.5 h-3.5 rotate-180" />}{deepDive.sentiment === 'Neutral' && <ArrowRight className="w-3.5 h-3.5" />}{deepDive.sentiment} Market Outlook</div></div>
             </div>

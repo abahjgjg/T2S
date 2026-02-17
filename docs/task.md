@@ -4,8 +4,8 @@
 - [ ] **[ARCH] Secure API Proxy**: Move `services/gemini` and `services/openai` calls to Supabase Edge Functions. Remove `process.env.API_KEY` from client. **(BLOCKED: Environment Limitation)**
 
 ## Active Tasks
-- [ ] **[A11Y] Icon-only buttons**: Add aria-label attributes to remaining icon-only buttons throughout the codebase.
-- [ ] **[A11Y] Markdown table styling**: Improve handling of non-standard markdown tables from AI responses.
+- [x] **[A11Y] Icon-only buttons**: Add aria-label attributes to remaining icon-only buttons throughout the codebase. (Fixed in TrendAnalysis.tsx)
+- [x] **[A11Y] Markdown table styling**: Improve handling of non-standard markdown tables from AI responses. (Fixed in SafeMarkdown.tsx)
 
 ---
 
