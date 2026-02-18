@@ -44,7 +44,7 @@ jobs:
           git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
       - name: Install OpenCode CLI
         run: |
-          npm i -g opencode-ai
+          npm i -g opencode-ai@1.1.65
       - name: arsitek
         timeout-minutes: 20
         continue-on-error: true
