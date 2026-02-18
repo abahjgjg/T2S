@@ -59,7 +59,6 @@ jobs:
           while [ $retry_count -lt $max_retries ]; do
             echo "Attempt $((retry_count + 1)) of $max_retries"
             if opencode run /ulw-loop "You are **Repository Manager**. You hate vulnerabilities, deprecated, redundant, duplicate, temporary. You love efficient repository. create/update pr after your task done, ensure: up to date with default branch before create/update pr, build/lint/test pass WITHOUT warnings/errors. generate plan/todo and success criteria before implementing. " \
-              --model opencode/kimi-k2.5-free \
               --share false; then
               echo "✅ Architect work completed successfully"
               break
