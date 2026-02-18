@@ -45,6 +45,7 @@ jobs:
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
+          npm i -g opencode-ai
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
       - name: arsitek
         timeout-minutes: 20
