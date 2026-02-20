@@ -30,3 +30,5 @@
 - [x] bug: `SafeMarkdown` fails to render tables (missing `remark-gfm`).
 - [x] bug: Unstable return objects/actions in `useResearch`, `useTrendEngine`, `useIdeaEngine`, and `useBlueprintEngine` causing excessive re-renders.
 - [x] bug: Duplicate "Scroll to Top" buttons in `App.tsx` and `BlueprintView.tsx`.
+- [x] bug: `handleSaveProject` in `App.tsx` (line 213) does not await `supabaseService.saveCloudProject` for updates, leading to potential race conditions.
+- [x] bug: `useResearch.ts` (line 73) error synchronization `useEffect` does not clear the global error state when individual engine errors are resolved.

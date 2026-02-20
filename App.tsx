@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Header } from './components/Header';
 import { TrendSearch } from './components/TrendSearch';
 import { IdeaSelection } from './components/IdeaSelection';
-import { ToastNotifications } from './components/ToastNotifications';
+import { ToastNotifications, toast } from './components/ToastNotifications';
 import { ConnectionStatusIndicator } from './components/ui/ConnectionStatusIndicator';
 import { ScrollProgressIndicator } from './components/ui/ScrollProgressIndicator';
 import { FullScreenLoader } from './components/ui/FullScreenLoader';
@@ -228,6 +228,8 @@ const App: React.FC = () => {
         if (error) {
            console.warn("Failed to save to cloud:", error);
            rSetters.setError(uiText.cloudSyncFailed);
+        } else {
+           toast.success(uiText.cloudSyncSuccess);
         }
       }
     } else {
@@ -244,7 +246,13 @@ const App: React.FC = () => {
              idea: rState.selectedIdea,
              blueprint: rState.blueprint
           };
-          supabaseService.saveCloudProject(updatedProject, user.id);
+          const { error } = await supabaseService.saveCloudProject(updatedProject, user.id);
+          if (error) {
+             console.warn("Failed to update cloud project:", error);
+             rSetters.setError(uiText.cloudSyncFailed);
+          } else {
+             toast.success(uiText.cloudSyncSuccess);
+          }
        }
     }
   };
@@ -258,7 +266,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mb-4" />
-        <h2 className="text-xl font-bold text-slate-900">{uiText.restoringSession}</h2>
+        <h2 className={`${FONT_SIZES.xl} font-bold text-slate-900`}>{uiText.restoringSession}</h2>
       </div>
     );
   }
@@ -310,7 +318,7 @@ const App: React.FC = () => {
           />
         ) : (
           <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-            <h2 className="text-2xl font-bold text-white mb-4">{uiText.pleaseLogIn}</h2>
+            <h2 className={`${FONT_SIZES['2xl']} font-bold text-white mb-4`}>{uiText.pleaseLogIn}</h2>
             <p className="text-slate-400 mb-6">{uiText.loginRequiredDashboard}</p>
             <button onClick={openAuthModal} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">{uiText.login}</button>
             <button onClick={() => { rSetters.setAppState('IDLE'); pushState(ROUTES.HOME); }} className="mt-4 text-slate-500 hover:text-white">{uiText.back}</button>
@@ -415,11 +423,11 @@ const App: React.FC = () => {
                   <div className="p-2 bg-indigo-500/20 rounded-full">
                     <Loader2 className="w-5 h-5 text-indigo-400" /> 
                   </div>
-                  <p className="text-indigo-200 text-sm font-medium">{uiText.cachedNotice}</p>
+                  <p className={`text-indigo-200 ${FONT_SIZES.sm} font-medium`}>{uiText.cachedNotice}</p>
                 </div>
                 <button 
                   onClick={() => rActions.executeFreshAIResearch(rState.niche)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg border border-slate-700 transition-colors whitespace-nowrap"
+                  className={`px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white ${FONT_SIZES.xs} font-bold rounded-lg border border-slate-700 transition-colors whitespace-nowrap`}
                 >
                   {uiText.newResearchBtn}
                 </button>

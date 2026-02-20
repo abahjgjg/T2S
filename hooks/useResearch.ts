@@ -80,6 +80,8 @@ export const useResearch = (aiService: AIService, language: Language, userId?: s
     // Set the most recent error, or clear if none
     if (errors.length > 0) {
       setError(errors[0]);
+    } else {
+      setError(null);
     }
   }, [trendEngine.error, ideaEngine.error, blueprintEngine.error]);
 
