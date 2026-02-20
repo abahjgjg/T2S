@@ -161,6 +161,7 @@ export const TRANSLATIONS = {
     loginRequiredDashboard: "Anda harus masuk untuk melihat dashboard Anda.",
     loadingModule: "Memuat Modul Aplikasi...",
     cloudSyncFailed: "Proyek tersimpan secara lokal, tetapi sinkronisasi cloud gagal.",
+    cloudSyncSuccess: "Proyek berhasil disinkronkan ke cloud.",
     libraryTabs: {
       local: "Lokal",
       cloud: "Cloud",
@@ -365,6 +366,7 @@ export const TRANSLATIONS = {
     loginRequiredDashboard: "You need to be signed in to view your dashboard.",
     loadingModule: "Loading Application Module...",
     cloudSyncFailed: "Project saved locally, but cloud sync failed.",
+    cloudSyncSuccess: "Project successfully synced to cloud.",
     libraryTabs: {
       local: "Local",
       cloud: "Cloud",

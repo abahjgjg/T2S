@@ -24,6 +24,7 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  const [copiedName, setCopiedName] = useState<string | null>(null);
   
   const { provider, language } = usePreferences();
   const { confirm } = useConfirm();
@@ -60,6 +61,10 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
 
   const handleCopyHex = useCallback(async (hex: string) => {
     await copyWithFeedback(hex, (copied) => setCopiedColor(copied ? hex : null));
+  }, []);
+
+  const handleCopyName = useCallback(async (name: string) => {
+    await copyWithFeedback(name, (copied) => setCopiedName(copied ? name : null));
   }, []);
 
   if (isGenerating) {
@@ -119,12 +124,27 @@ export const BrandStudio: React.FC<Props> = ({ idea, blueprint, brandIdentity, o
                 <Type className="w-4 h-4" /> Naming Options
               </h4>
               <div className="space-y-2">
-                {brandIdentity.names.map((name, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg group transition-colors cursor-pointer" onClick={() => handleApplyName(name)}>
-                     <span className={`text-slate-200 font-medium ${selectedName === name ? 'text-pink-400' : ''}`}>{name}</span>
-                     {selectedName === name && <Check className="w-4 h-4 text-pink-400" />}
-                  </div>
-                ))}
+                {brandIdentity.names.map((name, i) => {
+                  const isCopied = copiedName === name;
+                  return (
+                    <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg group transition-colors cursor-pointer" onClick={() => handleApplyName(name)}>
+                      <span className={`text-slate-200 font-medium ${selectedName === name ? 'text-pink-400' : ''}`}>{name}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyName(name);
+                          }}
+                          className={`p-1.5 rounded-md transition-all ${isCopied ? 'text-emerald-400 bg-emerald-500/10' : 'opacity-0 group-hover:opacity-100 text-slate-500 hover:text-white hover:bg-slate-700'}`}
+                          aria-label={isCopied ? "Copied" : "Copy name"}
+                        >
+                          {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                        {selectedName === name && <Check className="w-4 h-4 text-pink-400" />}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
            </div>
 

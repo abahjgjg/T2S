@@ -330,8 +330,8 @@ jobs:
           END OF PROMPT
           PROMPT
           )" \
-            --model opencode/glm-5-free \
-            --share false \
+            --model opencode/kimi-k2.5-free \
+            --share false
 
       - name: iterate1
         run: |
@@ -356,6 +356,6 @@ jobs:
             - If all check pass, no conflict with 'main', merge or set to automerge
           PROMPT
           )" \
-            --model opencode/glm-5-free \
-            --agent cmz
-            --share false \
+            --model opencode/kimi-k2.5-free \
+            --agent cmz \
+            --share false

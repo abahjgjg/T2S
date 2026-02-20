@@ -72,7 +72,7 @@ export const Header: React.FC<Props> = ({
         <div className="bg-slate-900/50 p-2 rounded-lg border border-white/5 group-hover:border-emerald-500/30 transition-colors">
            <TrendingUp className="w-6 h-6" />
         </div>
-        <h1 className="text-xl font-bold tracking-tighter text-white">
+        <h1 className={`${FONT_SIZES.xl} font-bold tracking-tighter text-white`}>
           {BRAND_CONFIG.NAME}<span className="text-emerald-400">{BRAND_CONFIG.NAME_HIGHLIGHT}</span>
         </h1>
       </div>
@@ -85,7 +85,7 @@ export const Header: React.FC<Props> = ({
           <Tooltip content={`${uiText.discover || "Discover"} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openDirectory)})`} position="bottom">
             <button
               onClick={onOpenDirectory}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-blue-400 transition-all text-xs font-bold"
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-blue-400 transition-all ${FONT_SIZES.xs} font-bold`}
               aria-label={`${uiText.discover || "Discover Blueprints"} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openDirectory)})`}
             >
               <Compass className="w-3.5 h-3.5" />
@@ -96,7 +96,7 @@ export const Header: React.FC<Props> = ({
           <Tooltip content={`${uiText.library} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openLibrary)})`} position="bottom">
             <button
               onClick={onOpenLibrary}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-emerald-400 transition-all text-xs font-bold"
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-emerald-400 transition-all ${FONT_SIZES.xs} font-bold`}
               aria-label={`${uiText.library} (${formatShortcut(KEYBOARD_SHORTCUTS.navigation.openLibrary)})`}
             >
               <BookMarked className="w-3.5 h-3.5" />
@@ -110,7 +110,7 @@ export const Header: React.FC<Props> = ({
           {showReset && (
             <button 
               onClick={onReset}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors text-xs font-bold border border-slate-700 shadow-sm group"
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors ${FONT_SIZES.xs} font-bold border border-slate-700 shadow-sm group`}
               aria-label="Start New Research (Ctrl+R)"
               title="New Research (Ctrl+R)"
             >
@@ -139,7 +139,7 @@ export const Header: React.FC<Props> = ({
             {/* Auth / Dashboard */}
             <button 
               onClick={onLogin}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-xs font-bold ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${FONT_SIZES.xs} font-bold ${
                 user 
                 ? 'bg-indigo-900/30 text-indigo-300 hover:bg-indigo-900/50' 
                 : 'bg-slate-800 text-slate-300 hover:text-white'
