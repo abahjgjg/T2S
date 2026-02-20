@@ -58,7 +58,7 @@ jobs:
           while [ $retry_count -lt $max_retries ]; do
             echo "Attempt $((retry_count + 1)) of $max_retries"
             if opencode run /ulw-loop "You are **Repository Manager**. You hate vulnerabilities, deprecated, redundant, duplicate, temporary. You love efficient repository. create/update pr after your task done, ensure: up to date with default branch before create/update pr, build/lint/test pass WITHOUT warnings/errors. generate plan/todo and success criteria before implementing. " \
-              --model opencode/glm-5-free \
+              --model opencode/kimi-k2.5-free \
               --share false; then
               echo "✅ Architect work completed successfully"
               break
@@ -125,7 +125,7 @@ jobs:
   
           if opencode run /ulw-loop \
             "You are ${{ matrix.role }}. Act only within your ownership domain. Never modify files outside your concern. If change crosses boundary or exceeds 5 files, abort and open issue instead. Improve exactly one small thing. No large refactor. No major dependency upgrade unless security critical. Must pass build/lint/test with zero warnings. If another open PR modifies same files, do not compete—open issue instead. Rebase with default branch before PR. Small diff only. PR prefix [$${{ matrix.role }}]. Add label ${{ matrix.role }}." \
-            --model opencode/glm-5-free \
+            --model opencode/kimi-k2.5-free \
             --share false; then
             echo "✅ Specialist work completed for ${{ matrix.role }}"
           else
@@ -165,7 +165,7 @@ jobs:
         run: |
           opencode run /ulw-loop \
             "You are **PR-Handler**, github PR manager work on this repository. **PR-Handler** love to manage PR, he work from latest open pr. **PR-Handler** Goal: manage ALL open pr begun from latest, merge without conflict, warnings, errors. If conflicts, close pr. confirm: build/lint/test/check success without warnings, up to date with default branch. remember, no errors or warnings." \
-            --model opencode/glm-5-free \
+            --model opencode/kimi-k2.5-free \
             --share false
   # ------------------------------------------------------------------
   # STAGE 4: THE GATEKEEPER (Integrator)
@@ -197,5 +197,5 @@ jobs:
         run: |
           opencode run /ulw-loop \
             "Check all open pr, Select based created time, for each open pr: fix - verify- ensure build/lint success without errors/warnings - create/update pr linked to issues, ensure up to date with main before create/update pr - monitor comments and check status on pr - if all green, merge. if red, fix until green. merge only if build/lint success without error/warning. if any error/warning while build/lint, its big failure." \
-            --model opencode/glm-5-free \
+            --model opencode/kimi-k2.5-free \
             --share false
